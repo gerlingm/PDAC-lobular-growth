@@ -30,7 +30,9 @@ library(RColorBrewer)
 ## Import the data
 
 ```{r data}
-gRNA_data <- read.table('./data/tumor_clonality_mice.txt', header = T)
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/Intratumoral heterogeneity_mice") # adjust the working directory
+
+gRNA_data <- read.table('tumor_clonality_mice.txt', header = T)
 gRNA_data
 ```
 
@@ -81,20 +83,21 @@ ggplot(gRNA_data, aes(fill=factor(clone_abundance_rate, levels = as.factor(c(8:1
   theme(aspect.ratio =1/4, legend.position = 'bottom', legend.direction = 'horizontal')+
     xlab("")+
   ylab('Tumor composition (%)')+
-  coord_flip()
+  coord_flip() # Fig. 5b
 ```
 
-# Intratumoral heterogeneity in murine PDAC: HMGA2 quantification in lobular and stromal compartment
+# Intratumoral heterogeneity in murine PDAC: HMGA2 quantification in lobular/acinar and stromal compartment
 
 ## Import the data
 
 ```{r results='asis'}
-HMGA2.data_ori <- read.table('./data/HMGA2_AMY_mice_detections.tsv',
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/Intratumoral heterogeneity_mice") # adjust the working directory
+
+HMGA2.data_ori <- read.table('HMGA2_AMY_mice_detections.tsv',
                                   sep = '\t', header = T)
 dim(HMGA2.data_ori) #11233 observations in total
 
 knitr::kable(head(HMGA2.data_ori))
-
 ```
 ## Data modification
 
@@ -205,7 +208,7 @@ HMGA2_Rsummary%>%
         axis.ticks = element_blank())+
     stat_pvalue_manual(res.wil, label = 'p.adj.signif',
                      y.position = 90)+
-  ylim(0,100)
+  ylim(0,100) #Fig. 5d
 ```
 
 # Used libraries with version info

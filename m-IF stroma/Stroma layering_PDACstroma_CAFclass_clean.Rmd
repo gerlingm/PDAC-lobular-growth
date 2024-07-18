@@ -9,12 +9,14 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### CAF subtype plots in the based on expression of single m-IF markers
-## Update from 2024 05 24: addding paired parameted to stat tests
+## CAF analysis  based on expression of m-IF markers.
+Most plots are separated on the stromalayer. Layer here refers to the how close the stroma cell (nucleus) was to the tumor cluster tumor. 
+Inner: within 15 µm to tumor
+Middle: 15-30 µm from tumor
+Outer: 30-45 µm from tumor.
 
 ``` {r Data cleaunup_intensity cell, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir")
-
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/Layers")
 
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
@@ -382,9 +384,9 @@ Dunn_boxes_sp <- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction",
   
 Dunn_boxes_sp
 
-Suppl_Fig_12b <- Dunn_boxes_comp_sp
+Suppl_Fig_14b <- Dunn_boxes_comp_sp
 
-Fig_4e <- Dunn_boxes_sp
+Fig_4f <- Dunn_boxes_sp
 
 ```
 added after biorxiv submission. 2024 03 15

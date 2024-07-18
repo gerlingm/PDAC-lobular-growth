@@ -1,14 +1,15 @@
 ---
-title: "Pie_area_Fig2d"
+title: "Pie/stacked_area_Fig2e"
 author: "Sara Söderqvist"
 date: "2023-06-20"
 output:
   html_document: default
-  pdf_document: default
 ---
+## Analysis of where tumor cells/clusters are present. 
+Includign all tumor of 1 section, separated to invasion to stroma, lobules, or other.
 
 ```{r data cleanup}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/Degree tumor invasion per compartment") #adjust working directory
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/Scoring of lobular invasion_5 cases") #adjust working directory
 
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
@@ -64,7 +65,6 @@ pkr2split <- split(PKR_2, f = PKR_2$Class)
 pkr2_lob <- pkr2split$Lobular_acinar
 sum(pkr2_lob$Area) #same - good!
 
-#Fig_2e
 PKR39_sum <- aggregate(Area ~ Class, data = PKR_39, FUN = sum)
 head(PKR39_sum)
 
@@ -128,8 +128,9 @@ all_sum <-  rbind(PKR13_sum, PKR2_sum)
 all_sum <-  rbind(all_sum, PKR51_sum)
 all_sum <-  rbind(all_sum, PKR24_sum)
 all_sum <-  rbind(all_sum, PKR39_sum)
+round(all_sum$Area_norm*100, digits = 3)
 
-all_sum$Area_norm <- round(all_sum$Area_norm*100, digits = 1)
+all_sum$Area_norm <- round(all_sum$Area_norm*100, digits = 1)# these will sum up to 100.1% Above sums up to 100%, with 3 digits instead of 1.
 
 ```
 
@@ -148,13 +149,13 @@ all_bar <- ggplot(all_sum, aes(x = Case, y = Area_norm, fill = Class, color = Cl
   scale_y_continuous()
 all_bar
 
-new_Fig_1e <- all_bar
+Fig_1e <- all_bar
 
 ```
 
 
 
-```{r pie charts}
+```{r as pie charts}
 library(scales)
 PKR2_tot <- sum(PKR2_sum$Area)
 PKR24_tot <- sum(PKR24_sum$Area)

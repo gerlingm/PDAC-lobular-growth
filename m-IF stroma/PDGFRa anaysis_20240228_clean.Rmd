@@ -4,18 +4,19 @@ author: "Sara Söderqvist"
 date: "2024-02-28"
 output: html_document
 ---
-Goal: show how the expression profile of stroma cell in stroma-transformed/desmoplastic compartment is. 
-We have shown that in lobules, NGFR+ stroma cells frequently co-express PDGFRa (we term these nCAFs). 
 
-To show that these are separated from the PDGFRa+ cells in stroma-transformed/desmoplastic compartment (our iCAF proxy), we want to, in particular, show that these stroma cells have lost the NGFR expression.
+## PDGFRa analysis
+Analysis of the expression profile of stroma cells in stroma-transformed/desmoplastic compartment 
+We have shown that in lobules, NGFR+ stroma cells frequently co-express PDGFRa.
 
+To show that these are separated from the PDGFRa+ cells in stroma-transformed/desmoplastic compartment ( ~iCAF proxy), we show, in particular, that these stroma cells don't express NGFR frequently.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r Data read in_cell_NGFR, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir") #Adjust the working directory to read in the file from
+``` {r Data read in_cell_PDGFRa, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/PDGFRa") #Adjust the working directory to read in the file from
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
                          ignore.case = TRUE, 
@@ -121,13 +122,10 @@ Suppl_15c <- boxes_PDGFRa
 ```
 
 ```{r control nr of rois}
-
 #number of ROIs data originated from 
 PDGFRa_calc_frsub$Group_ImageParent <- paste(PDGFRa_calc_frsub$Image, PDGFRa_calc_frsub$Parent, sep = "_" )
 allunique_ROIs <- unique(PDGFRa_calc_frsub$Group_ImageParent)
 summary(allunique_ROIs) # 40 unique ROIs
-
-
 
 ```
 

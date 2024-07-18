@@ -9,17 +9,17 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## Adaptive PDAC - Background - uploaded to github, version 1.1 desktop to github
+## Adaptive PDAC - Background
 
-This is a study of compartment-dependent heterogeneity in pancreatic cancer. In conclusion, we can reveal that intratumor heteregeneity is high, and in many cases related to the invasion front properties; Tumor invading stroma or tumor invading lobes - the acinar invasion.
+This is a study of compartment-dependent heterogeneity in pancreatic cancer. In conclusion, we can reveal that intratumor heterogeneity in many cases is related to the invasion front properties; Tumor invading stroma or tumor invading lobes - the acinar invasion.
 
-31 cases had 6 immunohistochemistry markers quantified in QuPath, 4 related to the basal like subtype (CK17, CK5, CA125 and HMGA2) and 2 related to the classical subtype (Muc5 and CDX2, which also relates to intestinal expression).
+31 cases had 6 immunohistochemistry markers quantified in QuPath, 4 related to the basal like subtype (CK/KRT17, CK/KRT5, CA125 and HMGA2) and 2 related to the classical subtype (Muc5 and CDX2, which also relates to intestinal expression).
 
-For each case, 9 regions of interest (ROIs) for "tumor in septa" (=stroma) and 9 ROIs representing "tumor in acinar (=lobular) invasion". The ROIs are overlapping, as good as possible, across the different stains. All quantifications extracted are only including tumor cells.
+For each case, 9 regions of interest (ROIs) for "tumor in septa" (=stroma) and 9 ROIs representing "tumor in acinar (=lobular) invasion". The ROIs are overlapping across the different stains. All quantifications extracted are only including tumor cells.
 
 ``` {r Data cleaunup, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
 
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/Spatially dependent heterogeneity") # adjust thew working directory
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/IHC-spatially dependent heterogeneity") # adjust the working directory
 
 library("tidyr")
 library("dplyr")
@@ -1058,8 +1058,8 @@ lgd_list = list(
 
 
 ```{r draw Complex heatmap correlation}
-Suppl_Fig_2b <- draw(hp, annotation_legend_list = lgd_list, ht_gap = unit(1, "cm") )
-Suppl_Fig_2b
+Suppl_Fig_3b <- draw(hp, annotation_legend_list = lgd_list, ht_gap = unit(1, "cm") )
+Suppl_Fig_3b
 ```
 
 # Heatmaps

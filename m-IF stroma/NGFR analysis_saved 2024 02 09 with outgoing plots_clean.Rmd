@@ -4,13 +4,16 @@ author: "Sara Söderqvist"
 date: "2024-02-07"
 output: html_document
 ---
+## NGFR analysis
+
+NGFR+ stroma cells in pancreatic lobules from m-IF experiment
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 ``` {r Data read in_cell_NGFR, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir") #adjust the working directory to read in the csv file
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/NGFR") #adjust the working directory to read in the csv file
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
                          ignore.case = TRUE, 
@@ -57,6 +60,7 @@ NGFR_pos <- s_NGFR_StromaNGFR$Yes #6 341 cells
 
 ```
 
+
 ```{r venn diagrams}
 NGFR_Venn <- NGFR_pos[, c(2, 9:12)]
 NGFR_Venn <- NGFR_Venn  %>% mutate(across(ends_with("pos"), as.logical))
@@ -86,8 +90,8 @@ Venn_all_NGFR_nonVim <- Venn_NGFR_nonVim +
 
 #option_for_Fig_4g_right_panel <- Venn_all_NGFR
 #option_for_Fig_4g_right_panel
-Fig_4g_right_panel <- Venn_all_NGFR_nonVim
-Fig_4g_right_panel
+Fig_4h_right_panel <- Venn_all_NGFR_nonVim
+Fig_4h_right_panel
 
 ```
 
@@ -199,7 +203,7 @@ boxes_NGFR<- ggboxplot(NGFR_calc_frsub, x = "Stain", y = "pos_fraction",
   
 boxes_NGFR
 
-Fig_4g_left_panel <- boxes_NGFR
+Fig_4h_left_panel <- boxes_NGFR
 ```
 
 

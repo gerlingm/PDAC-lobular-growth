@@ -25,8 +25,6 @@ library(ggalluvial)
 library(RColorBrewer)
 library(circlize)
 library(ggforce)
-
-
 ```
 
 
@@ -37,9 +35,10 @@ library(ggforce)
 Data include measured distances from tumor cell centroids to the closest tissue annotations within stromal and lobular ROIs, and distance to invasion front for lobular ROIs.
 
 ```{r import-data, results='asis'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/ML tumor interactions") # adjust the working directory
 
 # distance frame with invasion front
-dist.frame.original <- read.table('./data/tumor_tissue_interactions_ngfr_intensity_tumor.tsv', sep = '\t', header = T)
+dist.frame.original <- read.table('./tumor_tissue_interactions_ngfr_intensity_tumor.tsv', sep = '\t', header = T)
 dim(dist.frame.original) #23,390 observations in total
 
 knitr::kable(head(dist.frame.original))
@@ -303,7 +302,7 @@ area.p <- data %>%
   scale_y_continuous(expand = c(0,0), labels = scales::percent, breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
     facet_zoom(xlim = c(0, 50))+
   labs(x = 'Distance from invasion front (µm)', y = 'Interactions with tumor cells (%)')+
-  theme_minimal()
+  theme_minimal() #Fig 4a
 
 area.p
   
@@ -380,8 +379,11 @@ dist_frame.direct %>%
 #### Comparision of AI based interactions to manual pins
 
 ```{r validation-manual-pins-data, results='hold'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/ML tumor interactions") # adjust the working directory
+
+
 # import the data
-pins <- read.table("./data/manual_pins.tsv", header = TRUE, sep = "\t", dec = ".")
+pins <- read.table("./manual_pins.tsv", header = TRUE, sep = "\t", dec = ".")
 
 knitr::kable(head(pins))
 
@@ -476,7 +478,7 @@ pin.pies <- ggplot(pin.contacts, aes(x="", y=percent, fill=to_class))+
   facet_wrap(~roi_no)
 
 
-pin.pies
+pin.pies # Supplementary Fig 11b
 
 ```
 
@@ -514,7 +516,7 @@ ggplot(data = Sankey.data,
   scale_fill_manual(values = colors)+
   theme_void()+
   theme(legend.position = "left")+
-  guides(fill = guide_legend(title = "Cell class"))
+  guides(fill = guide_legend(title = "Cell class")) # Fig 3c
 ```
 
 #### Visualistion of AI based interactions in stroma and lobules - no fibrosis
@@ -578,7 +580,7 @@ highlight.sector(c("ADM", "acinar", 'vessel', "nerve", "immune","Langerhans","du
     text = "Tissue", cex = 1, text.col = "black", niceFacing = TRUE)
 
 #abline(h = 0, lty = 2, col = "lightpink")
-
+# Fig 3d
 ```
 
 # NGFR intensity of expanded area from acinar, acinar-to-ductal-metaplasia (ADM) and tumor cell detections in lobuli
@@ -586,13 +588,14 @@ highlight.sector(c("ADM", "acinar", 'vessel', "nerve", "immune","Langerhans","du
 ## Import the acinar and ADM based intensity measurements
 
 ```{r import-ngfr-data, results='hold'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/NGFR IHC") # adjust the working directory
 
 # acinar cell detection based intensity measurements based on the surrounding tissue
-acinar.original <- read.table('./data/ngfr_intensity_acinar.tsv', sep = '\t', header = T)
+acinar.original <- read.table('./ngfr_intensity_acinar.tsv', sep = '\t', header = T)
 dim(acinar.original) #23975 observations in total
 
 # ADM cell detection based intensity measurements based on the surrounding tissue
-ADM.original <- read.table('./data/ngfr_intensity_ADM.tsv', sep = '\t', header = T)
+ADM.original <- read.table('./ngfr_intensity_ADM.tsv', sep = '\t', header = T)
 dim(ADM.original) #20857 observations in total
 
 knitr::kable(head(acinar.original))
@@ -726,7 +729,7 @@ ggplot(tumor_intensities, aes(x=distance_to_invf, y=AP_norm)) +
                       guide = guide_legend(override.aes = list(color = c("#c714f4", "#007cff", "#FF0000"))))+
   scale_x_continuous(breaks=c(0, 125,250,375, 500),labels = c("0", "125","250","375", "500"), limits = c(0,500))+ 
   labs(y = 'NGFR relative intensity', x ='Distance to invasion front (µm)')+
-  theme_bw()
+  theme_bw() # Fig 4c
 
 
 ```
