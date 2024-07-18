@@ -1,0 +1,219 @@
+---
+title: "NGFRstroma"
+author: "Sara Söderqvist"
+date: "2024-02-07"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r Data read in_cell_NGFR, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir") #adjust the working directory to read in the csv file
+path <- file.path(getwd())
+v.filename <- list.files(path, pattern="'*.csv", 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+StromaNGFR = do.call(cbind, lapply(v.filename, 
+                                function(x) read.csv(x)))
+```
+
+
+```{r NGFR data clean up}
+StromaNGFR$Tumor <- factor(nrow(StromaNGFR))
+
+library(dplyr)
+StromaNGFR <- StromaNGFR %>% mutate(Tumor = ifelse(grepl(' Tumor: ', StromaNGFR$Class), 'Yes', .$Tumor))
+StromaNGFR <- StromaNGFR %>% mutate(Tumor = ifelse(grepl(' Not tumor: ', StromaNGFR$Class), 'No', .$Tumor))
+
+#Filter our p53+ contaminations within the annotations
+s_tu_StromaNGFR <- split(StromaNGFR, f = StromaNGFR$Tumor)
+nottumor_StromaNGFR <- s_tu_StromaNGFR$No #30 538 cells
+
+# Adjust classes to enable grouping
+nottumor_StromaNGFR$NGFR_pos <- factor(nrow(nottumor_StromaNGFR))
+nottumor_StromaNGFR$ASMA_pos <- factor(nrow(nottumor_StromaNGFR))
+nottumor_StromaNGFR$CD74_pos <- factor(nrow(nottumor_StromaNGFR))
+nottumor_StromaNGFR$Vim_pos <- factor(nrow(nottumor_StromaNGFR))
+nottumor_StromaNGFR$PDGFR_pos <- factor(nrow(nottumor_StromaNGFR))
+
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_pos: ', nottumor_StromaNGFR$Class), 'Yes', .$NGFR_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_neg: ', nottumor_StromaNGFR$Class), 'No', .$NGFR_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_pos', nottumor_StromaNGFR$Class), 'true', .$ASMA_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_neg', nottumor_StromaNGFR$Class), 'false', .$ASMA_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(CD74_pos = ifelse(grepl('CD74_pos: ', nottumor_StromaNGFR$Class), 'true', .$CD74_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(CD74_pos = ifelse(grepl('CD74_neg: ', nottumor_StromaNGFR$Class), 'false', .$CD74_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(Vim_pos = ifelse(grepl(' Vim_pos: ', nottumor_StromaNGFR$Class), 'true', .$Vim_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(Vim_pos = ifelse(grepl(' Vim_neg: ', nottumor_StromaNGFR$Class), 'false', .$Vim_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_pos: ', nottumor_StromaNGFR$Class), 'true', .$PDGFR_pos))
+nottumor_StromaNGFR <- nottumor_StromaNGFR %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_neg: ', nottumor_StromaNGFR$Class), 'false', .$PDGFR_pos))
+
+# Count how many of the NGFR+ cells, that also are positive for other stains. 
+# First filter our NGFR- cells
+s_NGFR_StromaNGFR <- split(nottumor_StromaNGFR, f = nottumor_StromaNGFR$NGFR_pos)
+NGFR_pos <- s_NGFR_StromaNGFR$Yes #6 341 cells
+
+```
+
+```{r venn diagrams}
+NGFR_Venn <- NGFR_pos[, c(2, 9:12)]
+NGFR_Venn <- NGFR_Venn  %>% mutate(across(ends_with("pos"), as.logical))
+
+library(ggVennDiagram)
+library(survminer)
+#Venn_NGFR <- ggVennDiagram(lapply(NGFR_Venn[, c(2:5)], function (x)
+#  which(x == 1)),
+#  label = "percent")
+#Venn_all_NGFR <- Venn_NGFR +
+#  scale_fill_fermenter(type = "seq", palette = "BuPu")+
+#  scale_color_brewer(type = "seq", palette = "BuPu")+
+#  theme_cleantable() +
+#  scale_x_continuous(expand = expansion(mult = .2)) +
+#  labs(title = "All regions and all stains")
+  
+library(dichromat)
+# non-Vimentin
+Venn_NGFR_nonVim <- ggVennDiagram(lapply(NGFR_Venn[, c(2, 3, 5)], function (x)
+  which(x == 1)))
+
+Venn_all_NGFR_nonVim <- Venn_NGFR_nonVim +
+  scale_fill_gradient(low = "#0072B2", high = "#D55E00") 
+  scale_colour_gradient(low = "#0072B2", high = "#D55E00") 
+  theme_cleantable() 
+  labs(title = "All regions, excluding Vim")
+
+#option_for_Fig_4g_right_panel <- Venn_all_NGFR
+#option_for_Fig_4g_right_panel
+Fig_4g_right_panel <- Venn_all_NGFR_nonVim
+Fig_4g_right_panel
+
+```
+
+```{r count the NGFR co expression }
+
+# first by calculating the positive fractions ROI-wise.
+NGFR_cell <- NGFR_pos[, -c(3, 4, 6:8)]
+
+library(reshape2)
+library(tidyr)
+# Melt it and make prettier
+molten_stromaNGFR <- melt(NGFR_cell, id = c("Image", "Object.ID", "Parent"))
+colnames(molten_stromaNGFR) [4] <- "Stain" #rename, because colnames such as "variable" and "value" will interfere in other commands
+colnames(molten_stromaNGFR) [5] <- "Cell_pos"
+
+molten_stromaNGFR <- separate(data = molten_stromaNGFR, col = "Image", into="Image", sep=c("_"), remove=TRUE)
+molten_stromaNGFR$Group <- character(nrow(molten_stromaNGFR))
+molten_stromaNGFR$Group <- paste(molten_stromaNGFR$Image, molten_stromaNGFR$Parent, molten_stromaNGFR$Stain, sep = "_")
+
+s_molten_stromaNGFR <- split(molten_stromaNGFR, f = molten_stromaNGFR$Group)
+
+#For now, any cell positive will be counted as positive, so now not questioning weather individual cells are double, triple, quadraple positive.
+tot_det_NGFR <- lapply(X = s_molten_stromaNGFR, FUN = function (x) {
+  x$sum_detections_ROI <- nrow(x)
+  x
+})
+
+fun_NGFRfrac <- function (z) {
+  nr_pos<- z %>% filter(Cell_pos == "true") # get nr positive cells for each stain
+  pos_fr <- nrow(nr_pos)/nrow(z) #calculate the fraction out of all the NGFR+ cell in that specific ROI
+  z$pos_fraction <- pos_fr # put it in a column
+  z
+} 
+
+NGFR_calc_fr <- lapply (X = tot_det_NGFR, FUN = fun_NGFRfrac)
+NGFR_calc_frsub <- bind_rows(NGFR_calc_fr)
+
+NGFR_calc_frsub <- NGFR_calc_frsub[, -c(2, 5)] #25 364 rows (1 row = 1 cell)
+NGFR_calc_frsub <- unique(NGFR_calc_frsub) # 212 rows shows no data loss (1 row = 1 ROI + stain combinaiton)
+NGFR_calc_frsub$Lobule_stage <- NGFR_calc_frsub$Parent
+
+NGFR_calc_frsub$Lobule_stage <- gsub("Lobule_","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- gsub("_A","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- gsub("_B","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- gsub("_C","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- gsub("_D","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- gsub("_E","", as.character(NGFR_calc_frsub$Lobule_stage))
+NGFR_calc_frsub$Lobule_stage <- as.factor(NGFR_calc_frsub$Lobule_stage)
+
+levels(NGFR_calc_frsub$Lobule_stage) <- c("wellp", "partiallyd", "endstage") # not applied in the end but keeping this information
+
+```
+
+
+```{r plot ngfr single positives. }
+library(reshape2)
+library(ggthemes)
+library(wesanderson)
+
+#Exploratory distribution plots
+density_NGFR<- ggdensity(NGFR_calc_frsub, x = "pos_fraction", y = "density", 
+                        color = "Stain", fill = "Stain", alpha=0.6) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "NGFR+ cells expression of other stains") +
+  xlab(NULL) + ylab("Density of average positive cells per ROI") +
+  theme_clean()
+  
+density_NGFR
+
+densitycount_NGFR<- ggdensity(NGFR_calc_frsub, x = "pos_fraction", y = "count", 
+                        color = "Stain", fill = "Stain", alpha=0.6) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "NGFR+ cells expression of other stains") +
+  xlab(NULL) + ylab("Density (count) of average positive cells per ROI") +
+  theme_clean()
+  
+densitycount_NGFR
+
+violin_NGFR<- ggviolin(NGFR_calc_frsub, x = "Stain", y = "pos_fraction", 
+                        color = "Stain", fill = "Stain", alpha=0.6, draw_quantiles = 0.5) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "NGFR+ cells expression of other stains", subtitle = "line shows quantile 0.5") +
+  xlab(NULL) + ylab("Kernel probablility density of average positive cells per ROI") +
+  theme_clean()
+  
+violin_NGFR
+
+# Out of interest, separation on 3 different stages of lobular atrophy
+boxes_NGFR_lobulestage<- ggboxplot(NGFR_calc_frsub, x = "Lobule_stage", y = "pos_fraction", color = "Lobule_stage",  alpha=0.6,
+                         fill = "Lobule_stage", facet.by = "Stain") +
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  labs(title = "NGFR+ cells expression of other stains, separated by 3 stages of lobular intactness") +
+  xlab(NULL) + ylab("Average positive cells per ROI") +
+  theme_clean()
+  
+boxes_NGFR_lobulestage
+
+boxes_NGFR<- ggboxplot(NGFR_calc_frsub, x = "Stain", y = "pos_fraction", 
+                        color = "Stain", fill = "Stain", alpha=0.6) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "NGFR+ cells expression of other stains") +
+  xlab(NULL) + ylab("Average positive cells per ROI") +
+  theme_clean()
+  
+boxes_NGFR
+
+Fig_4g_left_panel <- boxes_NGFR
+```
+
+
+```{r summary of the ngfr+ co expression data file}
+#number of ROIs data originated from 
+NGFR_calc_frsub$Group_ImageParent <- paste(NGFR_calc_frsub$Image, NGFR_calc_frsub$Parent, sep = "_" )
+allunique_ROIs <- unique(NGFR_calc_frsub$Group_ImageParent)
+summary(allunique_ROIs)
+
+NGFR_cellsdf <- NGFR_calc_frsub[, -c(3, 4, 6)]# 212 rows
+NGFR_cellsdf <- unique(NGFR_cellsdf) # 53 rows (good, so corresponds to all ROIs)
+
+sum(NGFR_cellsdf$sum_detections_ROI) # how many cells
+
+```
+
+

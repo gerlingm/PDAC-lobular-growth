@@ -1,0 +1,2870 @@
+---
+title: "Adaptive PDAC"
+author: "Sara Söderqvist"
+date: "2023-05-04"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Adaptive PDAC - Background - uploaded to github, version 1.1 desktop to github
+
+This is a study of compartment-dependent heterogeneity in pancreatic cancer. In conclusion, we can reveal that intratumor heteregeneity is high, and in many cases related to the invasion front properties; Tumor invading stroma or tumor invading lobes - the acinar invasion.
+
+31 cases had 6 immunohistochemistry markers quantified in QuPath, 4 related to the basal like subtype (CK17, CK5, CA125 and HMGA2) and 2 related to the classical subtype (Muc5 and CDX2, which also relates to intestinal expression).
+
+For each case, 9 regions of interest (ROIs) for "tumor in septa" (=stroma) and 9 ROIs representing "tumor in acinar (=lobular) invasion". The ROIs are overlapping, as good as possible, across the different stains. All quantifications extracted are only including tumor cells.
+
+``` {r Data cleaunup, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/Spatially dependent heterogeneity") # adjust thew working directory
+
+library("tidyr")
+library("dplyr")
+
+path <- file.path(getwd())
+v.filename <- list.files(path, pattern="'*.csv", 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+all_PKR = do.call(rbind, lapply(v.filename, 
+                                function(x) read.csv(x)))
+sep1_all_comb <- separate(data = all_PKR, col = "Image", into=c("PKR_nr", "Stain"), sep=c("PKR-"), remove=T)
+sep2_all_comb <- separate(data=sep1_all_comb, col="Stain", into=c("PKR", "Stain"), sep=c("-"), remove=T)
+all_comb <- sep2_all_comb[,-1]
+
+all_comb_2 <- all_comb %>% mutate(Stain = ifelse(grepl('ck17', .$Stain), 'CK17', .$Stain))
+all_comb_2_1 <- all_comb_2 %>% mutate(Stain = ifelse(grepl('CK17', .$Stain), 'CK17', .$Stain))
+all_comb_3 <- all_comb_2_1 %>% mutate(Stain = ifelse(grepl('muc5', .$Stain), 'Muc5', .$Stain))
+all_comb_3_1 <- all_comb_3 %>% mutate(Stain = ifelse(grepl('Muc5', .$Stain), 'Muc5', .$Stain))
+all_comb_4 <- all_comb_3_1 %>% mutate(Stain = ifelse(grepl('ca125', .$Stain), 'CA125', .$Stain))
+all_comb_4_1 <- all_comb_4 %>% mutate(Stain = ifelse(grepl('CA125', .$Stain), 'CA125', .$Stain))
+all_comb_5 <- all_comb_4_1 %>% mutate(Stain = ifelse(grepl('ck5', .$Stain), 'CK5', .$Stain))
+all_comb_5_2 <- all_comb_5 %>% mutate(Stain = ifelse(grepl('CK5.', .$Stain), 'CK5', .$Stain))
+all_comb_6 <- all_comb_5_2 %>% mutate(Stain = ifelse(grepl('hmga2', .$Stain), 'HMGA2', .$Stain))
+all_comb_6_1 <- all_comb_6 %>% mutate(Stain = ifelse(grepl('HMGA2', .$Stain), 'HMGA2', .$Stain))
+all_comb_6_2 <- all_comb_6_1 %>% mutate(Stain = ifelse(grepl('cdx2', .$Stain), 'CDX2', .$Stain))
+all_comb_6_3 <- all_comb_6_2 %>% mutate(Stain = ifelse(grepl('CDX2', .$Stain), 'CDX2', .$Stain))
+
+# clean up from QuPath annotations
+all_comb_7 <- all_comb_6_3[all_comb_6_3$Class != "Lob (C)", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_8 <- all_comb_7[all_comb_7$Class != "", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_9 <- all_comb_8[all_comb_8$Class != "tumor septa", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_10 <- all_comb_9[all_comb_9$Class != "tumor lobule", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_11 <- all_comb_10[all_comb_10$Class != "Presumed lobes", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_12 <- all_comb_11[all_comb_11$Class != "Lob normal", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_13 <- all_comb_12[all_comb_12$Class != "Stroma", c("PKR", "Stain", "Class", "Num.Detections","Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_14 <- all_comb_13[all_comb_13$Class != "Tumor", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_15 <- all_comb_14[all_comb_14$Class != "Septum tumorinv", c("PKR", "Stain", "Class", "Num.Detections","Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_16 <- all_comb_15[all_comb_15$Class != "Lobule tumorinv", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_17 <- all_comb_16[all_comb_16$Class != "Full slide", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_18 <- all_comb_17[all_comb_17$Class != "Debris", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19 <- all_comb_18[all_comb_18$Class != "intravssc endothel lymph spread", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_1 <- all_comb_19[all_comb_19$Class != "NO", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_2 <- all_comb_19_1[all_comb_19_1$Stain != "SMAD4_Nuclear", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_3 <- all_comb_19_2[all_comb_19_2$Stain != "SMAD4_Cytoplasm", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_4 <- all_comb_19_3[all_comb_19_3$Class != "not tumor", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_5 <- all_comb_19_4[all_comb_19_4$Class != "duct probably!", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_6 <- all_comb_19_5[all_comb_19_5$Class != "lob", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_7 <- all_comb_19_6[all_comb_19_6$Class != "tumor in stroma", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_8 <- all_comb_19_7[all_comb_19_7$Class != "new lob", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_9 <- all_comb_19_8[all_comb_19_8$Class != "Not lob", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_10 <- all_comb_19_9[all_comb_19_9$Class != "duxt¨", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_comb_19_11 <- all_comb_19_10[all_comb_19_10$Class != "septa", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive")]
+all_combined <- all_comb_19_11
+
+## Some cases are visibly negative. These cases, or individual ROIs, are filled here with 0%positive cells, , and artificially containing 300 cells per ROI.
+# Fill with 0
+ac <- all_combined
+ac_sub49 <- rbind(ac, 
+                  ac %>%
+                    filter(Stain == "CK17",
+                           PKR == "49",
+                           Class != "Septa 9") %>% 
+                    mutate(Stain = "CA125",
+                           Tumor..Positive.. = 0,
+                           Num.Detections = 300,
+                           Num.Tumor..Negative = 300,
+                           Num.Tumor..Positive = 0))
+
+ac_sub24 <- rbind(ac_sub49,
+                  ac_sub49 %>% 
+                    filter(Stain == "CK17",
+                           PKR == "24",
+                           Class %in% c("Septa 1", "Septa 2", "Septa 3", "Septa 5", "Septa 7", "Septa 8", "Septa 9")) %>%
+                    mutate(Stain = "Muc5",
+                           Tumor..Positive.. = 0,
+                           Num.Detections = 300,
+                           Num.Tumor..Negative = 300,
+                           Num.Tumor..Positive = 0))
+ac_sub11 <- rbind(ac_sub24,
+                  ac_sub24 %>% 
+                    filter(Stain == "CK17",
+                           PKR == "11",
+                           !Class %in% c("Septa 6", "Lob 2", "Lob 7")) %>%
+                    mutate(Stain = "CK5",
+                           Tumor..Positive.. = 0,
+                           Num.Detections = 300,
+                           Num.Tumor..Negative = 300,
+                           Num.Tumor..Positive = 0))
+all_combined <- ac_sub11
+all_comb_exl <- ac_sub11
+all_comb_exl$Group <- paste("PKR-", all_comb_exl$PKR, " ", all_comb_exl$Stain, " ", all_comb_exl$Class, sep="")
+all_comb_exl$Group_Case_Stain <- paste("PKR-", all_comb_exl$PKR, " ", all_comb_exl$Stain, sep="")
+all_comb_exl$Group_Stain_Class <- paste(all_comb_exl$Stain, all_comb_exl$Class, sep=" ")
+all_comb_exl$Group_Case_Class <- paste("PKR-", all_comb_exl$PKR, all_comb_exl$Class, sep = " ")
+all_combined_exl <- all_comb_exl
+str(all_combined_exl) 
+all_combined_exl$Tissue_compartment <- character(2105)
+all_combined_exl <- all_combined_exl %>% mutate(Tissue_compartment = ifelse(grepl('Lob ', all_combined_exl$Class), 'Lobule', .$Tissue_compartment))
+all_combined_exl <- all_combined_exl %>% mutate(Tissue_compartment = ifelse(grepl('Septa ', all_combined_exl$Class), 'Stroma', .$Tissue_compartment))
+
+## Make neccessary columns numeric
+all_combined_exl$Num.Detections <- as.numeric(all_combined_exl$Num.Detections)
+all_combined_exl$Num.Tumor..Positive <- as.numeric(all_combined_exl$Num.Tumor..Positive)
+all_combined_exl$Num.Tumor..Negative<- as.numeric(all_combined_exl$Num.Tumor..Negative)
+
+## Control: make sure there are not doublets
+length(unique(all_combined_exl$Group))
+str(all_combined_exl)
+n_occur <- data.frame(table(all_combined_exl$Group))
+n_occur[n_occur$Freq > 1,] # should become 0
+
+ac_s <- rbind(ac_sub11, 
+              ac_sub11 %>%
+                filter(Stain == "CK17",
+                       PKR =="1") %>% 
+                mutate(Stain = "HMGA2",
+                       Tumor..Positive.. = 0,
+                       Num.Detections = 300,
+                       Num.Tumor..Negative = 300,
+                       Num.Tumor..Positive = 0))
+ac_s1 <- rbind(ac_s, 
+               ac_s %>%
+                 filter(Stain == "CK17",
+                        PKR =="13") %>% 
+                 mutate(Stain = "CA125",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s2 <- rbind(ac_s1, 
+               ac_s1 %>%
+                 filter(Stain == "CK17",
+                        PKR =="32") %>% 
+                 mutate(Stain = "CA125",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s3 <- rbind(ac_s2, 
+               ac_s2 %>%
+                 filter(Stain == "CK17",
+                        PKR =="32") %>% 
+                 mutate(Stain = "HMGA2",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s4 <- rbind(ac_s3, 
+               ac_s3 %>%
+                 filter(Stain == "CK17",
+                        PKR =="4") %>% 
+                 mutate(Stain = "CA125",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s5 <- rbind(ac_s4, 
+               ac_s4 %>%
+                 filter(Stain == "CK17",
+                        PKR =="12") %>% 
+                 mutate(Stain = "CA125",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s6 <- rbind(ac_s5, 
+               ac_s5 %>%
+                 filter(Stain == "CK17",
+                        PKR =="15") %>% 
+                 mutate(Stain = "HMGA2",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s7 <- rbind(ac_s6, 
+               ac_s6 %>%
+                 filter(Stain == "CK17",
+                        PKR =="15") %>% 
+                 mutate(Stain = "CK5",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s8 <- rbind(ac_s7, 
+               ac_s7 %>%
+                 filter(Stain == "CK17",
+                        PKR =="29") %>% 
+                 mutate(Stain = "HMGA2",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s9 <- rbind(ac_s8, 
+               ac_s8 %>%
+                 filter(Stain == "CK17",
+                        PKR =="17") %>% 
+                 mutate(Stain = "HMGA2",
+                        Tumor..Positive.. = 0,
+                        Num.Detections = 300,
+                        Num.Tumor..Negative = 300,
+                        Num.Tumor..Positive = 0))
+ac_s10 <- rbind(ac_s9, 
+                ac_s9 %>%
+                  filter(Stain == "CK17",
+                         PKR =="17") %>% 
+                  mutate(Stain = "CA125",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s11 <- rbind(ac_s10, 
+                ac_s10 %>%
+                  filter(Stain == "CK17",
+                         PKR =="18") %>% 
+                  mutate(Stain = "CA125",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s12 <- rbind(ac_s11, 
+                ac_s11 %>%
+                  filter(Stain == "CK17",
+                         PKR =="49") %>% 
+                  mutate(Stain = "HMGA2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s13 <- rbind(ac_s12, 
+                ac_s12 %>%
+                  filter(Stain == "CK17",
+                         PKR =="50") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s14 <- rbind(ac_s13, 
+                ac_s13 %>%
+                  filter(Stain == "CK17",
+                         PKR =="52a") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s15 <- rbind(ac_s14, 
+                ac_s14 %>%
+                  filter(Stain == "CK17",
+                         PKR =="55") %>% 
+                  mutate(Stain = "HMGA2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s16 <- rbind(ac_s15, 
+                ac_s15 %>%
+                  filter(Stain == "CK17",
+                         PKR =="55") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s17 <- rbind(ac_s16, 
+                ac_s16 %>%
+                  filter(Stain == "CK17",
+                         PKR =="47") %>% 
+                  mutate(Stain = "HMGA2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s18 <- rbind(ac_s17, 
+                ac_s17 %>%
+                  filter(Stain == "CK17",
+                         PKR =="57") %>% 
+                  mutate(Stain = "HMGA2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s19 <- rbind(ac_s18, 
+                ac_s18 %>%
+                  filter(Stain == "CK17",
+                         PKR =="57") %>% 
+                  mutate(Stain = "CA125",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s20 <- rbind(ac_s19, 
+                ac_s19 %>%
+                  filter(Stain == "CK17",
+                         PKR =="58") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s21 <- rbind(ac_s20, 
+                ac_s20 %>%
+                  filter(Stain == "CK17",
+                         PKR =="62") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s22 <- rbind(ac_s21, 
+                ac_s21 %>%
+                  filter(Stain == "CK17",
+                         PKR =="62") %>% 
+                  mutate(Stain = "CK5",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s23 <- rbind(ac_s22, 
+                ac_s22 %>%
+                  filter(Stain == "CK17",
+                         PKR =="63") %>% 
+                  mutate(Stain = "CA125",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s24 <- rbind(ac_s23, 
+                ac_s23 %>%
+                  filter(Stain == "CK17",
+                         PKR =="66") %>% 
+                  mutate(Stain = "HMGA2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s25 <- rbind(ac_s24, 
+                ac_s24 %>%
+                  filter(Stain == "CK17",
+                         PKR =="66") %>% 
+                  mutate(Stain = "CK5",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+ac_s26 <- rbind(ac_s25, 
+                ac_s25 %>%
+                  filter(Stain == "CK17",
+                         PKR =="60") %>% 
+                  mutate(Stain = "CDX2",
+                         Tumor..Positive.. = 0,
+                         Num.Detections = 300,
+                         Num.Tumor..Negative = 300,
+                         Num.Tumor..Positive = 0))
+
+all_comb_19_11 <- ac_s26
+str(all_comb_19_11)
+
+# Make various grouping columns
+all_comb_19_11$Group <- paste("PKR-", all_comb_19_11$PKR, " ", all_comb_19_11$Stain, " ", all_comb_19_11$Class, sep="")
+all_comb_19_11$Group_Case_Stain <- paste("PKR-", all_comb_19_11$PKR, " ", all_comb_19_11$Stain, sep="")
+all_comb_19_11$Group_Stain_Class <- paste(all_comb_19_11$Stain, all_comb_19_11$Class, sep=" ")
+all_comb_19_11$Group_Case_Class <- paste("PKR-", all_comb_19_11$PKR, all_comb_19_11$Class, sep = " ")
+all_combined <- all_comb_19_11
+all_combined$Tissue_compartment <- character(nrow(all_combined))
+all_combined <- all_combined %>% mutate(Tissue_compartment = ifelse(grepl('Lob ', all_combined$Class), 'Lobule', .$Tissue_compartment)) #terminology more accurate
+all_combined <- all_combined %>% mutate(Tissue_compartment = ifelse(grepl('Septa ', all_combined$Class), 'Stroma', .$Tissue_compartment)) # terminology more accurate
+all_combined$Num.Detections <- as.numeric(all_combined$Num.Detections)
+all_combined$Num.Tumor..Positive <- as.numeric(all_combined$Num.Tumor..Positive)
+all_combined$Num.Tumor..Negative<- as.numeric(all_combined$Num.Tumor..Negative)
+length(unique(all_combined$Group))
+str(all_combined)
+
+#Control that there are no doublets
+n_occur <- data.frame(table(all_combined$Group))
+n_occur[n_occur$Freq > 1,] 
+
+```
+  
+### The data and groupings:
+
+```{r Wilcoxon test per stain, echo=FALSE, message=FALSE, warning=FALSE, results="hide"}
+all_CK5 <- all_combined[all_combined$Stain == "CK5", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+all_CK17 <- all_combined[all_combined$Stain == "CK17", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+all_CA125 <- all_combined[all_combined$Stain == "CA125", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+all_Muc5 <- all_combined[all_combined$Stain == "Muc5", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+all_HMGA2 <- all_combined[all_combined$Stain == "HMGA2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+all_CDX2 <- all_combined[all_combined$Stain == "CDX2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+
+## Statistical testing, with wilcox.  ##
+# Adding multiple testing correction, with benjamini-hochberg.
+# It is not possible to test the cases and stains that have 0:s in all ROIs for one or more Tissue_compartment. Therefore, the statistical testing will be on the 
+# dataset before the "filling of 0% positive". 
+# Called "all_combined_exl". 
+
+exl_CK5 <- all_combined_exl[all_combined_exl$Stain == "CK5", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+exl_CK17 <- all_combined_exl[all_combined_exl$Stain == "CK17", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+exl_CA125 <- all_combined_exl[all_combined_exl$Stain == "CA125", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+exl_Muc5 <- all_combined_exl[all_combined_exl$Stain == "Muc5", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+exl_HMGA2 <- all_combined_exl[all_combined_exl$Stain == "HMGA2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+exl_CDX2 <- all_combined_exl[all_combined_exl$Stain == "CDX2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+
+library("rstatix")
+stat.test_CK17 <- exl_CK17 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_CK17
+
+stat.test_Muc5 <- exl_Muc5 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_Muc5
+
+stat.test_HMGA2 <- exl_HMGA2 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_HMGA2
+
+stat.test_CA125 <- exl_CA125 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_CA125
+
+stat.test_CK5 <- exl_CK5 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_CK5
+
+stat.test_CDX2 <- exl_CDX2 %>%
+  group_by(PKR) %>%
+  wilcox_test(
+    Tumor..Positive.. ~ Tissue_compartment, paired = F) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj") 
+stat.test_CDX2
+
+## Add median in each table of statistical testing ##
+# CK17
+s17 <- split(x = all_CK17, f = all_CK17$PKR)
+med_CK17 <-  lapply(s17, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_CK17_Stroma = med_Stroma, Median_CK17_Lobule = med_Lobule)
+})
+
+tb_CK17 <- bind_rows(med_CK17, .id = "PKR")
+tb_CK17 <- tibble (tb_CK17)
+tail(tb_CK17)
+
+stat.test.CK17_m <- full_join(stat.test_CK17, tb_CK17, by = "PKR")
+
+# HMGA2
+sHMGA2 <- split(x = all_HMGA2, f = all_HMGA2$PKR)
+med_HMGA2 <-  lapply(sHMGA2, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_HMGA2_Stroma = med_Stroma, Median_HMGA2_Lobule = med_Lobule)
+})
+
+tb_HMGA2 <- bind_rows(med_HMGA2, .id = "PKR")
+tb_HMGA2 <- tibble (tb_HMGA2)
+tail(tb_HMGA2)
+
+stat.test.HMGA2_m <- full_join(stat.test_HMGA2, tb_HMGA2, by = "PKR")
+
+# CA125
+sCA125 <- split(x = all_CA125, f = all_CA125$PKR)
+med_CA125 <-  lapply(sCA125, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_CA125_Stroma = med_Stroma, Median_CA125_Lobule = med_Lobule)
+})
+
+tb_CA125 <- bind_rows(med_CA125, .id = "PKR")
+tb_CA125 <- tibble (tb_CA125)
+tail(tb_CA125)
+
+stat.test.CA125_m <- full_join(stat.test_CA125, tb_CA125, by = "PKR")
+
+# CK5
+sCK5 <- split(x = all_CK5, f = all_CK5$PKR)
+med_CK5 <-  lapply(sCK5, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_CK5_Stroma = med_Stroma, Median_CK5_Lobule = med_Lobule)
+})
+
+tb_CK5 <- bind_rows(med_CK5, .id = "PKR")
+tb_CK5 <- tibble (tb_CK5)
+tail(tb_CK5)
+
+stat.test.CK5_m <- full_join(stat.test_CK5, tb_CK5, by = "PKR")
+
+# Muc5
+sMuc5 <- split(x = all_Muc5, f = all_Muc5$PKR)
+med_Muc5 <-  lapply(sMuc5, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_Muc5_Stroma = med_Stroma, Median_Muc5_Lobule = med_Lobule)
+})
+
+tb_Muc5 <- bind_rows(med_Muc5, .id = "PKR")
+tb_Muc5 <- tibble (tb_Muc5)
+tail(tb_Muc5)
+
+stat.test.Muc5_m <- full_join(stat.test_Muc5, tb_Muc5, by = "PKR")
+
+# CDX2
+sCDX2 <- split(x = all_CDX2, f = all_CDX2$PKR)
+med_CDX2 <-  lapply(sCDX2, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  med_Stroma <- median(y)
+  med_Lobule <- median(v)
+  tibble(Median_CDX2_Stroma = med_Stroma, Median_CDX2_Lobule = med_Lobule)
+})
+
+tb_CDX2 <- bind_rows(med_CDX2, .id = "PKR")
+tb_CDX2 <- tibble (tb_CDX2)
+tail(tb_CDX2)
+
+stat.test.CDX2_m <- full_join(stat.test_CDX2, tb_CDX2, by = "PKR")
+
+
+## Add means in each table of statistical testing ##
+# CK17
+s17 <- split(x = all_CK17, f = all_CK17$PKR)
+mean_CK17 <-  lapply(s17, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_CK17_Stroma = mean_Stroma, Mean_CK17_Lobule = mean_Lobule)
+})
+
+tb_CK17 <- bind_rows(mean_CK17, .id = "PKR")
+tb_CK17 <- tibble (tb_CK17)
+tail(tb_CK17)
+
+stat.test.CK17_m <- full_join(stat.test.CK17_m, tb_CK17, by = "PKR") #make sure to also include the medians, with the "_m" dataset.
+
+# HMGA2
+sHMGA2 <- split(x = all_HMGA2, f = all_HMGA2$PKR)
+mean_HMGA2 <-  lapply(sHMGA2, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_HMGA2_Stroma = mean_Stroma, Mean_HMGA2_Lobule = mean_Lobule)
+})
+
+tb_HMGA2 <- bind_rows(mean_HMGA2, .id = "PKR")
+tb_HMGA2 <- tibble (tb_HMGA2)
+tail(tb_HMGA2)
+
+stat.test.HMGA2_m <- full_join(stat.test.HMGA2_m, tb_HMGA2, by = "PKR")
+
+# CA125
+sCA125 <- split(x = all_CA125, f = all_CA125$PKR)
+mean_CA125 <-  lapply(sCA125, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_CA125_Stroma = mean_Stroma, Mean_CA125_Lobule = mean_Lobule) 
+})
+
+tb_CA125 <- bind_rows(mean_CA125, .id = "PKR")
+tb_CA125 <- tibble (tb_CA125)
+tail(tb_CA125)
+
+stat.test.CA125_m <- full_join(stat.test.CA125_m, tb_CA125, by = "PKR")
+
+# CK5
+sCK5 <- split(x = all_CK5, f = all_CK5$PKR)
+mean_CK5 <-  lapply(sCK5, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_CK5_Stroma = mean_Stroma, Mean_CK5_Lobule = mean_Lobule)
+})
+
+tb_CK5 <- bind_rows(mean_CK5, .id = "PKR")
+tb_CK5 <- tibble (tb_CK5)
+tail(tb_CK5)
+
+stat.test.CK5_m <- full_join(stat.test.CK5_m, tb_CK5, by = "PKR")
+
+# Muc5
+sMuc5 <- split(x = all_Muc5, f = all_Muc5$PKR)
+mean_Muc5 <-  lapply(sMuc5, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_Muc5_Stroma = mean_Stroma, Mean_Muc5_Lobule = mean_Lobule)
+})
+
+tb_Muc5 <- bind_rows(mean_Muc5, .id = "PKR")
+tb_Muc5 <- tibble (tb_Muc5)
+tail(tb_Muc5)
+
+stat.test.Muc5_m <- full_join(stat.test.Muc5_m, tb_Muc5, by = "PKR")
+
+# CDX2
+sCDX2 <- split(x = all_CDX2, f = all_CDX2$PKR)
+mean_CDX2 <-  lapply(sCDX2, function (x) {
+  z <- subset(x, Tissue_compartment == "Stroma")
+  u <- subset(x, Tissue_compartment == "Lobule")
+  y <- z$Tumor..Positive..
+  v <- u$Tumor..Positive..
+  mean_Stroma <- mean(y)
+  mean_Lobule <- mean(v)
+  tibble(Mean_CDX2_Stroma = mean_Stroma, Mean_CDX2_Lobule = mean_Lobule)
+})
+
+tb_CDX2 <- bind_rows(mean_CDX2, .id = "PKR")
+tb_CDX2 <- tibble (tb_CDX2)
+tail(tb_CDX2)
+
+stat.test.CDX2_m <- full_join(stat.test.CDX2_m, tb_CDX2, by = "PKR")
+
+```
+
+## Tables of Wilcoxon-tests with median and mean, separated on each stain
+
+```{r Write wilcoxon tables}
+library("reactable")
+reactable(stat.test.CK17_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+reactable(stat.test.Muc5_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+reactable(stat.test.CA125_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+reactable(stat.test.CK5_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+reactable(stat.test.HMGA2_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+```
+
+
+```{r Write wilcoxon tables}
+reactable(stat.test.CDX2_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+reactable(all_combined, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
+
+```
+
+## Boxplots
+Separate for each stain, faceted on each case.  
+Each dot = 1 ROI.
+
+``` {r Boxplot CK17}
+
+library("ggthemes")
+library("ggpubr")
+boxes_ck17 <- ggboxplot(all_CK17, x = "Tissue_compartment", y = "Tumor..Positive..",
+                        color = "Tissue_compartment", palette = "Set2",
+                        add = "jitter",
+                        facet.by = "PKR", ncol = 4, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CK17+ cells in Lobule and Stroma", subtitle = "All cases") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12))+
+  xlab(NULL) + ylab("% CK17+ tumor cells")  +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm"))
+
+stat.test_CK17_1 <- stat.test_CK17 %>% add_xy_position(x = "Tissue_compartment")
+Suppl_Fig_4b <- boxes_ck17 + 
+  stat_pvalue_manual(label = "p.adj.signif",
+                                stat.test_CK17_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) 
+
+Suppl_Fig_4b
+```
+
+``` {r Boxplot CK5}
+boxes_ck5 <- ggboxplot(all_CK5, x = "Tissue_compartment", y = "Tumor..Positive..",
+                        color = "Tissue_compartment", palette = "Set2",
+                        add = "jitter",
+                        facet.by = "PKR", ncol = 4, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CK5+ cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("% CK5+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12)) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12)) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm"))
+
+stat.test_CK5_1 <- stat.test_CK5 %>% add_xy_position(x = "Tissue_compartment")
+Suppl_5b <- boxes_ck5 +
+  stat_pvalue_manual(label = "p.adj.signif",
+                                stat.test_CK5_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+Suppl_5b
+```
+
+``` {r Boxplot CA125}
+boxes_ca125 <- ggboxplot(all_CA125, x = "Tissue_compartment", y = "Tumor..Positive..",
+                        color = "Tissue_compartment",
+                        add = "jitter",
+                        facet.by = "PKR", ncol = 4, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CA125+ cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("% CA125+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12)) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12)) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm")) +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5"))
+
+stat.test_CA125_1 <- stat.test_CA125 %>% add_xy_position(x = "Tissue_compartment")
+
+Suppl_Fig_7b <- boxes_ca125 + stat_pvalue_manual(label = "p.adj.signif",
+                                stat.test_CA125_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+Suppl_Fig_7b
+
+```
+
+``` {r Boxplot HMGA2}
+boxes_HMGA2 <- ggboxplot(all_HMGA2, x = "Tissue_compartment", y = "Tumor..Positive..",
+                         color = "Tissue_compartment",
+                         add = "jitter",
+                         facet.by = "PKR", ncol = 3, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC HMGA2+ cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("% HMGA2+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12)) +
+  theme(axis.text=element_text(size=12), axis.title=element_text(size=12)) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm"))+
+  scale_color_manual(values = c("#FC8D62", "#66C2A5"))
+
+stat.test_HMGA2_1 <- stat.test_HMGA2 %>% add_xy_position(x = "Tissue_compartment")
+
+Suppl_Fig_6b <- boxes_HMGA2 + stat_pvalue_manual(label = "p.adj.signif",
+                                 stat.test_HMGA2_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+Suppl_Fig_6b
+
+```
+
+``` {r Boxplot Muc5}
+boxes_Muc5 <- ggboxplot(all_Muc5, x = "Tissue_compartment", y = "Tumor..Positive..",
+                       color = "Tissue_compartment",
+                       add = "jitter",
+                       facet.by = "PKR", ncol = 4, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC Muc5+ cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("% Muc5+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12)) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12)) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm"))+
+  scale_color_manual(values = c("#FC8D62", "#66C2A5"))
+
+stat.test_Muc5_1 <- stat.test_Muc5 %>% add_xy_position(x = "Tissue_compartment")
+
+Suppl_Fig_8b <- boxes_Muc5 + stat_pvalue_manual(label = "p.adj.signif",
+                               stat.test_Muc5_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+Suppl_Fig_8b
+
+```
+
+``` {r Boxplot CDX2}
+boxes_CDX2 <- ggboxplot(all_CDX2, x = "Tissue_compartment", y = "Tumor..Positive..",
+                        color = "Tissue_compartment", palette = "Set2",
+                        add = "jitter",
+                        facet.by = "PKR", ncol = 4, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CDX2+ cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("% CDX2+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 12, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 12)) +
+  theme(axis.text=element_text(size=12),
+        axis.title=element_text(size=12)) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.2, 0.2, 0.2, 0.2, "cm"))
+
+stat.test_CDX2_1 <- stat.test_CDX2 %>% add_xy_position(x = "Tissue_compartment")
+
+Suppl_Fig_9b <- boxes_CDX2 + stat_pvalue_manual(label = "p.adj.signif",
+                                stat.test_CDX2_1, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+Suppl_Fig_9b
+
+```
+
+``` {r sign dataset for boxplots, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+ck17_s <- stat.test_CK17 %>% filter(p.adj < "0.05")
+ck5_s <- stat.test_CK5 %>% filter(p.adj < "0.05")
+ca125_s <- stat.test_CA125 %>% filter(p.adj < "0.05")
+hmga2_s <- stat.test_HMGA2 %>% filter(p.adj < "0.05")
+muc5_s <- stat.test_Muc5 %>% filter(p.adj < "0.05")
+cdx2_s <- stat.test_CDX2 %>% filter(p.adj < "0.05")
+
+ck17_sign <- merge(ck17_s, all_CK17, all.x = T)
+str(ck17_sign)
+ck5_sign <- merge(ck5_s, all_CK5, all.x = T)
+ca125_sign <- merge(ca125_s, all_CA125, all.x = T)
+hmga2_sign <- merge(hmga2_s, all_HMGA2, all.x = T)
+muc5_sign <- merge(muc5_s, all_Muc5, all.x = T)
+cdx2_sign <- merge(cdx2_s, all_CDX2, all.x = T)
+```
+
+## Boxplots
+Only cases significant difference between lobular - and stromal invasion.  
+Each dot = 1 ROI.
+
+```{r Boxplot sign CK17, echo = FALSE, message = FALSE, warning = TRUE, fig.height=12, fig.width = 10}
+stat.test_CK17_2 <- ck17_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_CK17_sign <- ggboxplot(ck17_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                              color = "Tissue_compartment", palette = "jco",
+                              add = "jitter",
+                              facet.by = "PKR", ncol = 5, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CK17+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% CK17+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_CK17_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                      stat.test_CK17_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Boxplot sign CK5, echo = FALSE, message = FALSE, warning = TRUE, fig.height=6, fig.width = 7}
+stat.test_CK5_2 <- ck5_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_CK5_sign <- ggboxplot(ck5_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                             color = "Tissue_compartment", palette = "jco",
+                             add = "jitter",
+                             facet.by = "PKR", ncol = 5, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CK5+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% CK5+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_CK5_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                     stat.test_CK5_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Boxplot sign CA125, echo = FALSE, message = FALSE, warning = TRUE, fig.height=8, fig.width = 8}
+stat.test_CA125_2 <- ca125_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_CA125_sign <- ggboxplot(ca125_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                            color = "Tissue_compartment", palette = "jco",
+                            add = "jitter",
+                            facet.by = "PKR", ncol = 3, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CA125+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% CA125+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_CA125_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                    stat.test_CA125_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Boxplot sign HMGA2, echo = FALSE, message = FALSE, warning = TRUE, fig.height=5, fig.width = 8}
+stat.test_HMGA2_2 <- hmga2_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_HMGA2_sign <- ggboxplot(hmga2_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                         color = "Tissue_compartment", palette = "jco",
+                         add = "jitter",
+                         facet.by = "PKR", ncol = 5, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC HMGA2+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% HMGA2+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_HMGA2_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                 stat.test_HMGA2_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+```
+
+```{r Boxplot sign Muc5, echo = FALSE, message = FALSE, warning = TRUE, fig.height=13, fig.width = 10}
+stat.test_Muc5_2 <- muc5_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_Muc5_sign <- ggboxplot(muc5_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                              color = "Tissue_compartment", palette = "jco",
+                              add = "jitter",
+                              facet.by = "PKR", ncol = 5, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC Muc5+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% Muc5+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_Muc5_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                      stat.test_Muc5_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+```{r Boxplot sign CDX2, echo = FALSE, message = FALSE, warning = TRUE, fig.height=6, fig.width = 10}
+stat.test_CDX2_2 <- cdx2_s %>% add_xy_position(x = "Tissue_compartment")
+boxes_CDX2_sign <- ggboxplot(cdx2_sign, x = "Tissue_compartment", y = "Tumor..Positive..",
+                             color = "Tissue_compartment", palette = "jco",
+                             add = "jitter",
+                             facet.by = "PKR", ncol = 5, short.panel.labs = TRUE) +
+  labs(title = "Relative PDAC CDX2+ cells in Lobule and Stroma", subtitle = "Only cases with significant difference betweeen acinar and stromal ROIs") +
+  xlab(NULL) + ylab("% CDX2+ tumor cells") +
+  theme(plot.title = element_text(hjust = 0.5, size = 18, face = "bold"), plot.subtitle =element_text(hjust = 0.5, size = 16)) +
+  theme(axis.text=element_text(size=12, face = "bold"),
+        axis.title=element_text(size=12,face="bold")) +
+  ylim(-1, 120) +
+  theme(plot.margin = margin(0.8, 0.8, 0.8, 0.8, "cm"))
+
+boxes_CDX2_sign + stat_pvalue_manual(label = "p.adj.signif",
+                                     stat.test_CDX2_2, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```
+
+# Correlation plots of the stains
+
+```{r Cor datamatrix, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+library("data.table")
+matrix_A <- dcast(data = all_combined, Group_Case_Class ~ Stain,
+                  value.var = "Tumor..Positive..")
+matrix_A[is.na(matrix_A)] <- 0
+rownames(matrix_A) = matrix_A$Group_Case_Class
+matrix_A <- matrix_A[, -1]
+
+library("corrplot")
+cor_A <- cor(matrix_A)
+testRes = cor.mtest(matrix_A, conf.level = 0.95)
+```
+
+```{r Draw cor summaries}
+head(cor_A)
+head(testRes)
+```
+
+
+## Draw correlation matrix with complex heatmap package
+```{r correlation complex heatmap, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+
+cor_p<- testRes$p
+cor_p[is.nan(cor_p)]<- 1
+cor_p
+
+# the diagonal are NA, make them 1 
+cor_p[is.na(cor_p)]<- 1
+
+col_fun<- circlize::colorRamp2(c(-1, 0, 1), c("#008837", "#f7f7f7", "#7b3294"))
+
+cell_fun = function(j, i, x, y, w, h, fill){
+  if(as.numeric(x) <= 1 - as.numeric(y) + 1e-6) {
+    grid.rect(x, y, w, h, gp = gpar(fill = fill, col = fill))
+  }
+  
+  if (cor_p[i, j]  < 0.01 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_A[i, j]),"**"), x, y, gp = gpar(fontsize = 10))
+  } else if (cor_p[i, j]  <= 0.05 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_A[i, j]),"*"), x, y, gp = gpar(fontsize = 10))
+  }
+}
+
+library(patchwork)
+library(ggplot2)
+library(ComplexHeatmap)
+hp<- ComplexHeatmap::Heatmap(cor_A,
+                             rect_gp = gpar(type = "none"),
+                             column_dend_side = "bottom",
+                             column_title = "Correlation of stains",
+                             column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                             name = "Spearman's rank correlation coefficient", col = col_fun,
+                             cell_fun = cell_fun,
+                             cluster_rows = T, cluster_columns = T,
+                             row_names_side = "left")
+
+lgd_list = list(
+  Legend( labels = c("<0.01", "<0.05"), title = "pvalue",
+          graphics = list(
+            function(x, y, w, h) grid.text("**", x = x, y = y,
+                                           gp = gpar(fill = "black")),
+            function(x, y, w, h) grid.text("*", x = x, y = y,
+                                           gp = gpar(fill = "black")))
+  ))
+```
+
+
+```{r draw Complex heatmap correlation}
+Suppl_Fig_2b <- draw(hp, annotation_legend_list = lgd_list, ht_gap = unit(1, "cm") )
+Suppl_Fig_2b
+```
+
+# Heatmaps
+## Heatmap type A: Case id + ROIs across Stains. 
+
+```{r Heatmap A and matrix B, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+m_matrix_A <- data.matrix(matrix_A) 
+t_m_matrix_A <- t(m_matrix_A)
+
+
+### Heatmap type B: ROIs across Case id + Stains. ###
+matrix_B <- dcast(data = all_combined, Class ~ Group_Case_Stain,
+                  value.var = "Tumor..Positive..")
+#str(matrix_B)
+matrix_B[is.na(matrix_B)] <- 0
+rownames(matrix_B) = matrix_B$Class
+matrix_B <- matrix_B[, -1]
+m_matrix_B <- data.matrix(matrix_B) 
+t_m_matrix_B <- t(m_matrix_B)
+
+## Making the same heatmaps A and B, but adding some metadata.
+# First, metadata #1 for Lobule or septa ROI identity.
+
+m_A <- data.frame(Tissue_compartment = character(488))
+rownames(m_A) <- rownames(matrix_A)
+m_A_1 <- m_A %>% mutate(Tissue_compartment = ifelse(grepl(' Lob ', rownames(m_A)), 'Lobule', .$Tissue_compartment))
+m_A_2 <- m_A_1 %>% mutate(Tissue_compartment = ifelse(grepl(' Septa ', rownames(m_A_1)), 'Stroma', .$Tissue_compartment))
+m_A <- m_A_2
+
+# Metadata #2: if they exhibit any sign of plasticity or not.
+# Defined from the wilcox testing with BH correction that also are exported, and how many markers that show a significant difference
+# Extensive plasticity: 3 or more markers (one basal-like connected and one classical-connected): PKR-2 16 51 30
+# Moderate plasticity: 2 markers (one basal-like connected and one classical-connected): PKR-24 13 29 46 49 60 67
+# Slight plasticity: One marker with significant difference: PKR-1 12 70 11 18 4 50 65 55 62 
+# Basal plasticity: PKR-14 57
+# Classical plasticity: PKR-63
+
+
+m_A$Plasticity <- character(488)
+m_A$Plasticity <- "None"
+m_A_t1 <- m_A %>% mutate(Plasticity = ifelse(grepl('PKR- 2 ', rownames(m_A)), 'Extensive', .$Plasticity))
+m_A_t2 <- m_A_t1 %>% mutate(Plasticity = ifelse(grepl('PKR- 16', rownames(m_A_t1)), 'Extensive', .$Plasticity))
+m_A_t3 <- m_A_t2 %>% mutate(Plasticity = ifelse(grepl('PKR- 30', rownames(m_A_t2)), 'Extensive', .$Plasticity))
+m_A_t4 <- m_A_t3 %>% mutate(Plasticity = ifelse(grepl('PKR- 51', rownames(m_A_t3)), 'Extensive', .$Plasticity))
+m_A_t5 <- m_A_t4 %>% mutate(Plasticity = ifelse(grepl('PKR- 24', rownames(m_A_t4)), 'Moderate', .$Plasticity))
+m_A_t6 <- m_A_t5 %>% mutate(Plasticity = ifelse(grepl('PKR- 13', rownames(m_A_t5)), 'Moderate', .$Plasticity))
+m_A_t7 <- m_A_t6 %>% mutate(Plasticity = ifelse(grepl('PKR- 29', rownames(m_A_t6)), 'Moderate', .$Plasticity))
+m_A_t8 <- m_A_t7 %>% mutate(Plasticity = ifelse(grepl('PKR- 46', rownames(m_A_t7)), 'Moderate', .$Plasticity))
+m_A_t9 <- m_A_t8 %>% mutate(Plasticity = ifelse(grepl('PKR- 49', rownames(m_A_t8)), 'Moderate', .$Plasticity))
+m_A_t10 <- m_A_t9 %>% mutate(Plasticity = ifelse(grepl('PKR- 60', rownames(m_A_t9)), 'Moderate', .$Plasticity))
+m_A_t11 <- m_A_t10 %>% mutate(Plasticity = ifelse(grepl('PKR- 67', rownames(m_A_t10)), 'Moderate', .$Plasticity))
+m_A_t12 <- m_A_t11 %>% mutate(Plasticity = ifelse(grepl('PKR- 1 ', rownames(m_A_t11)), 'Slight', .$Plasticity))
+m_A_t13 <- m_A_t12 %>% mutate(Plasticity = ifelse(grepl('PKR- 70', rownames(m_A_t12)), 'Slight', .$Plasticity))
+m_A_t14 <- m_A_t13 %>% mutate(Plasticity = ifelse(grepl('PKR- 11', rownames(m_A_t13)), 'Slight', .$Plasticity))
+m_A_t15 <- m_A_t14 %>% mutate(Plasticity = ifelse(grepl('PKR- 18', rownames(m_A_t14)), 'Slight', .$Plasticity))
+m_A_t16 <- m_A_t15 %>% mutate(Plasticity = ifelse(grepl('PKR- 4', rownames(m_A_t15)), 'Slight', .$Plasticity))
+m_A_t17 <- m_A_t16 %>% mutate(Plasticity = ifelse(grepl('PKR- 50', rownames(m_A_t16)), 'Slight', .$Plasticity))
+m_A_t18 <- m_A_t17 %>% mutate(Plasticity = ifelse(grepl('PKR- 65', rownames(m_A_t17)), 'Slight', .$Plasticity))
+m_A_t19 <- m_A_t18 %>% mutate(Plasticity = ifelse(grepl('PKR- 12', rownames(m_A_t18)), 'Slight', .$Plasticity))
+m_A_t20 <- m_A_t19 %>% mutate(Plasticity = ifelse(grepl('PKR- 55', rownames(m_A_t19)), 'Slight', .$Plasticity))
+m_A_t21 <- m_A_t20 %>% mutate(Plasticity = ifelse(grepl('PKR- 62', rownames(m_A_t20)), 'Slight', .$Plasticity))
+m_A_t21 <- m_A_t21 %>% mutate(Plasticity = ifelse(grepl('PKR- 63', rownames(m_A_t21)), 'Classical', .$Plasticity))
+m_A_t21 <- m_A_t21 %>% mutate(Plasticity = ifelse(grepl('PKR- 14', rownames(m_A_t21)), 'Basal', .$Plasticity))
+m_A_t21 <- m_A_t21 %>% mutate(Plasticity = ifelse(grepl('PKR- 57', rownames(m_A_t21)), 'Basal', .$Plasticity))
+
+m_A <- m_A_t21
+
+annot_colors_A <- list(Plasticity=c(Extensive="#190033", Moderate="#B266FF", Slight="#E5CCFF", None="#9C9C9C", Classical = "#97C8FF", Basal = "#FF6242"), 
+                     Tissue_compartment=c(Lobule = "#0066CC", Stroma = "#FF9999"))
+
+```
+
+```{r Pheatmap A with metadata}
+pheatmap(t_m_matrix_A, fontsize_col = 6, annotation_col = m_A, annotation_colors = annot_colors_A, show_colnames = F, labels_col = "Case ID and Stain",  main = "Heatmap A: Case ID and ROIs over Stains. % Positive tumor cells", cluster_cols = T, cluster_rows = T)
+```
+
+```{r Heatmap B data frame, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## B:
+m_B <- data.frame(Plasticity = character(159), Marker_type = character(159))
+rownames(m_B) <- rownames(t_m_matrix_B)
+#Change to stroma and Lobule name for ROIs.
+colnames(t_m_matrix_B) <- gsub('Lob', 'Lobule', colnames(t_m_matrix_B))
+colnames(t_m_matrix_B) <- gsub('Septa', 'Stroma', colnames(t_m_matrix_B))
+m_B$Plasticity <- "None"
+
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-2 ', rownames(m_B)), 'Extensive', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-16', rownames(m_B)), 'Extensive', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-30', rownames(m_B)), 'Extensive', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-51', rownames(m_B)), 'Extensive', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-24', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-13', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-29', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-46', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-49', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-60', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-67', rownames(m_B)), 'Moderate', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-1 ', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-70', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-11', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-18', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-4 ', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-50', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-65', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-12', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-55', rownames(m_B)), 'Slight', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-62', rownames(m_B)), 'Slight', .$Plasticity))
+
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-63', rownames(m_B)), 'Classical', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-14', rownames(m_B)), 'Basal', .$Plasticity))
+m_B <- m_B %>% mutate(Plasticity = ifelse(grepl('PKR-57', rownames(m_B)), 'Basal', .$Plasticity))
+
+m_B_t1 <- m_B %>% mutate(Marker_type = ifelse(grepl('CA125', rownames(m_B)), 'Basal_like', .$Marker_type))
+m_B_t2 <- m_B_t1 %>% mutate(Marker_type = ifelse(grepl('CK17', rownames(m_B_t1)), 'Basal_like', .$Marker_type))
+m_B_t3 <- m_B_t2 %>% mutate(Marker_type = ifelse(grepl('CK5', rownames(m_B_t2)), 'Basal_like', .$Marker_type))
+m_B_t4 <- m_B_t3 %>% mutate(Marker_type = ifelse(grepl('HMGA2', rownames(m_B_t3)), 'Basal_like', .$Marker_type))
+m_B_t5 <- m_B_t4 %>% mutate(Marker_type = ifelse(grepl('Muc5', rownames(m_B_t4)), 'Classical', .$Marker_type))
+m_B_t6 <- m_B_t5 %>% mutate(Marker_type = ifelse(grepl('CDX2', rownames(m_B_t5)), 'Classical', .$Marker_type))
+m_B <- m_B_t6
+
+library("viridis") 
+library("RColorBrewer")
+col.pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+col.pal2 <- plasma(9)
+annot_colors_B <- list(Plasticity=c(Extensive = "#190033", Moderate = "#B266FF", Slight = "#E5CCFF", None = "#9C9C9C", Classical = "#97C8FF", Basal = "#FF6242"), 
+                     Marker_type=c(Classical="#0066CC", Basal_like = "#FF9999"))
+
+```
+
+## Heatmap type B: 
+```{r Heatmap B with metadata} 
+pheatmap(t_m_matrix_B, cluster_rows = T, cluster_cols = T, annotation_row = m_B, color=col.pal2, annotation_colors = annot_colors_B, show_rownames = F, cutree_cols = 4, main = "Heatmap B: Case ID and stains over ROI:s. Values: % Positive tumor cells")
+```
+
+```{r Heatmap C data matrix 1,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## C:
+#One row per case.
+
+matrix_C <- dcast(data = all_combined, PKR~ Group_Stain_Class,
+                  value.var = "Tumor..Positive..")
+matrix_C[is.na(matrix_C)] <- 0
+rownames(matrix_C) = matrix_C$PKR
+matrix_C <- matrix_C[, -1]
+m_matrix_C <- data.matrix(matrix_C) 
+t_m_matrix_C <- t(m_matrix_C)
+# Change lob/septa ROI in rownames to Lobule/stroma.
+rownames(t_m_matrix_C) <- gsub('Lob', 'Lobule', rownames(t_m_matrix_C))
+rownames(t_m_matrix_C) <- gsub('Septa', 'Stroma', rownames(t_m_matrix_C))
+
+## Make metadata for..
+# Columns: Stain (basal or classical) & ROI (Lobule or stroma)
+# Rows: plasticity 
+
+m_CC <- data.frame(Marker_type = character(108), Tissue_compartment = character(108))
+rownames(m_CC) <- colnames(m_matrix_C)
+
+m_CC <- m_CC %>% mutate(Tissue_compartment = ifelse(grepl(' Lob ', rownames(m_CC)), 'Lobule', .$Tissue_compartment))
+m_CC <- m_CC %>% mutate(Tissue_compartment = ifelse(grepl(' Septa ', rownames(m_CC)), 'Stroma', .$Tissue_compartment))
+
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('CK5', rownames(m_CC)), 'Basal_like', .$Marker_type))
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('CK17', rownames(m_CC)), 'Basal_like', .$Marker_type))
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('CA125', rownames(m_CC)), 'Basal_like', .$Marker_type))
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('HMGA2', rownames(m_CC)), 'Basal_like', .$Marker_type))
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('Muc5', rownames(m_CC)), 'Classical', .$Marker_type))
+m_CC <- m_CC %>% mutate(Marker_type = ifelse(grepl('CDX2', rownames(m_CC)), 'Classical', .$Marker_type))
+
+#I needed to add "PKR" and a blank space in the rownames, otherwise would be able to call exactly/only single PKR id:s.
+str(m_matrix_C)
+m_Crows <- data.frame(Plasticity = character(31))
+rownames(m_Crows) <- rownames(m_matrix_C)
+rownames(m_Crows) <- paste("PKR-", rownames(m_Crows), " ", sep = "")
+m_Crows$Plasticity <- "None"
+
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-2 ', rownames(m_Crows)), 'Extensive', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-16', rownames(m_Crows)), 'Extensive', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-30', rownames(m_Crows)), 'Extensive', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-51', rownames(m_Crows)), 'Extensive', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-24', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-13', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-29', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-46', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-49', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-60', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-67', rownames(m_Crows)), 'Moderate', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-1 ', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-70', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-11', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-18', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-4 ', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-50', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-65', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-12', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-55', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-62', rownames(m_Crows)), 'Slight', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-63', rownames(m_Crows)), 'Classical', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-14', rownames(m_Crows)), 'Basal', .$Plasticity))
+m_Crows <- m_Crows %>% mutate(Plasticity = ifelse(grepl('PKR-57', rownames(m_Crows)), 'Basal', .$Plasticity))
+
+rownames(m_Crows)<-gsub("PKR-","", as.character(rownames(m_Crows)))
+
+annot_colors_Call <- list(Plasticity=c(Extensive="#190033", Moderate="#B266FF", Slight="#E5CCFF", None="#9C9C9C", Classical = "#97C8FF", Basal = "#FF6242"),
+                        Marker_type=c(Classical="#0066CC", Basal_like = "#FF9999"),
+                        Tissue_compartment=c(Lobule = "#CCE5FF", Stroma = "#FFCCCC"))
+```
+
+## Heatmap type C: 
+```{r Draw heatmap type C}
+pheatmap(m_matrix_C, annotation_colors = annot_colors_Call, show_colnames = F, color=col.pal2, annotation_col = m_CC, annotation_row = m_Crows, main = "Heatmap C: Case ID  over ROI:s and stains. Values: % Positive tumor cells", cluster_rows = T, cluster_cols = T)
+```
+
+```{r Heatmap C data matrix,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## Heatmap C, but with averaged ROI:s; summarize across compartments lobular and stromal compartment.
+mCA_CA125 <- matrix_C[, c(1:9)]
+mCA_CA125$Avg_CA125_Lobule = rowMeans(mCA_CA125[,c(1:9)])
+mCS_CA125 <- matrix_C[, c(10:18)]
+mCS_CA125$Avg_CA125_Septa = rowMeans(mCS_CA125[,c(1:9)])
+
+mCA_CDX2 <- matrix_C[, c(19:27)]
+mCA_CDX2$Avg_CDX2_Lobule = rowMeans(mCA_CDX2[,c(1:9)])
+mCS_CDX2 <- matrix_C[, c(28:36)]
+mCS_CDX2$Avg_CDX2_Septa = rowMeans(mCS_CDX2[,c(1:9)])
+
+mCA_CK17 <- matrix_C[, c(37:45)]
+mCA_CK17$Avg_CK17_Lobule = rowMeans(mCA_CK17[,c(1:9)])
+mCS_CK17 <- matrix_C[, c(46:54)]
+mCS_CK17$Avg_CK17_Septa = rowMeans(mCS_CK17[,c(1:9)])
+
+mCA_CK5 <- matrix_C[, c(55:63)]
+mCA_CK5$Avg_CK5_Lobule = rowMeans(mCA_CK5[,c(1:9)])
+mCS_CK5 <- matrix_C[, c(64:72)]
+mCS_CK5$Avg_CK5_Septa = rowMeans(mCS_CK5[,c(1:9)])
+
+mCA_HMGA2 <- matrix_C[, c(73:81)]
+mCA_HMGA2$Avg_HMGA2_Lobule = rowMeans(mCA_HMGA2[,c(1:9)])
+mCS_HMGA2 <- matrix_C[, c(82:90)]
+mCS_HMGA2$Avg_HMGA2_Septa = rowMeans(mCS_HMGA2[,c(1:9)])
+
+mCA_Muc5 <- matrix_C[, c(91:99)]
+mCA_Muc5$Avg_Muc5_Lobule = rowMeans(mCA_Muc5[,c(1:9)])
+mCS_Muc5 <- matrix_C[, c(100:108)]
+mCS_Muc5$Avg_Muc5_Septa = rowMeans(mCS_Muc5[,c(1:9)])
+
+# Now merge all average columns, they are matched by rownames (= PKR ID:s)
+C_AVG <- cbind(mCA_CA125, mCS_CA125, mCA_CDX2, mCS_CDX2, mCA_CK17, mCS_CK17, mCA_CK5, mCS_CK5, mCA_HMGA2, mCS_HMGA2, mCA_Muc5, mCS_Muc5)
+C_AVG_2 <- C_AVG[, -c(1:9, 11:19, 21:29, 31:39, 41:49, 51:59, 61:69, 71:79, 81:89, 91:99, 101:109, 111:119)] 
+```
+
+## Heatmap C, averaged compartments
+
+```{r Heatmap C averaged }
+pheatmap(C_AVG_2, cutree_rows = 2, annotation_colors = annot_colors_Call, color=col.pal2, annotation_row = m_Crows, cutree_cols = 2, main = "Heatmap C: Case ID  over ROI:s and stains. Values: Average % Positive tumor cells", cluster_rows = T, cluster_cols = T)
+```
+
+```{r Heatmap B data matrix, separate on stains,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## Separate heatmap B on individual stains.
+tmB_CK17 <- as.data.frame(t_m_matrix_B[grep("CK17", rownames(t_m_matrix_B)), ])
+tmB_Muc5 <- as.data.frame(t_m_matrix_B[grep("Muc5", rownames(t_m_matrix_B)), ])
+tmB_CK5 <- as.data.frame(t_m_matrix_B[grep("CK5", rownames(t_m_matrix_B)), ])
+tmB_HMGA2 <- as.data.frame(t_m_matrix_B[grep("HMGA2", rownames(t_m_matrix_B)), ])
+tmB_CA125 <- as.data.frame(t_m_matrix_B[grep("CA125", rownames(t_m_matrix_B)), ])
+tmB_CDX2 <- as.data.frame(t_m_matrix_B[grep("CDX2", rownames(t_m_matrix_B)), ])
+```
+
+```{r Heatmap B per stain}
+
+pheatmap(tmB_CK17, cutree_cols = 2, color=col.pal2, main = "Heatmap B for CK17: Case ID over ROI:s. Values: % Positive tumor cells")
+
+pheatmap(tmB_Muc5, cutree_cols = 2,color=col.pal2, main = "Heatmap B for Muc5: Case ID over ROI:s. Values: % Positive tumor cells")
+
+pheatmap(tmB_CK5, cutree_cols = 2, color=col.pal2,main = "Heatmap B for CK5: Case ID over ROI:s. Values: % Positive tumor cells")
+
+pheatmap(tmB_HMGA2, cutree_cols = 2, color=col.pal2,main = "Heatmap B for HMGA2: Case ID over ROI:s. Values: % Positive tumor cells")
+
+pheatmap(tmB_CA125, cutree_cols = 2, color=col.pal2,main = "Heatmap B for CA125: Case ID over ROI:s. Values: % Positive tumor cells")
+
+pheatmap(tmB_CDX2, cutree_cols = 2,color=col.pal2, main = "Heatmap B for CDX2: Case ID over ROI:s. Values: % Positive tumor cells")
+# -> only Muc5 have a complete separation
+```
+
+```{r Oa data matrix,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### Overall different markers' expression between acinar and stromal ROIs. #####
+
+# Take the average of each marker in ROIs from lobules and stroma per case
+# Make a paired wilcoxon, (the pair should be Lobule and stroma for the respective case) including all the stains.
+# Thereby obtain which stains that differ, overall, between lobular and stromal ROIs.
+# Adapting from the already created matrix C_AVG_2
+
+oa_markdiff <- C_AVG_2
+oa_markdiff$PKR <- rownames(oa_markdiff)
+colnames(oa_markdiff)
+
+a <- oa_markdiff %>% pivot_longer(cols=c('Avg_CA125_Lobule', 'Avg_CA125_Septa', 'Avg_CDX2_Lobule',  'Avg_CDX2_Septa', 'Avg_CK17_Lobule', 'Avg_CK17_Septa', 
+                                         'Avg_CK5_Septa', 'Avg_CK5_Lobule', 'Avg_HMGA2_Lobule', 'Avg_HMGA2_Septa', 'Avg_Muc5_Lobule', 'Avg_Muc5_Septa'),
+                                  values_to='Avg_value')
+a$Tissue_compartment <- character(372)
+a$Stain <- character(372)
+
+a <- a %>% mutate(Tissue_compartment=ifelse(grepl('Lobule', a$name), 'Lobule', .$Tissue_compartment))
+a <- a %>% mutate(Tissue_compartment=ifelse(grepl('Septa', a$name), 'Stroma', .$Tissue_compartment))
+
+a <- a %>% mutate(Stain=ifelse(grepl('CK17', a$name), 'CK17', .$Stain))
+a <- a %>% mutate(Stain=ifelse(grepl('CK5', a$name), 'CK5', .$Stain))
+a <- a %>% mutate(Stain=ifelse(grepl('HMGA2', a$name), 'HMGA2', .$Stain))
+a <- a %>% mutate(Stain=ifelse(grepl('CA125', a$name), 'CA125', .$Stain))
+a <- a %>% mutate(Stain=ifelse(grepl('Muc5', a$name), 'Muc5', .$Stain))
+a <- a %>% mutate(Stain=ifelse(grepl('CDX2', a$name), 'CDX2', .$Stain))
+colnames(a) [5] <- 'Average_Stain'
+
+stat.test_overall <- a %>%
+  group_by(Average_Stain) %>%
+  wilcox_test(
+    Avg_value ~ Tissue_compartment, paired = T) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+stat.test_overall
+
+boxes_overall <- ggboxplot(a, x = "Tissue_compartment", y = "Avg_value",
+                           color = "Tissue_compartment",
+                           add = "jitter") +
+  labs(title = "Average expression of PDAC cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("Average + tumor cells") +
+  theme_clean() +
+  ylim(-1, 120) +
+  scale_color_brewer(palette= "Set2", type = "qual") +
+  theme(plot.margin = margin(1.1, 1.1, 1.1, 1.1, "cm")) +
+  facet_wrap(~ Average_Stain)
+
+
+boxes_overall 
+
+stat.test_overallavg <- stat.test_overall %>% add_xy_position(x = "Tissue_compartment")
+```
+
+```{r Boxes_overall 2}
+boxes_overall + stat_pvalue_manual(label = "p.adj.signif",
+                                   stat.test_overallavg, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # this is alright but does not show the paired (cases)
+
+
+```
+
+```{r Oa data matrix paired,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+a$Average_Stain <- as.factor(a$Average_Stain)
+a$PKR <- as.factor(a$PKR)
+colnames(a)[4] <- "Tissue_compartment"
+
+## For visualizing the paired cases
+
+Fig_2d <- ggplot(a, aes(x = Tissue_compartment, y = Avg_value)) + 
+  geom_boxplot(aes(fill = Tissue_compartment, color = Tissue_compartment), alpha = 0.2) +
+  geom_line(aes(group = PKR), colour = "gray", linewidth = 0.3) + 
+  geom_point(size = 1.5, aes(fill = Tissue_compartment, color = Tissue_compartment)) + 
+  facet_wrap(~ factor(Average_Stain, levels = c("Muc5", "CK17", "HMGA2", "CDX2", "CK5", "CA125"))) +
+  stat_pvalue_manual(label = "p.adj.signif",
+                     stat.test_overallavg, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  theme_clean() +
+  scale_color_brewer(palette= "Set2", type = "qual") +
+  scale_fill_brewer(palette= "Set2", type = "qual") +
+  labs(title = "Average expression of PDAC cells in Lobule and Stroma", subtitle = "All cases") +
+  xlab(NULL) + ylab("Average + tumor cells") +
+  theme(plot.margin = margin(1.1, 1.1, 1.1, 1.1, "cm")) +
+  ylim(-1, 120)
+
+Fig_2d
+```
+
+```{r fig 2d rois check}
+nlevels(a$PKR) #31, number of unique cases
+
+a_return_perstain <- a %>%
+  group_by(Average_Stain) %>%
+  summarise(N.instances = n())
+a_return_perstain #62, the double of 31. one average per case and compartment 
+
+a_return_perstainandcase <- a %>%
+  group_by(Average_Stain, PKR) %>%
+  summarise(N.instances = n())
+a_return_perstainandcase
+
+
+```
+
+
+```{r Oa data matrix Extensive and moderate plasticity,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+### only cases with extensive and moderate plasticity: ###
+
+c <- a
+str(c)
+c$Plasticity <- factor(372)
+c$Plasticity <- "None"
+c$PKR<-paste("PKR-", as.character(c$PKR), ".", sep= " ")
+
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 2 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 16 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 30 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 51 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 24 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 13 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 29 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 46 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 49 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 60 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 67 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 1 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 70 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 11 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 18 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 4 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 50 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 65 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 12 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 55 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 62 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 63 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 14 .', c$PKR), 'Any', .$Plasticity))
+c <- c %>% mutate(Plasticity = ifelse(grepl('PKR- 57 .', c$PKR), 'Any', .$Plasticity))
+
+c <- split(c, f = c$Plasticity)
+c_plast <- c$Any
+c_noplast <- c$None
+
+stat.test_overall_cplast <- c_plast %>%
+  group_by(Average_Stain) %>%
+  wilcox_test(
+    Avg_value ~ Tissue_compartment, paired = T) %>%
+  adjust_pvalue(method = "none") %>%
+  add_significance("p.adj")
+stat.test_overall_cplast
+
+boxes_overall_cplast <- ggboxplot(c_plast, x = "Tissue_compartment", y = "Avg_value",
+                             color = "Tissue_compartment",
+                             add = "jitter") +
+  labs(title = "Average expression of PDAC cells in Lobule and Stroma", subtitle = "Subset: Cases with any degree of plasticity") +
+  xlab(NULL) + ylab("Average + tumor cells") +
+  theme_clean() +
+  ylim(-1, 120) +
+  scale_color_brewer(palette= "Accent") +
+  theme(plot.margin = margin(1.1, 1.1, 1.1, 1.1, "cm")) +
+  facet_wrap(~ Average_Stain)
+
+stat.test_overallavg_cplast <- stat.test_overall_cplast %>% add_xy_position(x = "Tissue_compartment")
+
+boxes_overall_cplast + stat_pvalue_manual(label = "p.adj.signif",
+                                     stat.test_overallavg_cplast, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # does not show the paired (cases)
+```
+
+```{r Oa data matrix No plasticity,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## No plasticity: ##
+stat.test_overall_noplast <- c_noplast %>%
+  group_by(Average_Stain) %>%
+  wilcox_test(
+    Avg_value ~ Tissue_compartment, paired = T) %>%
+  adjust_pvalue(method = "none") %>%
+  add_significance("p.adj")
+stat.test_overall_noplast
+
+boxes_overall_noplast <- ggboxplot(c_noplast, x = "Tissue_compartment", y = "Avg_value",
+                                  color = "Tissue_compartment",
+                                  add = "jitter") +
+  labs(title = "Average expression of PDAC cells in Lobule and Stroma", subtitle = "Subset: Cases with no plasticity") +
+  xlab(NULL) + ylab("Average + tumor cells") +
+  theme_clean() +
+  ylim(-1, 120) +
+  scale_color_brewer(palette= "Accent") +
+  theme(plot.margin = margin(1.1, 1.1, 1.1, 1.1, "cm")) +
+  facet_wrap(~ Average_Stain)
+
+stat.test_overallavg_noplast <- stat.test_overall_noplast %>% add_xy_position(x = "Tissue_compartment")
+
+boxes_overall_noplast + stat_pvalue_manual(label = "p.adj.signif",
+                                          stat.test_overallavg_noplast, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) # does not show the paired (cases)
+```
+
+```{r Boxes_overall_non-plasticiy_paired}
+#no plasticity, visualising paired:
+boxes_overall_paired_noplast <- ggplot(c_noplast, aes(x = Tissue_compartment, y = Avg_value)) + 
+  geom_boxplot(aes(fill = Tissue_compartment, color = Tissue_compartment), alpha = 0.2) +
+  geom_line(aes(group = PKR), colour = "gray") + 
+  geom_point(size = 1.5, aes(fill = Tissue_compartment, color = Tissue_compartment)) + 
+  facet_wrap(~ Average_Stain) +
+  stat_pvalue_manual(label = "p.adj.signif",
+                     stat.test_overallavg_noplast, tip.length = 0) +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  theme_clean() +
+  scale_color_brewer(palette= "Accent") +
+  scale_fill_brewer(palette = "Accent") +
+  labs(title = "Average expression of PDAC cells in Lobule and Stroma", subtitle = "Subset: Cases with no plasticity") +
+  xlab(NULL) + ylab("Average + tumor cells") +
+  theme(plot.margin = margin(1.1, 1.1, 1.1, 1.1, "cm")) +
+  ylim(-1, 120)
+
+boxes_overall_paired_noplast
+
+```
+
+# The simpson index
+
+```{r Simpson matrix 1,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### The Simpson index #####
+## range 0-1, 1 = high diversity.
+## Matrix with the intensity scores: 
+##      "Intensity level"      
+# 0-5%      0
+# 5-20 %    1
+# 20-40%    2
+# 40-60%    3
+# 60-80%    4
+# 80-95%    5
+#95-100%    6
+
+sim_all_combined <- all_combined[, c(1, 2, 3, 5, 12)]
+str(sim_all_combined)
+sim_all_combined$Intensity_Score <- numeric(2508)
+
+data_range_0 <- sim_all_combined$Tumor..Positive.. >= 0 & sim_all_combined$Tumor..Positive.. < 5
+select_r_0 <- sim_all_combined[data_range_0, ]
+select_r_0$Intensity_Score <- 0
+
+data_range_1 <- sim_all_combined$Tumor..Positive.. >= 5 & sim_all_combined$Tumor..Positive.. < 20
+select_r_1 <- sim_all_combined[data_range_1, ]
+select_r_1$Intensity_Score <- 1
+
+data_range_2 <- sim_all_combined$Tumor..Positive.. >= 20 & sim_all_combined$Tumor..Positive.. < 40
+select_r_2 <- sim_all_combined[data_range_2, ]
+select_r_2$Intensity_Score <- 2
+
+data_range_3 <- sim_all_combined$Tumor..Positive.. >= 40 & sim_all_combined$Tumor..Positive.. < 60
+select_r_3 <- sim_all_combined[data_range_3, ]
+select_r_3$Intensity_Score <- 3
+
+data_range_4 <- sim_all_combined$Tumor..Positive.. >= 60 & sim_all_combined$Tumor..Positive.. < 80
+select_r_4 <- sim_all_combined[data_range_4, ]
+select_r_4$Intensity_Score <- 4
+
+data_range_5 <- sim_all_combined$Tumor..Positive.. >= 80 & sim_all_combined$Tumor..Positive.. < 95
+select_r_5 <- sim_all_combined[data_range_5, ]
+select_r_5$Intensity_Score <- 5
+
+data_range_6 <- sim_all_combined$Tumor..Positive.. >= 95 & sim_all_combined$Tumor..Positive.. <= 100
+select_r_6 <- sim_all_combined[data_range_6, ]
+select_r_6$Intensity_Score <- 6
+
+sim_all_c <- rbind(select_r_0, select_r_1, select_r_2, select_r_3, select_r_4, select_r_5, select_r_6)
+str(sim_all_c)
+
+# Generate matrix which allows calculation of the simpson index, on each case ID and stain. 
+sim_all_c$Simpson <- numeric((nrow(sim_all_c)))
+sim_all_c2 <- split(sim_all_c, f = sim_all_c$PKR) #it is now a list of data frames, one for each case.
+
+sim_all_c4 <- lapply(sim_all_c2, function (x){
+  dcast(data = x, formula = Stain ~ Intensity_Score,
+        value.var = "Tumor..Positive..")
+})
+
+# First, all data frames in the list need to have the stains as rownames:
+sim_all_c5 <- lapply(sim_all_c4, function (x){
+  rownames(x)<- x$Stain
+  x <- x[, -1]
+  head(x)
+})
+
+## Function to calculate explanation:
+# 1) For each stain's intensity categories: calculate n(n-1) (A)
+# 2) have a "SUM nr ROIs*((SUM  nr ROIs)-1), for each stain  (B)
+# 3) Calculate 1-(A/B) = C = the simpson's index of diversity to use.
+
+sim_all_c6 <- lapply(sim_all_c5, function (x){
+  apply(X = x, MARGIN = 1, FUN = function(g){
+    y <- g*(g-1)
+    A <- sum(y, na.rm = T)
+    B <- sum(g)
+    BB <- B*(B-1)
+    C <- 1-(A/BB)
+    C
+  })
+  })
+```
+
+```{r Simpsons PKR-2}
+sim_all_c6$`2` #Example of how the data matrix looks like, for just one case, PKR-2
+```
+
+```{r Simpson matrix 2 and remove NA,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+Simpsons_2 <- bind_rows(sim_all_c6, .id = "PKR")
+simpsons_2 <- melt(Simpsons_2, id.vars = "PKR") # NA:s here are stains not available (not quantified). These should be removed.
+
+colnames(simpsons_2)[2] <- "Stain"
+colnames(simpsons_2)[3] <- "Simpsons"
+simpsons_2$Group <- character(nrow(simpsons_2))
+simpsons_2$Group <- paste("PKR-", simpsons_2$PKR, " ", simpsons_2$Stain, sep="")
+
+simpsons_2 <- simpsons_2[!with(simpsons_2,is.na(Simpsons)),] #Remove NA rows, because we dont have data from these case-stains.
+simpline_q <- quantile(simpsons_2$Simpsons, na.rm = T)
+simpline <- simpline_q[4]
+
+```
+
+```{r plot Simpsons all cases and stains}
+ggplot(simpsons_2, aes(x=PKR, y=Simpsons, 
+                     color = Stain, fill = Stain, 
+                     position = "dodge")) +
+  geom_bar(stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  scale_fill_brewer(palette = "PuOr") +
+  scale_color_brewer(palette = "PuOr") + 
+  geom_hline(yintercept = simpline,linetype = "longdash") +
+  geom_text(aes(29.5, simpline, label = "3rd quantile", vjust = -1), col = "brown") +
+  labs(title = "Simpson index of all cases and stains") +
+  theme_clean() 
+```
+
+```{r Simpson matrix,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+#Make the dataset simpson_p, containing one more column where all the adjusted p-values for the wilcox tests are stored, for the respective case and stain.
+simpsons_p_2 <- simpsons_2
+# Spit the dataset on each stain, then match with columns pkr mutate to fill in the pvalues
+
+simp_split_2 <- split(simpsons_p_2, f = simpsons_p_2$Stain)
+colnames(stat.test_CK17)[9] <- "p_val"
+stat_CK17 <- stat.test_CK17[, c(1, 9)]
+simp_CK17_2 <- merge(stat_CK17, simp_split_2$CK17, all.x= T, all.y = T, by = "PKR")
+colnames(stat.test_CK5)[9] <- "p_val"
+stat_CK5 <- stat.test_CK5[, c(1, 9)]
+simp_CK5_2 <- merge(stat_CK5, simp_split_2$CK5, all.x= T, all.y = T, by = "PKR")
+colnames(stat.test_Muc5)[9] <- "p_val"
+stat_Muc5 <- stat.test_Muc5[, c(1, 9)]
+simp_Muc5_2 <- merge(stat_Muc5, simp_split_2$Muc5, all.x= T, all.y = T, by = "PKR")
+colnames(stat.test_HMGA2)[9] <- "p_val"
+stat_HMGA2 <- stat.test_HMGA2[, c(1, 9)]
+simp_HMGA2_2 <- merge(stat_HMGA2, simp_split_2$HMGA2, all.x= T, all.y = T, by = "PKR")
+colnames(stat.test_CDX2)[9] <- "p_val"
+stat_CDX2 <- stat.test_CDX2[, c(1, 9)]
+simp_CDX2_2 <- merge(stat_CDX2, simp_split_2$CDX2, all.x= T, all.y = T, by = "PKR")
+colnames(stat.test_CA125)[9] <- "p_val"
+stat_CA125 <- stat.test_CA125[, c(1, 9)]
+simp_CA125_2 <- merge(stat_CA125, simp_split_2$CA125, all.x= T, all.y = T, by = "PKR")
+
+simpsons_pval_2 <- rbind(simp_CA125_2, simp_CDX2_2, simp_CK17_2, simp_HMGA2_2, simp_Muc5_2, simp_CK5_2)
+simpsons_pval_2 <- simpsons_pval_2[, -6]
+
+#simpsons_pval_2 does have NA where statistical testsing could not be done(ie, for cases and stains that were "filled with 0".) Fill these instances with '0.99'.
+simpsons_pval_2[is.na(simpsons_pval_2)] <- 0.99
+
+# Making a mirror histogram:
+pline <- 0.05
+
+simpsons_lgpval_2 <- simpsons_pval_2
+simpsons_lgpval_2$p_val <- log10(simpsons_lgpval_2$p_val)
+
+```
+
+```{r mirror  barchart lg pval, scatterplots and venn}
+ggplot(simpsons_lgpval_2, aes(x=PKR, 
+                            color = Stain, fill = Stain, 
+                            position = "dodge")) +
+  geom_bar(aes(y = p_val), stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  geom_bar(aes(y = Simpsons), stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  scale_fill_brewer(palette= "BrBG", type = "div") +
+  scale_color_brewer(palette= "BrBG", type = "div") + 
+  geom_hline(yintercept = log10(pline), linetype = "dashed", color = "black") +
+  geom_text(aes(29.5, simpline, label = "3rd quantile", vjust = -1), size = 3, col = "black") +
+  geom_text(aes(28.8, log10(pline), label = "p = 0.05", vjust = -1), size = 3, col = "black") +
+  geom_hline(yintercept = simpline,linetype = "dashed", col = "black") +
+  geom_hline(yintercept = 0,linetype = "solid", color = "black")+
+  labs(title = "p-values of wilcoxon test and Simpsons for all cases and stains") +
+  ylab(c("lg(adjusted p-values from wilxocon testing)               Simpson index of diversity")) +
+  theme_clean()
+
+# Scatterplot
+
+x_line <- simpsons_pval_2$p_val
+y_line <- simpsons_pval_2$Simpsons
+
+scatter_simppval <- ggplot(simpsons_pval_2, aes(p_val, Simpsons, color = Stain), size = 4, alpha = 0.8)
+
+
+Suppl_Fig_10a <- scatter_simppval + geom_point(aes(alpha = 0.7, size = 0.5)) +
+  ggtitle("scatterplot of p-values and simpsons index: Suppl fig 10a") +
+  geom_hline(yintercept = simpline,linetype = "dashed", col = "black") +
+  geom_text(aes(0.75, simpline, label = "3rd quantile", vjust = -1), size = 4, col = "black") +
+  geom_vline(xintercept = pline, linetype = "dashed", color = "black") +
+  geom_text(aes(0.15, pline, label = "p = 0.05 ", vjust = -1), size = 4, col = "black") +
+  scale_color_manual(values = 
+                       c("CK17"="#e41a1c", "CK5"="#984ea3", "HMGA2" = "#ff7f00", "CA125" = "#ffff33", "CDX2" = "#4daf4a", "Muc5" = "#377eb8"))+
+  theme_clean()
+
+Suppl_Fig_10a
+
+scatter_simppval + geom_point(aes(alpha = 0.7, size = 3)) +
+  ggtitle("scatterplot of p-values and simpsons index") +
+  geom_hline(yintercept = simpline,linetype = "dashed", col = "black") +
+  geom_text(aes(0.75, simpline, label = "3rd quantile", vjust = -1), size = 4, col = "black") +
+  geom_vline(xintercept = pline, linetype = "dashed", color = "black") +
+  geom_text(aes(0.15, pline, label = "p = 0.05 ", vjust = -1), size = 4, col = "black") +
+  scale_color_manual(values = 
+                       c("CK17"="#e41a1c", "CK5"="#984ea3", "HMGA2" = "#ff7f00", "CA125" = "#ffff33", "CDX2" = "#4daf4a", "Muc5" = "#377eb8"))+
+  geom_smooth(method = "lm", se = FALSE) +
+  theme_clean()
+
+simpsons_pval_3 <- simpsons_pval_2
+simpsons_pval_3$Event_simp_above <- factor(186)
+simpsons_pval_3$Event_pval_below <- factor(186)
+
+simpsons_pval_3 <- simpsons_pval_3 %>% mutate(Event_simp_above = ifelse(Simpsons >= simpline, 
+                                                                  'true', .$Event_simp_above))
+simpsons_pval_3 <- simpsons_pval_3 %>% mutate(Event_pval_below = ifelse(p_val <= pline, 
+                                                                  'true', .$Event_pval_below))
+
+simpsons_pval_3 <- simpsons_pval_3 %>% mutate(Event_simp_above = ifelse(Event_simp_above != "true", 
+                                                                  'false', .$Event_simp_above))
+simpsons_pval_3 <- simpsons_pval_3 %>% mutate(Event_pval_below = ifelse(Event_pval_below != "true", 
+                                                                  'false', .$Event_pval_below))
+simpsons_pval_4 <- simpsons_pval_3[, c(1, 3, 5:7)]  
+simpsons_pval_4[is.na(simpsons_pval_4)] <- 'false'
+simpsons_venn <- simpsons_pval_4[, c(3, 4, 5)]
+simpsons_venn <- simpsons_venn  %>% mutate(across(starts_with("Event"), as.logical))
+
+library(ggVennDiagram)
+library(dichromat)
+Venn_simp_pval <- ggVennDiagram(lapply(simpsons_venn[, c(2, 3)], function (x)
+  which(x == 1)))
+
+library(survminer) 
+Suppl_Fig_10b <- Venn_simp_pval +
+  scale_fill_gradient(low = "#0072B2", high = "#CC79A7")
+  scale_colour_gradient(low = "#0072B2", high = "#CC79A7")
+  theme_cleantable()
+Suppl_Fig_10b #color changed
+
+```
+
+
+```{r simpsons count nr of instances}
+
+simppval_return <- simpsons_venn %>%
+  group_by(Event_pval_below, Event_simp_above) %>%
+  summarise(N.events = n())
+
+simppval_return 
+
+simpson_return_perstain <- simpsons_pval_2 %>%
+  group_by(Stain) %>%
+  summarise(N.instances = n())
+
+simpson_return_perstain
+sum(simpson_return_perstain$N.instances)
+```
+
+
+```{r Simpson 4 examples dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## To examplify, create a subset of a to re-create this type of graph with one example from each heterogenety/plasticity category:
+# PKR-2, 49, 70 and 17.
+simpson_2pval_2 <- simpsons_pval_2[simpsons_pval_2$PKR == c("2"), ]
+simpson_49pval_2 <- simpsons_pval_2[simpsons_pval_2$PKR == c("49"), ]
+simpson_70pval_2 <- simpsons_pval_2[simpsons_pval_2$PKR == c("70"), ]
+simpson_17pval_2 <- simpsons_pval_2[simpsons_pval_2$PKR == c("17"), ]
+ex_simpson_pval_2 <- rbind(simpson_2pval_2, simpson_49pval_2, simpson_70pval_2, simpson_17pval_2)
+
+exlg_simpson_pval_2 <- ex_simpson_pval_2
+exlg_simpson_pval_2$p_val <- log10(exlg_simpson_pval_2$p_val)
+```
+
+```{r Exlg pcval Simpsons }
+ggplot(exlg_simpson_pval_2, aes(x=PKR, 
+                              color = Stain, fill = Stain, 
+                              position = "dodge")) +
+  geom_bar(aes(y = p_val), stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  geom_bar(aes(y = Simpsons), stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  scale_fill_brewer(palette = "PuOr") +
+  scale_color_brewer(palette = "PuOr") + 
+  geom_hline(yintercept = log10(pline), linetype = "dashed", color = "brown") +
+  geom_hline(yintercept = simpline,linetype = "dashed", color = "brown") +
+  geom_hline(yintercept = 0,linetype = "solid", color = "black")+
+  geom_text(aes(4.4, log10(pline), label = "p < 0.05", vjust = 2), col = "brown") +
+  geom_text(aes(4.4, simpline, label = "3rd quantile", vjust = -1), col = "brown") +
+  labs(title = "p-values of wilcoxon test and Simpsons") +
+  ylab(c("log(adjusted p-values from wilxocon testing)                            Simpson index of diversity")) +
+  ylim(-3.8, 1.5) +
+  theme_clean()
+```
+
+```{r comparing heterogeneity measures dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+## Making groups for high heterogenous PKRs based on simpsons. 
+simpsons_above <- simpsons_2$Simpsons >= simpline
+simpsons_ab <- simpsons_2[simpsons_above, ] #NA is filled in those without the match, remove those...
+library(Hmisc)
+simpsons_pass <- na.delete(simpsons_ab)
+ssimp <- split(simpsons_pass, f = simpsons_pass$PKR)
+
+ssimp2 <- lapply(X= ssimp, function (x) {
+  nrow(x)
+})
+ssimp3 <- bind_rows(ssimp2)
+# This is now PKR in column names, and in row 1 how many stains that case had that were considered highly heterogenous (cutoff 3rd quantile) using Simpson index of diversity.
+# This can be added to m_Crows, prev. used for metadata in the heatmaps.
+ssimp4 <- melt(ssimp3)
+
+rownames(ssimp4) <- ssimp4$variable
+rownames(ssimp4) <- paste(rownames(ssimp4), " ", sep="")
+str(ssimp4)
+
+het <- merge(ssimp4, m_Crows,by = 'row.names', all = T)
+str(het)
+## Now same grouping for heterogeneity as plasticity:
+# Extensive: 3 or more markers above simpson threshold
+# Moderate: 2 markers above simpson threshold
+# Slight plasticity: One marker above simpson threshold
+het$Heterogeneity <- character(31)
+het$Heterogeneity <- "None"
+het1<- het %>% mutate(Heterogeneity = ifelse(grepl('1', het$value), 'Slight', .$Heterogeneity))
+het2<- het1 %>% mutate(Heterogeneity = ifelse(grepl('2', het1$value), 'Moderate', .$Heterogeneity))
+het3<- het2 %>% mutate(Heterogeneity = ifelse(grepl('3', het2$value), 'Extensive', .$Heterogeneity))
+het <- het3 %>% mutate(Heterogeneity = ifelse(grepl('4', het3$value), 'Extensive', .$Heterogeneity))
+
+het <- het[, -c(2, 3)]
+# het has ordinal variables, which is un-plottable as barcharts.
+# So these will needs to be ranked instead.
+# None = 0.5 ( this is in order to see those represented and not just as empty space in the charts)
+# Slight = 1
+# Moderate = 2
+# Extensive = 3
+
+het$Heterogeneity_Cat <- numeric(31)
+het$Heterogeneity_Cat <- 0
+het1 <- het %>% mutate(Heterogeneity_Cat = ifelse(grepl('Slight', het$Heterogeneity), '1', .$Heterogeneity_Cat))
+het2<- het1 %>% mutate(Heterogeneity_Cat = ifelse(grepl('Moderate', het1$Heterogeneity), '2', .$Heterogeneity_Cat))
+het<- het2 %>% mutate(Heterogeneity_Cat = ifelse(grepl('Extensive', het2$Heterogeneity), '3', .$Heterogeneity_Cat))
+
+het$Plasticity_Cat <- numeric(31)
+het$Plasticity_Cat <- 0
+het1<- het %>% mutate(Plasticity_Cat = ifelse(grepl('Slight', het$Plasticity), '1', .$Plasticity_Cat))
+het2<- het1 %>% mutate(Plasticity_Cat = ifelse(grepl('Moderate', het1$Plasticity), '2', .$Plasticity_Cat))
+het<- het2 %>% mutate(Plasticity_Cat = ifelse(grepl('Extensive', het2$Plasticity), '3', .$Plasticity_Cat))
+
+het$Heterogeneity_Cat <- as.numeric(het$Heterogeneity_Cat)
+het$Plasticity_Cat <- as.numeric(het$Plasticity_Cat)
+het$PKR <- as.character(het$Row.names)
+row.names(het) <- het$PKR
+het$PKR<-gsub("PKR-","",as.character(het$PKR))
+#het <- het[, -1]
+str(het)
+het$Group <- character(31)
+het$Group <-  "Same"
+het <- het %>% mutate(Group=ifelse(Heterogeneity_Cat > Plasticity_Cat, 'Het_Simpsons higher', .$Group))
+het <- het %>% mutate(Group=ifelse(Plasticity_Cat > Heterogeneity_Cat, 'Het_Wilcox higher', .$Group))
+```
+
+```{r Comparing heterogeneity measures}
+ggplot(het, aes(x=PKR, position = "dodge", color = Group, fill = Group)) +
+  geom_bar(aes(y = Heterogeneity_Cat), stat = "identity", width=0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  geom_bar(aes(y = -Plasticity_Cat), stat = "identity", width = 0.6, position = position_dodge2(width = 0.5, preserve = "single")) +
+  scale_fill_brewer(palette = "Accent") +
+  scale_color_brewer(palette = "Accent") + 
+  geom_hline(yintercept = 0,linetype = "solid", color = "black")+
+  labs(title = "Comparing heterogeneity measures") +
+  ylab(c("Plasticity by Wilcox                            Heterogeneity by Simpsons")) +
+  scale_y_continuous(breaks=c(-3, -2, -1, 1, 2, 3), label= c("Extensive", "Moderate", "Slight", "Slight", "Moderate", "Extensive")) +
+  theme_clean()
+```
+
+```{r Aggregated acinar and stromal expression dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### Aggregated histogram plots #####
+# Visualizing if there is a any grouping of low or high heterogeneity, depending on markers expressed in either compartment.
+waterr <- all_combined[, c(1, 2, 3, 4, 7, 12)]
+water <- split(waterr, f = waterr$PKR)
+
+watertoplot <- lapply(water, function (x){
+  a <- x[x$Tissue_compartment %in% c('Lobule'), ]  # So it only retrieves acinar ROIs.
+  b <- a[a$Stain %in% c('CK17', 'CK5', 'HMGA2', 'CA125'), ] #only keep the basal like related markers in "b"
+  c <- sum(a$Num.Tumor..Positive) # nr of positive tumor cells in "c" (So not total numer of cell detections.)
+  d <- sum(b$Num.Tumor..Positive) # Nr of basal like related positive cells
+  cla <- a[a$Stain %in% c('Muc5', 'CDX2'), ]
+  e <- sum(cla$Num.Tumor..Positive) #nr of classical related positive cells
+  ratio_bas <- d/c
+  ratio_cla <- e/c 
+  plo <- data_frame(Basal_r = ratio_bas, Classical_r = ratio_cla) # For the individual case, the ratio of basal like and classical markers out of the total nr of positive cells is noted in "plo".
+})
+
+bound <- bind_rows(watertoplot, .id = "tib") 
+colnames(bound)[1] <- "Case_ID"
+head(bound)
+
+wat <- melt(bound, id = "Case_ID",variable.name = "Group", value.name = "Ratio")
+head(wat)
+
+wat$Group <- factor(wat$Group, levels = c('Classical_r', 'Basal_r'))
+wat2 <- wat %>%
+  arrange(desc(Group), Ratio)
+wat3 <- wat2 %>%
+  mutate(Case_ID = factor(Case_ID, unique(Case_ID)))
+
+ratio_cols <- c("#FFe5ec", "#ceeaf6")
+ratio_cols_acinar <- c(Classical_r = "#ceeaf6", Basal_r = "#FFe5ec")
+Ratio_Lobule <-ggplot(wat3, aes(x=Case_ID, y=Ratio, fill=Group)) +
+  geom_col() +
+  labs(title = "Ratio of all positive cells in acinar ROIs", subtitle = "All cases") +
+  theme_clean()+
+  scale_fill_manual(values=ratio_cols_acinar)
+
+Ratio_Lobule
+
+watertoplot_stroma <- lapply(water, function (x){
+  s <- x[x$Tissue_compartment %in% c('Stroma'), ]  
+  b <- s[s$Stain %in% c('CK17', 'CK5', 'HMGA2', 'CA125'), ] 
+  c <- sum(s$Num.Tumor..Positive)
+  d <- sum(b$Num.Tumor..Positive) 
+  cla <- s[s$Stain %in% c('Muc5', 'CDX2'), ]
+  e <- sum(cla$Num.Tumor..Positive) 
+  ratio_bas <- d/c
+  ratio_cla <- e/c 
+  plo <- data_frame(Basal_r = ratio_bas, Classical_r = ratio_cla)
+})
+head(watertoplot_stroma)
+
+bound_stroma <- bind_rows(watertoplot_stroma, .id = "tib") 
+colnames(bound_stroma)[1] <- "Case_ID"
+
+wat_s <- melt(bound_stroma, id = "Case_ID",variable.name = "Group", value.name = "Ratio")
+wat2_s <- wat_s %>%
+  arrange(desc(Group), Ratio)
+wat3_s <- wat2_s %>%
+  mutate(Case_ID = factor(Case_ID, unique(Case_ID)))
+
+Ratio_stroma <-ggplot(wat3_s, aes(x=Case_ID, y=Ratio, fill=Group)) +
+  geom_col() +
+  labs(title = "Ratio of all positive cells in stromal ROIs", subtitle = "All cases") +
+  theme_clean()+
+  scale_fill_manual(values=ratio_cols)
+
+Ratio_stroma
+
+# Now a faceted plot with both acinar and stromal ROIs. 
+head(wat3)
+head(wat3_s)
+wat_joined <- bind_rows( "Stromal" = wat3_s, "Acinar" = wat3, .id= "ROI") #The order of "stromal" and "acinar" here determine the order that will show up in the plot "sp"
+
+sp <- ggplot(wat_joined, aes(x = Case_ID, y = Ratio, fill = Group)) +
+  geom_col(width = 0.7) +
+  theme_clean()+
+  scale_fill_manual(values=ratio_cols)
+
+```
+
+
+```{r Aggregted histograms on stroma and acinar}
+sp + 
+  facet_grid(ROI ~ .)+ #sort on (basal like) expression in stroma.
+  labs(title = "Ratio of classical and basal-like expressing cells in stromal and acinar ROIs", subtitle = "All cases") 
+```
+
+```{r Aggregates_with plasticity,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+
+# Visualise if there is any clustering or in other of the heterogenetiy classes
+# Such as in the metadata m_Crows, a copy is made ("Plasticity_degree") 
+
+Plasticity_degree <- m_Crows
+Plasticity_degree$Case_ID <- row.names(Plasticity_degree) 
+
+wat3_m <- wat3
+wat3_str_m <- wat3_s
+library(stringr)
+wat3_m$Case_ID <- as.character(wat3_m$Case_ID)
+wat3_m <- wat3_m %>% 
+  mutate(Case_ID = str_replace_all(Case_ID," ", ""))
+Plasticity_degree <- Plasticity_degree %>% 
+  mutate(Case_ID = str_replace_all(Case_ID," ", ""))
+wat3_meta <- merge(wat3_m, Plasticity_degree, by = "Case_ID")
+
+wat3_str_m$Case_ID <- as.character(wat3_str_m$Case_ID)
+wat3_str_m <- wat3_str_m %>% 
+  mutate(Case_ID = str_replace_all(Case_ID," ", ""))
+wat3_str_meta <- merge(wat3_str_m, Plasticity_degree, by = "Case_ID")
+
+wat_joined_meta <- bind_rows("Acinar" = wat3_meta,  "Stromal" = wat3_str_meta, .id= "ROI")
+
+wat2_s_joined <- wat_joined_meta %>%
+  arrange(desc(Plasticity), Ratio)
+wat3_s_joined <- wat2_s_joined %>%
+  mutate(Case_ID = factor(Case_ID, unique(Case_ID)))
+Plast_order <- c("Extensive", "Moderate", "Slight", "None", "Classical", "Basal")
+ratios_joined <- wat3_s_joined %>% 
+  arrange(factor(Plasticity, levels = Plast_order))
+
+Ratio_joined <- ggplot(ratios_joined, aes(x = Case_ID, y = Ratio, fill = Group)) +
+  geom_col(width = 0.7) +
+  theme_clean()+
+  scale_fill_manual(values=ratio_cols_acinar)
+```
+
+```{r Aggreg. Ratio plasticity}
+Ratio_joined + 
+  facet_grid(ROI ~ .) +
+  geom_point(aes(color=Plasticity, alpha = Group)) +
+  scale_colour_manual(values = c(Extensive = "#4D004B", Moderate = "#8C6BB1", Slight = "#9EBCDA", None = "#808080", Classical = "#97C8FF", Basal = "#FF6242")) +
+  scale_alpha_discrete(range=c(0, 1))+
+  labs(title = "Ratio of all positive cells separated on compartment", subtitle = "All cases")  
+
+```
+
+```{r Ratio_no plasticity,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+### The ratio plots, but with only no plasticity ###
+ratio_noplast <- split(ratios_joined, f = ratios_joined$Plasticity)
+ratio_noplast <- ratio_noplast$None
+ratio_noplast_s <- ratio_noplast %>%
+  arrange(desc(Group), Ratio)
+
+
+# Cases with no plasticity, drawn manually from wat_joined(the sorted datafile):
+wat_joined$Case_ID <- as.character(wat_joined$Case_ID)
+wat_joined_noplast <- wat_joined[wat_joined$Case_ID %in% c("15", "17", "52a", "66", "32", "58", "47"), ]
+
+
+sp_noplast <- ggplot(wat_joined_noplast, aes(x = Case_ID, y = Ratio, fill = Group)) +
+  geom_col(width = 0.7) +
+  theme_clean()+
+  scale_fill_manual(values=ratio_cols) +
+  labs(title = "Ratio of all positive cells separated on compartment", subtitle = "Subgroup: Only cases with no plasticity") 
+
+```
+
+```{r ratio_aggr no plast}
+sp_noplast + 
+  facet_grid(ROI ~ .) #sort on (basal like) expression in stroma.
+```
+
+```{r no plast pca dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### More about the cases considered to not have any (Tissue_compartment dependent) plasticity #####
+
+# Dataset: from all_combined, and add the cases' plasticity groups, -> subset to only include no-plasticity cases.
+
+str(all_combined)
+all_combined$Plasticity <- "None"
+
+all_combined$PKR <- paste("PKR-", all_combined$PKR, " ", sep = "")
+
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-2 ', all_combined$PKR), 'Extensive', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-16', all_combined$PKR), 'Extensive', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-30', all_combined$PKR), 'Extensive', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-51', all_combined$PKR), 'Extensive', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-24', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-13', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-29', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-46', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-49', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-60', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-67', all_combined$PKR), 'Moderate', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-1 ', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-70', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-11', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-18', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-4 ', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-50', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-65', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-55', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-62', all_combined$PKR), 'Slight', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-12', all_combined$PKR), 'Slight', .$Plasticity))
+
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-63', all_combined$PKR), 'Classical', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-14', all_combined$PKR), 'Basal', .$Plasticity))
+all_combined <- all_combined %>% mutate(Plasticity = ifelse(grepl('PKR-57', all_combined$PKR), 'Basal', .$Plasticity))
+
+all_combined$PKR<-gsub("PKR-","", as.character(all_combined$PKR))
+
+all_noplast <- all_combined[all_combined$Plasticity == "None", c("PKR", "Stain", "Class", "Tumor..Positive..", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
+str(all_noplast)
+
+### Goal: to compare the cases and see if anything (out of stains + ROIs) drives a grouping between them. ###
+# Visualise if there is any general difference on the individual cases.
+# for that, make "PKR" rownames alt. an individual column 
+# Stain + ROI, are the variables to see if they drive any separation. This is the column "Group_Stain_Class".
+
+pcamatrix_noplast <- dcast(data = all_noplast, PKR ~ Group_Stain_Class,
+                           value.var = "Tumor..Positive..")
+pcamatrix_noplast[is.na(pcamatrix_noplast)] <- 0
+rownames(pcamatrix_noplast) <- pcamatrix_noplast$PKR
+head(pcamatrix_noplast)
+```
+
+```{r PCA of no plasticity cases}
+autoplot(prcomp(pcamatrix_noplast[2:109]),  label = TRUE, shape = FALSE, repel = TRUE, main = "PCA plot of non-plasticity cases") #each dot = each case.
+# For PC3:
+autoplot(prcomp(pcamatrix_noplast[2:109]), x = 3, y = 2, label = TRUE, shape = FALSE, repel = TRUE, main = "PCA plot of non-plasticity cases PC2 and PC3") #each dot = each case.
+summary(prcomp(pcamatrix_noplast[2:109]))
+library(factoextra)
+fviz_screeplot(prcomp(pcamatrix_noplast[2:109]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s, non-plasticity")
+
+autoplot(prcomp(pcamatrix_noplast[2:109]), loadings = T, loadings.label = T, loadings.label.repel = TRUE, repel = TRUE) #each dot = each case.
+
+# top stain + ROIs that contribute to PC1, PC2 and PC3:
+fviz_contrib(prcomp(pcamatrix_noplast[2:109]), choice = "var", axes = 1, top = 35, title = "Top 35 Stain+ROIs contributing to PC1, non-plasticity cases")
+fviz_contrib(prcomp(pcamatrix_noplast[2:109]), choice = "var", axes = 2, top = 20, title = "Top 20 Stain+ROIs contributing to PC2, non-plasticity cases")
+fviz_contrib(prcomp(pcamatrix_noplast[2:109]), choice = "var", axes = 3, top = 15, title = "Top 15 Stain+ROIs contributing to PC3, non-plasticity cases")
+```
+
+
+```{r no plast pca_pooled,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+
+a$Group_Case_Tissue_compartment <- factor(372)
+a$Group_Case_Tissue_compartment <- paste("PKR-", a$PKR, " ", a$Tissue_compartment, sep = "")
+pcamatrix_pooled <- a
+# Add plasticity information
+pcamatrix_pooled$Plasticity <- factor(372)
+pcamatrix_pooled$Plasticity <- "None"
+
+pcamatrix_pooled$PKR <- paste("PKR-", pcamatrix_pooled$PKR, " ", sep = "")
+
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-2 ', pcamatrix_pooled$PKR), 'Extensive', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-16', pcamatrix_pooled$PKR), 'Extensive', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-30', pcamatrix_pooled$PKR), 'Extensive', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-51', pcamatrix_pooled$PKR), 'Extensive', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-24', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-13', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-29', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-46', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-49', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-60', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-67', pcamatrix_pooled$PKR), 'Moderate', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-1 ', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-70', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-11', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-18', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-4 ', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-50', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-65', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-55', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-62', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-12', pcamatrix_pooled$PKR), 'Slight', .$Plasticity))
+
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-63', pcamatrix_pooled$PKR), 'Classical', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-14', pcamatrix_pooled$PKR), 'Basal', .$Plasticity))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(Plasticity = ifelse(grepl('PKR-57', pcamatrix_pooled$PKR), 'Basal', .$Plasticity))
+
+
+pcamatrix_pooled$PKR<-gsub("PKR-","", as.character(pcamatrix_pooled$PKR))
+
+pcamatrix_pooled <- dcast(data = pcamatrix_pooled, Group_Case_Tissue_compartment + Tissue_compartment + Plasticity ~ Average_Stain,
+                          value.var = "Avg_value")
+rownames(pcamatrix_pooled) <- pcamatrix_pooled$Group_Case_Tissue_compartment
+str(pcamatrix_pooled)
+
+### PCA for only no-plasticity ###
+pcapooled_noplast <- pcamatrix_pooled[pcamatrix_pooled$Plasticity == "None", c("Group_Case_Tissue_compartment", "Tissue_compartment", "CK17", "CK5", "HMGA2", "CA125", "Muc5", "CDX2")]
+
+```
+
+```{r plot PCA pooled no plast}
+PCA_pooled_noplast <- autoplot(prcomp(pcapooled_noplast[3:8]), data = pcapooled_noplast, colour = 'Tissue_compartment', shape = 'Tissue_compartment', size = 5, label = TRUE, repel = TRUE, label.repel = TRUE, main = "PCA plot of non-plasticity cases' pooled ROI expression") #each dot = pooled lobular ROIs of individual case. each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_noplast
+
+PCA_pooled_noplast_loadings <- autoplot(prcomp(pcapooled_noplast[3:8]), loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, loadings.label.size  = 5, data = pcapooled_noplast, colour = 'Tissue_compartment', shape = 'Tissue_compartment', size = 3, label = FALSE, repel = TRUE, main = "PCA plot of non-plasticity cases' pooled ROI expression with loadings") #each dot = pooled lobular ROIs of individual case. each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_noplast_loadings
+
+summary(prcomp(pcapooled_noplast[3:8]))
+fviz_screeplot(prcomp(pcapooled_noplast[3:8]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s, non-plasticity cases pooled")
+
+#### Add in the fviz_contrib ####
+fviz_contrib(prcomp(pcapooled_noplast[3:8]), choice = "var", axes = 1, top = 6, title = "Ratio of stains contributing to PC1, non-plasticity cases pooled")
+fviz_contrib(prcomp(pcapooled_noplast[3:8]), choice = "var", axes = 2, top = 6, title = "Ratio of stains contributing to PC2, non-plasticity cases pooled")
+```
+
+```{r all cases pca_pooled dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### PCA for all cases #####
+
+all_pca <- all_combined[c("PKR", "Stain", "Class", "Tumor..Positive..", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment", "Plasticity")]
+
+pcamatrix_all <- dcast(data = all_pca, PKR + Plasticity ~ Group_Stain_Class,
+                           value.var = "Tumor..Positive..")
+pcamatrix_all[is.na(pcamatrix_all)] <- 0
+rownames(pcamatrix_all) <- pcamatrix_all$PKR
+```
+
+```{r plot pca plot of all cases}
+autoplot(prcomp(pcamatrix_all[,3:110]), data = pcamatrix_all, colour = 'Plasticity', shape = FALSE, label = TRUE, repel = TRUE, main = "PCA plot of all cases") #each dot = each case.
+autoplot(prcomp(pcamatrix_all[,3:110]), data = pcamatrix_all, x = 3, y = 4, colour = 'Plasticity', shape = FALSE, label = TRUE, repel = TRUE, main = "PCA plot of all cases") #each dot = each case.
+
+summary(prcomp(pcamatrix_all[,3:110]))
+fviz_screeplot(prcomp(pcamatrix_all[,3:110]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s,all cases")
+
+```
+
+```{r all cases avg pca_pooled dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+### Goal #2: to compare if basal and/or classical stains can drive difference between stromal or lobular ROI's expression. ###
+# Use the average expression per compartment, per case.
+PCA_pooled_all <- autoplot(prcomp(pcamatrix_pooled[4:9]), data = pcamatrix_pooled, colour = 'Plasticity', shape = 'Tissue_compartment', size = 5, label = FALSE, repel = TRUE, main = "PCA plot of all cases' pooled ROI expression") #each dot = pooled lobular ROIs of individual case. each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_all
+
+PCA_pooled_all_loadings <- autoplot(prcomp(pcamatrix_pooled[4:9]), loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, loadings.label.size  = 5, data = pcamatrix_pooled, colour = 'Plasticity', shape = 'Tissue_compartment', size = 3, label = FALSE, repel = TRUE, main = "PCA plot of all cases' pooled ROI expression with loadings") #Each dot = pooled lobular ROIs of individual case. each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_all_loadings 
+
+summary(prcomp(pcamatrix_pooled[4:9]))
+fviz_screeplot(prcomp(pcamatrix_pooled[4:9]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s, all cases pooled")
+
+# Contribution to PC1 and PC2
+fviz_contrib(prcomp(pcamatrix_pooled[4:9]), choice = "var", axes = 1, top = 6, title = "Ratio of stains contributing to PC1, Tissue_compartment-pooled, all cases")
+fviz_contrib(prcomp(pcamatrix_pooled[4:9]), choice = "var", axes = 2, top = 6, title = "Ratio of stains contributing to PC2, Tissue_compartment-pooled, all cases")
+
+# PC3 and PC4
+autoplot(prcomp(pcamatrix_pooled[4:9]), x = 3, y = 4, loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, data = pcamatrix_pooled, colour = 'Plasticity', shape = 'Tissue_compartment', size = 5, label = FALSE, repel = TRUE, main = "PCA plot of all cases' pooled ROI expression: PC3 and PC4") #each dot = pooled lobular ROIs of individual case. Each triangle = pooled stromal ROIs of an individual case.
+fviz_contrib(prcomp(pcamatrix_pooled[4:9]), choice = "var", axes = 3, top = 6, title = "Ratio of stains contributing to PC3, Tissue_compartment-pooled, all cases")
+fviz_contrib(prcomp(pcamatrix_pooled[4:9]), choice = "var", axes = 4, top = 6, title = "Ratio of stains contributing to PC4, Tissue_compartment-pooled, all cases")
+```
+ 
+
+```{r PCA any plasticity}
+
+### PCA of any degree of plasticity ###
+
+pcapooled_plast <- pcamatrix_pooled[pcamatrix_pooled$Plasticity != "None", c("Group_Case_Tissue_compartment", "Plasticity", "Tissue_compartment", "CK17", "CK5", "HMGA2", "CA125", "Muc5", "CDX2")]
+str(pcapooled_plast)
+
+PCA_pooled_plast <- autoplot(prcomp(pcapooled_plast[4:9]), data = pcapooled_plast, colour = 'Plasticity', shape = 'Tissue_compartment', size = 5, repel = TRUE,  main = "PCA plot of any type of plasticity cases' pooled ROI expression") #Each dot = pooled lobular ROIs of individual case. Each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_plast
+
+PCA_pooled_plast_loadings <- autoplot(prcomp(pcapooled_plast[4:9]), loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, loadings.label.size  = 5, data = pcapooled_plast, colour = 'Tissue_compartment', shape = 'Tissue_compartment', size = 3, label = FALSE, repel = TRUE, main = "PCA plot of any-plasticity cases' pooled ROI expression with loadings") #each dot = pooled lobular ROIs of individual case. each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_plast_loadings
+
+summary(prcomp(pcapooled_plast[4:9]))
+fviz_screeplot(prcomp(pcapooled_plast[4:9]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s, any plasticity cases pooled")
+```
+
+```{r PCA dm all case pooled color on PKR ID}
+#pooled. Use from the pcamatrix_pooled.
+
+pcamatrix_pooled$PKR <- factor(62)
+
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-1 ', .$Group_Case_Tissue_compartment), 'PKR-1 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-2 ', .$Group_Case_Tissue_compartment), 'PKR-2 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-11 ', .$Group_Case_Tissue_compartment), 'PKR-11 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-12 ', .$Group_Case_Tissue_compartment), 'PKR-12 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-13 ', .$Group_Case_Tissue_compartment), 'PKR-13 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-14 ', .$Group_Case_Tissue_compartment), 'PKR-14 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-15 ', .$Group_Case_Tissue_compartment), 'PKR-15 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-16 ', .$Group_Case_Tissue_compartment), 'PKR-16 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-17 ', .$Group_Case_Tissue_compartment), 'PKR-17 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-18 ', .$Group_Case_Tissue_compartment), 'PKR-18 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-24 ', .$Group_Case_Tissue_compartment), 'PKR-24 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-29 ', .$Group_Case_Tissue_compartment), 'PKR-29 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-30 ', .$Group_Case_Tissue_compartment), 'PKR-30 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-32 ', .$Group_Case_Tissue_compartment), 'PKR-32 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-4 ', .$Group_Case_Tissue_compartment), 'PKR-4 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-46 ', .$Group_Case_Tissue_compartment), 'PKR-46 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-47 ', .$Group_Case_Tissue_compartment), 'PKR-47 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-49 ', .$Group_Case_Tissue_compartment), 'PKR-49 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-50 ', .$Group_Case_Tissue_compartment), 'PKR-50 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-51 ', .$Group_Case_Tissue_compartment), 'PKR-51 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-52a ', .$Group_Case_Tissue_compartment), 'PKR-52a ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-55 ', .$Group_Case_Tissue_compartment), 'PKR-55 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-57 ', .$Group_Case_Tissue_compartment), 'PKR-57 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-58 ', .$Group_Case_Tissue_compartment), 'PKR-58 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-60 ', .$Group_Case_Tissue_compartment), 'PKR-60 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-62 ', .$Group_Case_Tissue_compartment), 'PKR-62 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-63 ', .$Group_Case_Tissue_compartment), 'PKR-63 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-65 ', .$Group_Case_Tissue_compartment), 'PKR-65 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-66 ', .$Group_Case_Tissue_compartment), 'PKR-66 ', .$PKR))
+pcamatrix_pooled <- pcamatrix_pooled %>% mutate(PKR = ifelse(grepl('PKR-70 ', .$Group_Case_Tissue_compartment), 'PKR-70 ', .$PKR))
+```
+
+```{r plot PCA all cases grouped on PKR ID}
+
+PCA_pooled_all_PKR <- autoplot(prcomp(pcamatrix_pooled[4:9]), data = pcamatrix_pooled, colour = 'PKR', shape = 'Tissue_compartment', size = 5, label = FALSE, repel = TRUE, main = "PCA plot of all cases' pooled ROI expression") #each dot = pooled lobular ROIs of individual case. Each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_all_PKR
+
+PCA_pooled_all_loadings_PKR <- autoplot(prcomp(pcamatrix_pooled[4:9]), loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, loadings.label.size  = 5, data = pcamatrix_pooled, colour = 'PKR', shape = 'Tissue_compartment', size = 3, label = FALSE, repel = TRUE, main = "PCA plot of all cases' pooled ROI expression with loadings") #each dot = pooled lobular ROIs of individual case. Each triangle = pooled stromal ROIs of an individual case.
+
+PCA_pooled_all_loadings_PKR 
+var <- get_pca_var(prcomp(pcamatrix_pooled[4:9]))
+head(var$coord)
+var <- get_pca_var(prcomp(pcamatrix_pooled[4:9]))
+head(var$coord)
+Var_coord <- var$coord
+ind <- get_pca_ind(prcomp(pcamatrix_pooled[4:9]))
+head(ind$coord)
+Ind_coord <- ind$coord # Here coordinates for each cases' compartment, for 6 dimensions.
+```
+
+
+```{r overall subtypes dm,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+##### Assign "overall" subtypes #####
+
+colnames(stat.test.CK17_m)[9] <- 'p.adj'
+colnames(stat.test.CK5_m)[9] <- 'p.adj'
+colnames(stat.test.Muc5_m)[9] <- 'p.adj'
+colnames(stat.test.CDX2_m)[9] <- 'p.adj'
+colnames(stat.test.HMGA2_m)[9] <- 'p.adj'
+colnames(stat.test.CA125_m)[9] <- 'p.adj'
+
+stat.Muc5 <- stat.test.Muc5_m[, c(1, 9, 11, 12, 13, 14)]
+stat.CDX2 <- stat.test.CDX2_m[, c(1, 9, 11, 12, 13, 14)]
+stat.CK17 <- stat.test.CK17_m[, c(1, 9, 11, 12, 13, 14)]
+stat.CA125 <- stat.test.CA125_m[, c(1, 9, 11, 12, 13, 14)]
+stat.HMGA2 <- stat.test.HMGA2_m[, c(1, 9, 11, 12, 13, 14)]
+stat.CK5 <- stat.test.CK5_m[, c(1, 9, 11, 12, 13, 14)]
+
+
+stat.Muc5$Stain <- factor("Muc5")
+colnames(stat.Muc5)[3] <- 'Median_stroma'
+colnames(stat.Muc5)[4] <- 'Median_Lobule'
+colnames(stat.Muc5)[5] <- 'Mean_Lobule'
+colnames(stat.Muc5)[6] <- 'Mean_stroma'
+
+stat.CDX2$Stain <- factor("CDX2")
+colnames(stat.CDX2)[3] <- 'Median_stroma'
+colnames(stat.CDX2)[4] <- 'Median_Lobule'
+colnames(stat.CDX2)[5] <- 'Mean_Lobule'
+colnames(stat.CDX2)[6] <- 'Mean_stroma'
+
+stat.CK17$Stain <- factor("CK17")
+colnames(stat.CK17)[3] <- 'Median_stroma'
+colnames(stat.CK17)[4] <- 'Median_Lobule'
+colnames(stat.CK17)[5] <- 'Mean_Lobule'
+colnames(stat.CK17)[6] <- 'Mean_stroma'
+
+stat.CK5$Stain <- factor("CK5")
+colnames(stat.CK5)[3] <- 'Median_stroma'
+colnames(stat.CK5)[4] <- 'Median_Lobule'
+colnames(stat.CK5)[5] <- 'Mean_Lobule'
+colnames(stat.CK5)[6] <- 'Mean_stroma'
+
+stat.HMGA2$Stain <- factor("HMGA2")
+colnames(stat.HMGA2)[3] <- 'Median_stroma'
+colnames(stat.HMGA2)[4] <- 'Median_Lobule'
+colnames(stat.HMGA2)[5] <- 'Mean_Lobule'
+colnames(stat.HMGA2)[6] <- 'Mean_stroma'
+
+stat.CA125$Stain <- factor("CA125")
+colnames(stat.CA125)[3] <- 'Median_stroma'
+colnames(stat.CA125)[4] <- 'Median_Lobule'
+colnames(stat.CA125)[5] <- 'Mean_Lobule'
+colnames(stat.CA125)[6] <- 'Mean_stroma'
+
+all_stats <- merge(stat.CK17, stat.CA125, by = c(colnames(stat.CDX2)), all.x = TRUE, all.y = TRUE)
+all_stats <- merge(all_stats, stat.HMGA2, by = c(colnames(stat.CDX2)), all.x = TRUE, all.y = TRUE)
+all_stats <- merge(all_stats, stat.CK5, by = c(colnames(stat.CDX2)), all.x = TRUE, all.y = TRUE)
+all_stats <- merge(all_stats, stat.Muc5, by = c(colnames(stat.CDX2)), all.x = TRUE, all.y = TRUE)
+all_stats <- merge(all_stats, stat.CDX2, by = c(colnames(stat.CDX2)), all.x = TRUE, all.y = TRUE)
+
+all_stats$p.adj[is.na(all_stats$p.adj)] <- 1 # na = stat test could not be done since "0" in to many ROIs.
+
+all_stats_filt <- all_stats %>% 
+  filter(Mean_stroma > 0.1 | Mean_Lobule > 0.1) # either stromal or lobular rois above 0.5 to be included. if one compartment is high and the other low, it should be kept still.
+
+str(all_stats_filt)
+all_stats_filt$Marker_type <- factor("Basal_like")
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('Muc5', .$Stain), 'Classical', .$Marker_type))
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('CDX2', .$Stain), 'Classical', .$Marker_type))
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('CK17', .$Stain), 'Basal_like', .$Marker_type))
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('CK5', .$Stain), 'Basal_like', .$Marker_type))
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('HMGA2', .$Stain), 'Basal_like', .$Marker_type))
+all_stats_filt <- all_stats_filt %>% mutate(Marker_type = ifelse(grepl('CA125', .$Stain), 'Basal_like', .$Marker_type))
+
+all_stats_filt$Mean_overall <- numeric(132)
+all_stats_filt$Avg_cl_half <- numeric(132)
+all_stats_filt$Avg_ba_half <- numeric(132)
+
+### 1. Categorise the overall case as classical or basal like, depending on whether more or less than the mean of AVERAGE tumor cells are positive . of the OVERALL EXPRESSION. ###
+## Fill in if the basal-like stains are expressed more than the classical ones, per stain ##
+
+
+all_stats_filt$Mean_overall=rowMeans(all_stats_filt[,c("Mean_Lobule", "Mean_stroma")], na.rm=TRUE)
+sf_allstats_mtype <- split(all_stats_filt, f = all_stats_filt$Marker_type)
+sf_classical <- sf_allstats_mtype$Classical
+sf_basal <- sf_allstats_mtype$Basal_like
+
+#mean expression per marker type
+mean_cl <- mean(sf_classical$Mean_overall)
+mean_ba <- mean(sf_basal$Mean_overall)
+
+sf_classical <- sf_classical %>% mutate(Avg_cl_half=ifelse(sf_classical$Mean_overall > mean_cl, '1', .$Avg_cl_half))
+sf_basal <- sf_basal %>% mutate(Avg_ba_half=ifelse(sf_basal$Mean_overall > mean_ba, '1', .$Avg_ba_half))
+
+sf_allstats_cba <- merge(sf_classical, sf_basal, all.x = TRUE, all.y = TRUE, by = c(colnames(sf_classical)))
+sf_allstats_cba$Avg_ba_half <- as.numeric(sf_allstats_cba$Avg_ba_half)
+sf_allstats_cba$Avg_cl_half <- as.numeric(sf_allstats_cba$Avg_cl_half)
+sf_allstats_cba$Overall_subtype <- factor(132)
+
+## Per case ##
+
+sf_allstats <- split(sf_allstats_cba, f = sf_allstats_cba$PKR)
+sf_allstats$'11'
+sf_allstats$'2'
+sf_allstats$'70'
+
+sf_oasubtype <- lapply(sf_allstats, function (x) {
+  b <- sum(x$Avg_ba_half)
+  c <- sum(x$Avg_cl_half)
+  ifelse(b>c, 
+            x$Overall_subtype <-  "Basal_like", 
+            x$Overall_subtype <- "none")
+  if(c>b) 
+         x$Overall_subtype <-  "Classical"
+  if(c==b) 
+    x$Overall_subtype <-  "Hybrid"
+  x
+})
+
+oa_subtype <- bind_rows(sf_oasubtype, .id = "PKR")
+oa_subtype$PKR_n <- paste("PKR-", oa_subtype$PKR, sep = "")
+str(oa_subtype)
+
+#add the assigned overall subtype as metadata to heatmap type B.
+head(m_B)
+m_Bb <- m_B
+str(m_B)
+m_Bb$PKR_m <- rownames(m_Bb)
+m_Bb <- separate(data = m_Bb, col = PKR_m, into = "PKR_n", sep = " ", remove = FALSE)
+m_Bb<- merge(m_Bb, oa_subtype, by = c("PKR_n", "Marker_type"))
+m_Bb = m_Bb[!duplicated(m_Bb$PKR_m),]
+m_Bb <- m_Bb[, c(2, 3, 4, 15)]
+rownames(m_Bb) <- m_Bb$PKR_m
+m_Bb <- m_Bb[, c(1, 2, 4)]
+
+col.pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
+col.pal2 <- plasma(9)
+annot_colors_Bb <- list(Plasticity=c(Extensive = "#190033", Moderate = "#B266FF", Slight = "#E5CCFF", None = "#9C9C9C", Classical = "#97C8FF", Basal = "#FF6242"), 
+                       Marker_type=c(Classical="#0066CC", Basal_like = "#FF9999"),
+                       Overall_subtype = c(Classical="#0066CC", Basal_like = "#FF9999", Hybrid = "#D0D3D4"))
+
+m_Bbs <- m_Bb[rownames(t_m_matrix_B), ]# arrange the rownames to match the dataset
+rm <- rownames(m_Bbs)
+rb <- rownames(t_m_matrix_B)
+identical(rm, rb) #control
+```
+
+```{r overall subtypes Heatmap B}
+Fig_2e_hierarchical_clustering <- pheatmap(t_m_matrix_B, cluster_rows = T, cluster_cols = T, annotation_row = m_Bbs, color=col.pal2, annotation_colors = annot_colors_Bb, show_rownames = F, cutree_cols = 4, main = "Heatmap B: Case ID and stains over ROI:s. Values: % Positive tumor cells") 
+Fig_2e_hierarchical_clustering
+
+```
+
+# Distribution of % positive cells for all cases
+
+```{r Distrib plot objects,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
+
+distrib <- all_combined[, c(1, 2, 3, 5, 11, 12, 13)]
+distrib <- split(distrib, f = distrib$Tissue_compartment)
+distrib_a <- distrib$Lobule
+distrib_s <- distrib$Stroma
+
+library(forcats)
+## Basal-like in stroma ##
+distrib_s_ba <- distrib_s[distrib_s$Stain %in% c('CK17', 'CK5', 'HMGA2', 'CA125'), ]
+
+distrib_stroma_basal <- ggplot(distrib_s_ba, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of basal-like stains'expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Each case + stromal ROI combination",) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+
+distrib_s_CK17 <- distrib_s_ba[distrib_s_ba$Stain %in% 'CK17', ]
+length(unique(distrib_s_CK17$Group_Case_Class))
+n_occur_17 <- data.frame(table(distrib_s_CK17$Group_Case_Class))
+n_occur_17[n_occur_17$Freq > 1,] 
+
+# Stain specific
+distrib_stroma_CK17 <-ggplot(distrib_s_CK17, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive.., na.rm = TRUE), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CK17 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CK17+ cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = c("red4"))
+
+distrib_s_CK5 <- distrib_s_ba[distrib_s_ba$Stain %in% 'CK5', ]
+
+distrib_stroma_CK5 <-ggplot(distrib_s_CK5, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CK5 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CK5+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = c("grey3"))
+
+distrib_s_CA125 <- distrib_s_ba[distrib_s_ba$Stain %in% 'CA125', ]
+
+distrib_stroma_CA125 <-ggplot(distrib_s_CA125, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CA125 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CA125+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = c("brown2"))
+
+distrib_s_HMGA2 <- distrib_s_ba[distrib_s_ba$Stain %in% 'HMGA2', ]
+
+distrib_stroma_HMGA2 <-ggplot(distrib_s_HMGA2, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of HMGA2 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% HMGA2+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "sienna4")
+
+## Classical in stromal ROIs ##
+distrib_s_cl <- distrib_s[distrib_s$Stain %in% c('Muc5', 'CDX2'), ]
+
+distrib_stroma_classical <-ggplot(distrib_s_cl, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of classical stains'expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Each case + stromal ROI combination",) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values=col.pal)
+
+#Stain specific
+distrib_s_Muc5 <- distrib_s_cl[distrib_s_cl$Stain %in% 'Muc5', ]
+
+distrib_stroma_Muc5 <-ggplot(distrib_s_Muc5, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of Muc5 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% Muc5+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "#005A9C")
+
+distrib_s_CDX2 <- distrib_s_cl[distrib_s_cl$Stain %in% 'CDX2', ]
+
+distrib_stroma_CDX2 <-ggplot(distrib_s_CDX2, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CDX2 expression in the stroma", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CDX2+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "lightsteelblue4")
+
+## Basal like in acinar ROIs ##
+distrib_a_ba <- distrib_a[distrib_a$Stain %in% c('CK17', 'CK5', 'HMGA2', 'CA125'), ]
+
+distrib_lobule_basal <-ggplot(distrib_a_ba, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of basal-like stains' expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Each case + stromal ROI combination",) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+# Stain specific
+distrib_a_CK17 <- distrib_a_ba[distrib_a_ba$Stain %in% 'CK17', ]
+
+distrib_lobule_CK17 <-ggplot(distrib_a_CK17, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CK17 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CK17+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "red4")
+
+distrib_a_CK5 <- distrib_a_ba[distrib_a_ba$Stain %in% 'CK5', ]
+
+distrib_lobule_CK5 <-ggplot(distrib_a_CK5, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CK5 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CK5+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "grey3")
+
+distrib_a_HMGA2 <- distrib_a_ba[distrib_a_ba$Stain %in% 'HMGA2', ]
+
+distrib_lobule_HMGA2 <-ggplot(distrib_a_HMGA2, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of HMGA2 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% HMGA2+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "sienna4")
+
+distrib_a_CA125 <- distrib_a_ba[distrib_a_ba$Stain %in% 'CA125', ]
+
+distrib_lobule_CA125 <-ggplot(distrib_a_CA125, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CA125 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CA125+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "brown2")
+
+## Classical in acinar ROIs ##
+distrib_a_cl <- distrib_a[distrib_a$Stain %in% c('Muc5', 'CDX2'), ]
+
+distrib_lobule_classical <-ggplot(distrib_a_cl, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of classical stains' expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Each case + stromal ROI combination",) +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank())
+
+# Stain specific
+distrib_a_Muc5 <- distrib_a_cl[distrib_a_cl$Stain %in% 'Muc5', ]
+
+distrib_lobule_Muc5 <-ggplot(distrib_a_Muc5, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of Muc5 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% Muc5+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "dodgerblue4")
+
+distrib_a_CDX2 <- distrib_a_cl[distrib_a_cl$Stain %in% 'CDX2', ]
+
+distrib_lobule_CDX2 <-ggplot(distrib_a_CDX2, aes(x=fct_reorder(Group_Case_Class, Tumor..Positive..), y=Tumor..Positive.., fill = Stain)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of CDX2 expression in the acinar invasion ROIs", subtitle = "All cases") +
+  theme_clean() +
+  labs(x = "Each case + stromal ROI combination", y = "% CDX2+ PDAC cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = "lightsteelblue4")
+```
+
+# Basal stains in stroma. First, all pooled, followed by the individual stains.
+```{r Draw basal in stroma distribution plots}
+
+distrib_stroma_basal
+
+distrib_stroma_CK17
+
+distrib_stroma_CK5
+
+distrib_stroma_CA125 
+
+distrib_stroma_HMGA2
+```
+
+# Classical stains in stroma. First, all pooled, followed by the individual stains.
+```{r Draw classical in stroma distribution plots}
+distrib_stroma_classical
+
+distrib_stroma_Muc5
+
+distrib_stroma_CDX2
+```
+
+# Basal stains in lobular regions. First, all pooled, followed by the individual stains.
+```{r Draw basal in lobular distribution plots}
+distrib_lobule_basal
+
+distrib_lobule_CK17
+
+distrib_lobule_CK5 
+
+distrib_lobule_HMGA2 
+
+distrib_lobule_CA125 
+```
+
+# Classical stains in acinar. First, all pooled, followed by the individual stains.
+```{r Draw classical in acinar distribution plots}
+distrib_lobule_classical
+
+distrib_lobule_Muc5
+
+distrib_lobule_CDX2
+```
+
+Density plots, separated on compartment
+using the datasets distrib_s and distrib_a
+
+```{r density plot for all stains in stroma}
+library(forcats)
+density_stroma <- distrib_s %>% 
+  ggplot(aes(x = Tumor..Positive.., fill = Stain)) +
+  geom_density(color="#e9ecef", alpha=0.8) +
+  facet_grid(~Stain)
+
+density_stroma
+
+#As ridgeline
+library(ggridges)
+ridges_stroma <- distrib_s %>% 
+  ggplot(aes(x = Tumor..Positive.., y = Stain, fill = Stain)) +
+  geom_density_ridges(color="#e9ecef", alpha=0.8)
+
+ridges_stroma
+
+#As ridgeline with color gradient
+library(viridis)
+library(hrbrthemes)
+
+ridges_gradient_stroma <- ggplot(distrib_s, aes(x = `Tumor..Positive..`, y = `Stain`, fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(name = "Temp. [F]", option = "E") +
+  labs(title = 'Density of stains in stroma') +
+  theme_clean() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    )+
+  xlab("% Positive cells") + ylab(NULL)
+ridges_gradient_stroma
+
+# Violin plots
+violin_stroma_trimmed <- distrib_s %>% 
+  ggplot(aes(x = Stain, y = Tumor..Positive.., fill = Stain)) +
+  geom_violin(trim = TRUE) +
+  theme_clean()
+
+violin_stroma_trimmed
+
+```
+
+```{r density plots stains in Lobule}
+library(forcats)
+density_lobule <- distrib_a %>% 
+  ggplot(aes(x = Tumor..Positive.., fill = Stain)) +
+  geom_density(color="#e9ecef", alpha=0.8) +
+  facet_grid(~Stain)
+
+density_lobule
+
+#As ridgeline
+library(ggridges)
+ridges_lobule <- distrib_a %>% 
+  ggplot(aes(x = Tumor..Positive.., y = Stain, fill = Stain)) +
+  geom_density_ridges(color="#e9ecef", alpha=0.8)
+
+ridges_lobule
+
+#As ridgeline with color gradient
+ridges_gradient_lobule <- ggplot(distrib_a, aes(x = `Tumor..Positive..`, y = `Stain`, fill = ..x..)) +
+  geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
+  scale_fill_viridis(name = "Temp. [F]", option = "E") +
+  labs(title = 'Density of stains in Lobule') +
+  theme_clean() +
+    theme(
+      legend.position="none",
+      panel.spacing = unit(0.1, "lines"),
+      strip.text.x = element_text(size = 8)
+    ) +
+  xlab("% Positive cells") + ylab(NULL)
+ridges_gradient_lobule
+
+# Violin plots
+violin_acinar_trimmed <- distrib_a %>% 
+  ggplot(aes(x = Stain, y = Tumor..Positive.., fill = Stain)) +
+  geom_violin(trim = TRUE) +
+  theme_clean()
+
+violin_acinar_trimmed
+
+#Violin plots for both compartments
+distrib_all <- all_combined[, c(1, 2, 3, 5, 11, 12, 13)]
+
+violin_both_untrimmed <- distrib_all %>% 
+  ggplot(aes(x = Stain, y = Tumor..Positive.., color = Tissue_compartment)) +
+  geom_violin(trim = FALSE, adjust = 2) +
+  theme_calc()
+
+violin_both_untrimmed
+```
+
+
+
+```{r extracting number of cases and stains in respective heterogeneity category}
+unique(filter(all_combined, Plasticity == "None"))
+
+all_gcs <- all_combined %>% distinct(Group_Case_Stain, .keep_all = TRUE)
+unique(filter(all_gcs, Plasticity == "None"))
+unique(filter(all_gcs, Plasticity == "Slight"))
+unique(filter(all_gcs, Plasticity == "Moderate"))
+unique(filter(all_gcs, Plasticity == "Extensive"))
+unique(filter(all_gcs, Plasticity == "Basal"))
+unique(filter(all_gcs, Plasticity == "Classical"))
+# Slight (52) + Moderate (31) + Extensive (22) + Basal (12) + Classical (6) = 123
+#None: 36
+
+
+all_PKR <- all_combined %>% distinct(PKR, .keep_all = TRUE)
+unique(filter(all_PKR, Plasticity == "None"))
+unique(filter(all_PKR, Plasticity == "Slight"))
+unique(filter(all_PKR, Plasticity == "Moderate"))
+unique(filter(all_PKR, Plasticity == "Extensive"))
+unique(filter(all_PKR, Plasticity == "Basal"))
+unique(filter(all_PKR, Plasticity == "Classical"))
+
+
+```
+
+```{r Extracting hte number of cases in each heterogenity category}
+
+Plasticity_ID <- m_Crows
+Plasticity_ID$PKR <- rownames(Plasticity_ID)
+# 'Basal' and 'Classical' both go to the moderate category
+
+
+Plasticity_ID %>% count(Plasticity)
+Plasticity_ID <- Plasticity_ID %>% mutate(Plasticity = ifelse(grepl('Basal', .$Plasticity), 'Moderate', .$Plasticity))
+Plasticity_ID <- Plasticity_ID %>% mutate(Plasticity = ifelse(grepl('Classical', .$Plasticity), 'Moderate', .$Plasticity))
+Plasticity_ID %>% count(Plasticity)
+
+# Fraction of any type of switching; 24/31 ≈ 77,4%
+
+range(all_combined_exl$Num.Detections)
+# between 299-864 cells in ROIs.
+```
+
+

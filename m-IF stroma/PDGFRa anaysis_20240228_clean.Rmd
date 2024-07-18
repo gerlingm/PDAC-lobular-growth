@@ -1,0 +1,139 @@
+---
+title: "PDGFRa analysis"
+author: "Sara Söderqvist"
+date: "2024-02-28"
+output: html_document
+---
+Goal: show how the expression profile of stroma cell in stroma-transformed/desmoplastic compartment is. 
+We have shown that in lobules, NGFR+ stroma cells frequently co-express PDGFRa (we term these nCAFs). 
+
+To show that these are separated from the PDGFRa+ cells in stroma-transformed/desmoplastic compartment (our iCAF proxy), we want to, in particular, show that these stroma cells have lost the NGFR expression.
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+``` {r Data read in_cell_NGFR, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir") #Adjust the working directory to read in the file from
+path <- file.path(getwd())
+v.filename <- list.files(path, pattern="'*.csv", 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+StromaPDGFRa = do.call(cbind, lapply(v.filename, 
+                                function(x) read.csv(x)))
+```
+
+```{r PDGFRa data clean up}
+StromaPDGFRa$Tumor <- factor(nrow(StromaPDGFRa))
+
+library(dplyr)
+StromaPDGFRa <- StromaPDGFRa %>% mutate(Tumor = ifelse(grepl(' Tumor: ', StromaPDGFRa$Class), 'Yes', .$Tumor))
+StromaPDGFRa <- StromaPDGFRa %>% mutate(Tumor = ifelse(grepl(' Not tumor: ', StromaPDGFRa$Class), 'No', .$Tumor))
+
+#Filter our p53+ contaminations within the annotations
+s_tu_StromaPDGFRa <- split(StromaPDGFRa, f = StromaPDGFRa$Tumor)
+nottumor_StromaPDGFRa <- s_tu_StromaPDGFRa$No #54 256 cells
+
+# have format to enable grouping
+nottumor_StromaPDGFRa$NGFR_pos <- factor(nrow(nottumor_StromaPDGFRa))
+nottumor_StromaPDGFRa$ASMA_pos <- factor(nrow(nottumor_StromaPDGFRa))
+nottumor_StromaPDGFRa$CD74_pos <- factor(nrow(nottumor_StromaPDGFRa))
+nottumor_StromaPDGFRa$Vim_pos <- factor(nrow(nottumor_StromaPDGFRa))
+nottumor_StromaPDGFRa$PDGFR_pos <- factor(nrow(nottumor_StromaPDGFRa))
+
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_pos: ', nottumor_StromaPDGFRa$Class), '1', .$NGFR_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_neg: ', nottumor_StromaPDGFRa$Class), '0', .$NGFR_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_pos', nottumor_StromaPDGFRa$Class), '1', .$ASMA_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_neg', nottumor_StromaPDGFRa$Class), '0', .$ASMA_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(CD74_pos = ifelse(grepl('CD74_pos: ', nottumor_StromaPDGFRa$Class), '1', .$CD74_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(CD74_pos = ifelse(grepl('CD74_neg: ', nottumor_StromaPDGFRa$Class), '0', .$CD74_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(Vim_pos = ifelse(grepl(' Vim_pos: ', nottumor_StromaPDGFRa$Class), '1', .$Vim_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(Vim_pos = ifelse(grepl(' Vim_neg: ', nottumor_StromaPDGFRa$Class), '0', .$Vim_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_pos: ', nottumor_StromaPDGFRa$Class), 'Yes', .$PDGFR_pos))
+nottumor_StromaPDGFRa <- nottumor_StromaPDGFRa %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_neg: ', nottumor_StromaPDGFRa$Class), 'No', .$PDGFR_pos))
+
+# Establish a count of how many of the PDGFRa+ cells, that also are positive for other stains. 
+# First, filter our PDGFRa- cells
+s_PDGFRa_StromaPDGFRa <- split(nottumor_StromaPDGFRa, f = nottumor_StromaPDGFRa$PDGFR_pos)
+PDGFRa_pos <- s_PDGFRa_StromaPDGFRa$Yes #30 945 cells
+```
+
+
+```{r count the single positives (dataset now includes only p53-PDGFRa+ cells) }
+# the goal is to show what pdgfra+ stroma cells, in desmoplasia, co-express, and the working hypothesis is that they are low for ngfr. 
+
+# first calculating the positive fractions ROI-wise.
+PDGFRa_cell <- PDGFRa_pos[, -c(3, 4, 6, 7, 12)] # removing name and class columns, and p53 and pdgra columns.
+
+library(reshape2)
+library(tidyr)
+# Melt the df and tidy up
+molten_stromaPDGFRa <- melt(PDGFRa_cell, id = c("Image", "Object.ID", "Parent"))
+colnames(molten_stromaPDGFRa) [4] <- "Stain" #colnames such as "variable" and "value" will interfere with other terms
+colnames(molten_stromaPDGFRa) [5] <- "Cell_pos"
+
+molten_stromaPDGFRa <- separate(data = molten_stromaPDGFRa, col = "Image", into="Image", sep=c("_"), remove=TRUE)
+molten_stromaPDGFRa$Group <- character(nrow(molten_stromaPDGFRa))
+molten_stromaPDGFRa$Group <- paste(molten_stromaPDGFRa$Image, molten_stromaPDGFRa$Parent, molten_stromaPDGFRa$Stain, sep = "_")
+
+s_molten_stromaPDGFRa <- split(molten_stromaPDGFRa, f = molten_stromaPDGFRa$Group)
+
+#For now, any cell positive will be counted as positive, so now not taking to account wheather individual cells are double, triple, quadraple positive for combinations of stains.
+tot_det_PDGFRa <- lapply(X = s_molten_stromaPDGFRa, FUN = function (x) {
+  x$sum_detections_ROI <- nrow(x)
+  x
+})
+
+fun_PDGFRafrac <- function (z) {
+  nr_pos<- z %>% filter(Cell_pos == "1") # get nr positive cells for each stain
+  pos_fr <- nrow(nr_pos)/nrow(z) #calculate the fraction out of all the PDGFRa+ cell in that specific ROI
+  z$pos_fraction <- pos_fr # put this number in in a column
+  z
+} 
+
+PDGFRa_calc_fr <- lapply (X = tot_det_PDGFRa, FUN = fun_PDGFRafrac)
+
+PDGFRa_calc_frsub <- bind_rows(PDGFRa_calc_fr)
+
+PDGFRa_calc_frsub <- PDGFRa_calc_frsub[, -c(2, 5)] #123 780 rows (1 row = 1 cell)
+PDGFRa_calc_frsub <- unique(PDGFRa_calc_frsub) # 160 rows, means no data loss. 8 cases, 5 rois, 4 stains. (1 row = per case stain ROI)
+
+```
+
+
+```{r plot PDGFR+ co-expression }
+library(ggthemes)
+library(wesanderson)
+
+boxes_PDGFRa<- ggboxplot(PDGFRa_calc_frsub, x = "Stain", y = "pos_fraction", 
+                        color = "Stain", fill = "Stain", alpha=0.6) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "PDGFRa+ cells expression of other stains") +
+  xlab(NULL) + ylab("Average positive cells per ROI") +
+  theme_clean()
+  
+boxes_PDGFRa
+
+Suppl_15c <- boxes_PDGFRa
+```
+
+```{r control nr of rois}
+
+#number of ROIs data originated from 
+PDGFRa_calc_frsub$Group_ImageParent <- paste(PDGFRa_calc_frsub$Image, PDGFRa_calc_frsub$Parent, sep = "_" )
+allunique_ROIs <- unique(PDGFRa_calc_frsub$Group_ImageParent)
+summary(allunique_ROIs) # 40 unique ROIs
+
+
+
+```
+
+
+
+
+
+
+

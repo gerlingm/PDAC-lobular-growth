@@ -1,0 +1,215 @@
+---
+title: "Phenotypic switch driving intratumoral heterogeneity in mice"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load required packages
+
+```{r}
+library(dplyr)
+library(rstatix)
+library(ggplot2)
+library(ggpubr)
+library(RColorBrewer)
+```
+
+
+# Quantification of tumor clonality in murine PDAC
+
+## Import the data
+
+```{r data}
+gRNA_data <- read.table('./data/tumor_clonality_mice.txt', header = T)
+gRNA_data
+```
+
+## Data modification
+
+```{r}
+# turn into percentage
+gRNA_data$ratio <- gRNA_data$ratio*100
+
+# create variable when clone abundance rate is other than 1-7
+total <- gRNA_data%>%
+  select(mouse, ratio)%>%
+  group_by(mouse)%>%
+  summarise(total= sum(ratio))%>%
+  data.frame()
+
+
+total$ratio <-100-total$total # subtract the sum of all other guides (1-7) from 100% to get the ratio for other guides (no 8)
+
+other <- total%>%
+  select(mouse, ratio)%>%
+  mutate(clone_abundance_rate=c(rep(8, nrow(total))),
+         Barcode_ID = c(rep('other', nrow(total)))) %>%
+  data.frame()
+
+# merge with original data
+gRNA_data <- rbind(gRNA_data, other)
+  
+# arrange decreasing
+gRNA_data <- gRNA_data[order(gRNA_data$ratio, decreasing = F),]
+
+# arrange mouse ID nicer for plotting
+gRNA_data$mouse <- factor(gRNA_data$mouse, levels=c('J154-2', 'J154-3', 'J154-1', 'J154-5'))
+
+gRNA_data
+```
+
+## Visualization of tumor composition in each mouse
+
+```{r stacked, echo=FALSE}
+
+# stacked
+ggplot(gRNA_data, aes(fill=factor(clone_abundance_rate, levels = as.factor(c(8:1))), y=ratio, x=mouse)) + 
+    geom_bar(position="stack", stat="identity", width = 0.5) +
+    scale_fill_brewer(palette = 'Set2', direction = 1, limits = as.factor(c(1:8)), name = 'clone abundance rate') +
+    theme_minimal() +
+  scale_y_continuous(position = 'right')+
+  theme(aspect.ratio =1/4, legend.position = 'bottom', legend.direction = 'horizontal')+
+    xlab("")+
+  ylab('Tumor composition (%)')+
+  coord_flip()
+```
+
+# Intratumoral heterogeneity in murine PDAC: HMGA2 quantification in lobular and stromal compartment
+
+## Import the data
+
+```{r results='asis'}
+HMGA2.data_ori <- read.table('./data/HMGA2_AMY_mice_detections.tsv',
+                                  sep = '\t', header = T)
+dim(HMGA2.data_ori) #11233 observations in total
+
+knitr::kable(head(HMGA2.data_ori))
+
+```
+## Data modification
+
+```{r results='asis'}
+# Subset the data to only relevant information
+HMGA2.data <- HMGA2.data_ori %>%
+  select(Image, Class, Parent)%>%
+  data.frame()
+
+colnames(HMGA2.data) <- c('Image', 'HMGA2_status', 'Parent')
+HMGA2.data$Image_id <- gsub("\\..*","",HMGA2.data$Image)
+
+HMGA2.data$Mouse_id <- gsub("HA_","",HMGA2.data$Image)
+HMGA2.data$Mouse_id <- gsub("_.*","",HMGA2.data$Mouse_id)
+unique(HMGA2.data$Mouse_id) # only case number left
+HMGA2.data$HMGA2_status <- gsub("HMGA2: ","",HMGA2.data$HMGA2_status)
+unique(HMGA2.data$HMGA2_status) # only status information left
+
+#create a new column to have plain info on the ROI (stroma/acinar)
+HMGA2.data$invasion_type <- gsub("_.*|l_.*","",HMGA2.data$Parent)
+unique(HMGA2.data$invasion_type)
+
+# convertion & new columns look as they should
+knitr::kable(head(HMGA2.data))
+
+```
+
+## Details
+### Summary/ROI
+
+```{r results='asis'}
+HMGA2_summary <- HMGA2.data %>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(Detections = n())
+
+HMGA2_pos <- HMGA2.data %>%
+  filter(HMGA2_status == 'Positive')%>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(HMGA2pos = n())
+
+HMGA2_Rsummary <- merge(x = HMGA2_summary, y = HMGA2_pos, id = c('Mouse_id', 'Parent'))
+
+HMGA2_Rsummary <- HMGA2_Rsummary%>%
+  mutate(HMGApos_percent = HMGA2pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(HMGA2_Rsummary)
+```
+
+### Summary/mouse_id
+
+```{r results='asis'}
+
+
+ROIs <- HMGA2_Rsummary %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(ROIs = n())
+
+HMGA2_Msummary <- HMGA2.data %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(Detections = n())
+
+HMGA2_pos <- HMGA2.data %>%
+  filter(HMGA2_status == 'Positive')%>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(HMGA2pos = n())
+
+HMGA2_Msummary <- merge(x = HMGA2_Msummary, y = HMGA2_pos, id = c('Mouse_id'))
+HMGA2_Msummary <- merge(x = HMGA2_Msummary, y = ROIs, id = c('Mouse_id', 'invasion_type'))
+HMGA2_Msummary <- HMGA2_Msummary%>%
+  mutate(HMGApos_percent = HMGA2pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(HMGA2_Msummary)
+```
+
+## Statistical testing
+
+```{r}
+
+# Wilcox test (non-paired)
+res.wil <-  HMGA2_Rsummary%>%
+  wilcox_test(HMGApos_percent~invasion_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil <- res.wil %>% add_xy_position(x = 'invasion_type')
+res.wil
+
+```
+
+## Visualisation
+
+```{r warning=FALSE}
+# plot
+HMGA2_Rsummary%>%
+  ggplot(aes(x = invasion_type, y = HMGApos_percent))+
+  geom_boxplot(width = 0.32, outlier.shape = NA)+
+  geom_jitter(aes(color = Mouse_id), alpha = 1, position=position_jitter(0.15), size = 2.8, seed = 1.5)+
+  scale_color_brewer(palette = 'Dark2')+
+          labs(x = '', y = 'HMGA2 positive cells (%)')+
+  theme_bw()+
+  theme(legend.position = "right", axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.ticks = element_blank())+
+    stat_pvalue_manual(res.wil, label = 'p.adj.signif',
+                     y.position = 90)+
+  ylim(0,100)
+```
+
+# Used libraries with version info
+
+```{r}
+sessionInfo()
+```

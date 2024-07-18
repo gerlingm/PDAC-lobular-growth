@@ -1,0 +1,476 @@
+---
+title: "m-IF_Stroma layering_cleaned up"
+author: "Sara Söderqvist"
+date: "2024-03-13"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### CAF subtype plots in the based on expression of single m-IF markers
+## Update from 2024 05 24: addding paired parameted to stat tests
+
+``` {r Data cleaunup_intensity cell, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/m-IF stroma/file dir")
+
+
+path <- file.path(getwd())
+v.filename <- list.files(path, pattern="'*.csv", 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+ls_composite_intense = do.call(cbind, lapply(v.filename, 
+                                function(x) read.csv(x)))
+library(reshape2)
+library(dplyr)
+
+ls_composite_intense$Compartment <- factor(nrow(ls_composite_intense))
+ls_composite_intense$Compartment <- "Stroma"
+ls_composite_intense <- ls_composite_intense %>% mutate(Compartment = ifelse(grepl('lobe', .$Parent), 'Lobule', .$Compartment))
+ls_composite_intense$Compartment <- as.factor(ls_composite_intense$Compartment)
+
+ls_composite_intense$Layer <- factor(nrow(ls_composite_intense))
+ls_composite_intense <- ls_composite_intense %>% mutate(Layer = ifelse(grepl('Inner', .$Parent), 'Inner', .$Layer))
+ls_composite_intense <- ls_composite_intense %>% mutate(Layer = ifelse(grepl('Outer', .$Parent), 'Outer', .$Layer))
+ls_composite_intense <- ls_composite_intense %>% mutate(Layer = ifelse(grepl('Middle', .$Parent), 'Middle', .$Layer))
+ls_composite_intense$Layer <- as.factor(ls_composite_intense$Layer)
+
+ls_composite_intense$G_ROI <- factor(nrow(ls_composite_intense))
+
+ls_composite_intense <- ls_composite_intense[ls_composite_intense$Parent != "Image", c(colnames(ls_composite_intense))]
+
+ls_composite_intense$G_ROI <- ls_composite_intense$Parent
+
+ls_composite_intense$G_ROI <- gsub("Inner_stroma_", "", x = ls_composite_intense$G_ROI)
+ls_composite_intense$G_ROI <- gsub("Middle_stroma_", "", x = ls_composite_intense$G_ROI)
+ls_composite_intense$G_ROI <- gsub("Outer_stroma_", "", x = ls_composite_intense$G_ROI)
+ls_composite_intense$G_ROI <- gsub("_lobe_", "", x = ls_composite_intense$G_ROI)
+ls_composite_intense$G_ROI <- gsub("lobe_", "", x = ls_composite_intense$G_ROI)
+
+ls_composite_intense$Group <- paste(ls_composite_intense$Image, ls_composite_intense$Compartment, ls_composite_intense$Layer, ls_composite_intense$G_ROI, sep="_")
+ls_composite_intense <- ls_composite_intense[, -c(3, 6:8, 14)]
+
+
+m_raw_intense <- melt(ls_composite_intense, id = c("Image", "Object.ID", "Class", "Parent", "Compartment", "Layer", "Group", "G_ROI"))
+
+colnames(m_raw_intense) [9] <- "Stain"
+colnames(m_raw_intense) [10] <- "mean_intensity"
+
+# Only the 3 stains stains of interest:
+ls_composite_intense_3 <- ls_composite_intense[, -c(6, 9)]
+m_raw_intense_3 <- melt(ls_composite_intense_3, id = c("Image", "Object.ID", "Class", "Parent", "Compartment", "Layer","Group", "G_ROI"))
+
+colnames(m_raw_intense_3) [9] <- "Stain"
+colnames(m_raw_intense_3) [10] <- "mean_intensity"
+
+```
+
+
+```{r composite intensity cell initial histograms}
+library(ggplot2)
+library(ggthemes)
+library(RColorBrewer)
+
+# Exploratory histograms for all five stains, to show distributions. (with NGFR having so many negative or low intensity cells, difficult to see the ASMA, PDGFRa, CD74. Below there will therefore also be summaries and plots where NGFR and and Vimentin are excluded.
+hist_intense_raw <- m_raw_intense %>%
+  ggplot(aes(x=mean_intensity, fill=Stain, color = Stain)) +
+    geom_histogram(position = 'identity', bins = 150) +
+    scale_fill_brewer(palette = "Dark2", direction = -1) +
+  scale_color_brewer(palette = "Dark2", direction = -1)+
+  facet_grid(~ Stain) +
+    theme_clean()
+
+hist_intense_raw
+
+hist_intense_2 <- m_raw_intense %>%
+  ggplot(aes(x=mean_intensity, fill=Stain)) +
+  geom_histogram(color="#e9ecef", stat = "count", bins = 150) +
+  scale_fill_brewer(palette = "Dark2", direction = -1) +
+  facet_grid(Compartment ~ Stain) +
+    theme_clean()
+hist_intense_2
+
+hist_intense_3 <- m_raw_intense %>%
+  ggplot(aes(x=mean_intensity, fill=Stain)) +
+  geom_histogram(color="#e9ecef", stat = "count", bins = 150) +
+  scale_fill_brewer(palette = "Dark2", direction = -1) +
+  facet_grid(Layer ~ Stain) +
+    theme_clean()
+hist_intense_3
+
+# Only for three stains
+hist_intense_raw_3 <- m_raw_intense_3 %>%
+  ggplot(aes(x=mean_intensity, fill=Stain)) +
+    geom_histogram(color="#e9ecef", position = 'identity', bins = 150) +
+    scale_fill_brewer(palette = "Dark2", direction = -1) +
+  facet_grid( ~ Stain) +
+    theme_clean()
+hist_intense_raw_3
+
+hist_intense_raw_3_2 <- m_raw_intense_3 %>%
+  ggplot(aes(x=mean_intensity, fill=Stain)) +
+    geom_histogram(color="#e9ecef", position = 'identity', bins = 150) +
+    scale_fill_brewer(palette = "Dark2", direction = -1) +
+  facet_grid(Compartment ~ Stain) +
+    theme_clean()
+hist_intense_raw_3_2
+
+hist_intense_raw_3_3 <- m_raw_intense_3 %>%
+  ggplot(aes(x=mean_intensity, fill=Stain)) +
+    geom_histogram(color="#e9ecef", position = 'identity', bins = 150) +
+    scale_fill_brewer(palette = "Dark2", direction = -1) +
+  facet_grid(Layer ~ Stain) +
+    theme_clean()
+hist_intense_raw_3_3
+
+# Adjusting the classes
+m_raw_intense$Stain <- as.factor(m_raw_intense$Stain)
+m_raw_intense$Class <- as.factor(m_raw_intense$Class)
+m_raw_intense$mean_intensity <- as.numeric(m_raw_intense$mean_intensity)
+m_raw_intense$Parent <- as.factor(m_raw_intense$Parent)
+m_raw_intense$Object.ID <- as.factor(m_raw_intense$Object.ID)
+m_raw_intense$Compartment <- as.factor(m_raw_intense$Compartment)
+m_raw_intense$G_ROI <- as.factor(m_raw_intense$G_ROI)
+m_raw_intense$Group <- as.factor(m_raw_intense$Group)
+levels(m_raw_intense$Stain)
+levels(m_raw_intense$Parent)
+levels(m_raw_intense$Compartment)
+levels(m_raw_intense$G_ROI)
+
+m_raw_intense_3$Stain <- as.factor(m_raw_intense_3$Stain)
+m_raw_intense_3$Class <- as.factor(m_raw_intense_3$Class)
+m_raw_intense_3$mean_intensity <- as.numeric(m_raw_intense_3$mean_intensity)
+m_raw_intense_3$Parent <- as.factor(m_raw_intense_3$Parent)
+m_raw_intense_3$Object.ID <- as.factor(m_raw_intense_3$Object.ID)
+levels(m_raw_intense_3$Stain)
+levels(m_raw_intense_3$Parent)
+```
+
+```{r summary statistics}
+library(BiocGenerics)
+library(dplyr)
+
+summary_raw_intense <- m_raw_intense %>%
+  group_by(Stain) %>%
+   dplyr::summarise(
+     count = n(),
+     mean = mean(mean_intensity, na.rm = TRUE),
+     sd = sd(mean_intensity, na.rm = TRUE),
+     median = median(mean_intensity, na.rm = TRUE),
+     IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+   )
+summary_raw_intense
+
+# Summary by the stroma layers
+summary_raw_intense_double <- m_raw_intense %>%
+  group_by(Stain, Layer) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_double
+
+# Summary by compartment
+summary_raw_intense_comp <- m_raw_intense %>%
+  group_by(Stain, Compartment) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_comp
+
+# Summary by both compartment and layer (all vs all)
+
+summary_raw_intense_CompLayer <- m_raw_intense %>%
+  group_by(Stain, Compartment, Layer) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_CompLayer
+
+## With only three stains
+summary_raw_intense_3 <- m_raw_intense_3 %>%
+  group_by(Stain) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_3
+
+# Summary by the stroma layers, three stains
+summary_raw_intense_layers_3 <- m_raw_intense_3 %>%
+  group_by(Stain, Layer) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_layers_3
+
+# Summary by compartment, three stains
+summary_raw_intense_comp_3 <- m_raw_intense_3 %>%
+  group_by(Stain, Compartment) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_comp_3
+
+# Summary by both compartment and layer (all vs all), three stains
+summary_raw_intense_CompLayer_3 <- m_raw_intense_3 %>%
+  group_by(Stain, Compartment, Layer) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(mean_intensity, na.rm = TRUE),
+    sd = sd(mean_intensity, na.rm = TRUE),
+    median = median(mean_intensity, na.rm = TRUE),
+    IQR = IQR(mean_intensity, na.rm = TRUE, type = 7)
+  )
+summary_raw_intense_CompLayer_3
+```
+
+## Plots applied in the manuscript: single positivity per stain, applied from the QuPath classifier.
+
+```{r sp dunn test with classifier, sp for each stain}
+sp_fraction <- ls_composite_intense[, -c(5:9, 14:34)]
+
+sp_fraction$NGFR_pos <- factor(nrow(sp_fraction))
+sp_fraction$ASMA_pos <- factor(nrow(sp_fraction))
+sp_fraction$CD74_pos <- factor(nrow(sp_fraction))
+sp_fraction$Vim_pos <- factor(nrow(sp_fraction))
+sp_fraction$PDGFR_pos <- factor(nrow(sp_fraction))
+
+sp_fraction <- sp_fraction %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_pos: ', sp_fraction$Class), '1', .$NGFR_pos))
+sp_fraction <- sp_fraction %>% mutate(NGFR_pos = ifelse(grepl(' NGFR_neg: ', sp_fraction$Class), '0', .$NGFR_pos))
+sp_fraction <- sp_fraction %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_pos', sp_fraction$Class), '1', .$ASMA_pos))
+sp_fraction <- sp_fraction %>% mutate(ASMA_pos = ifelse(grepl(': ASMA_neg', sp_fraction$Class), '0', .$ASMA_pos))
+sp_fraction <- sp_fraction %>% mutate(CD74_pos = ifelse(grepl('CD74_pos: ', sp_fraction$Class), '1', .$CD74_pos))
+sp_fraction <- sp_fraction %>% mutate(CD74_pos = ifelse(grepl('CD74_neg: ', sp_fraction$Class), '0', .$CD74_pos))
+sp_fraction <- sp_fraction %>% mutate(Vim_pos = ifelse(grepl(' Vim_pos: ', sp_fraction$Class), '1', .$Vim_pos))
+sp_fraction <- sp_fraction %>% mutate(Vim_pos = ifelse(grepl(' Vim_neg: ', sp_fraction$Class), '0', .$Vim_pos))
+sp_fraction <- sp_fraction %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_pos: ', sp_fraction$Class), '1', .$PDGFR_pos))
+sp_fraction <- sp_fraction %>% mutate(PDGFR_pos = ifelse(grepl(' PDGFR_neg: ', sp_fraction$Class), '0', .$PDGFR_pos))
+
+# Calculate fractions of positive cells for each stain per ROI 
+melt_sp_fraction <- melt(sp_fraction, id = c("Image", "Object.ID", "Class", "Parent", "Compartment", "Layer", "G_ROI", "Group"))
+
+colnames(melt_sp_fraction) [9] <- "Stain" 
+colnames(melt_sp_fraction) [10] <- "Cell_pos"
+
+library(tidyr)
+melt_sp_fraction <- separate(data = melt_sp_fraction, col = "Image", into="Image", sep=c("_"), remove=TRUE)
+melt_sp_fraction$Group <- paste(melt_sp_fraction$Group, melt_sp_fraction$Stain, sep = "")
+s_melt_sp_fraction <- split(melt_sp_fraction, f = melt_sp_fraction$Group)
+
+tot_det_sp <- lapply(X = s_melt_sp_fraction, FUN = function (x) {
+  x$sum_detections_ROI <- nrow(x)
+  x
+})
+
+fun_sp <- function (z) {
+  nr_pos<- z %>% filter(Cell_pos == "1") # get nr positive cells for each stain
+  pos_fr <- nrow(nr_pos)/nrow(z) #calculate the fraction out of all the NGFR+ cell in that specific ROI
+  z$pos_fraction <- pos_fr # put it in a column
+  z
+} 
+
+sp_calc_fr <- lapply (X = tot_det_sp, FUN = fun_sp) 
+spcell_calc_frsub <- bind_rows(sp_calc_fr) #55 830 rows
+
+spcell_calc_frsub <- spcell_calc_frsub[, -c(2, 3, 10, 11)] 
+spcell_calc_frsub <- unique(spcell_calc_frsub) # 1815 rows
+
+```
+
+
+```{r sp stroma cells statistics and plots}
+summary_comp_sp <- spcell_calc_frsub %>%
+  group_by(Stain, Layer, Compartment) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(pos_fraction, na.rm = TRUE),
+    sd = sd(pos_fraction, na.rm = TRUE),
+    median = median(pos_fraction, na.rm = TRUE),
+    IQR = IQR(pos_fraction, na.rm = TRUE)
+  )
+summary_comp_sp
+
+library(rstatix)
+Kruskal_PKRstroma_slcomp_sp <- spcell_calc_frsub %>%
+  group_by(Stain, Compartment) %>%
+  kruskal_test(pos_fraction ~ Layer) 
+Kruskal_PKRstroma_slcomp_sp
+
+Dunn_PKRstroma_comp_sp <- spcell_calc_frsub %>%
+  group_by(Stain, Compartment) %>%
+  dunn_test(pos_fraction ~ Layer, p.adjust.method = "BH") 
+Dunn_PKRstroma_comp_sp
+
+# comparing the stroma layer per stain and compartment.
+Dunn_PKRstroma_comp_1_sp <- Dunn_PKRstroma_comp_sp %>% add_xy_position(x = "Layer")  # The positions were a bit scewed, fixed in below two lines:
+Dunn_PKRstroma_comp_1_sp$xmax <- Dunn_PKRstroma_comp_1_sp$xmax-1
+Dunn_PKRstroma_comp_1_sp$xmin <- Dunn_PKRstroma_comp_1_sp$xmin-1
+#Dunn_PKRstroma_comp_1_sp
+
+library(wesanderson)
+library(ggpubr)
+Dunn_boxes_comp_sp <- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction", 
+                        color = "Layer", fill = "Layer", alpha = 0.6) +
+  stat_pvalue_manual(Dunn_PKRstroma_comp_1_sp, label = "p.adj.signif")+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 3)) +
+  facet_grid(Compartment ~ Stain) +
+  labs(title = "Comparison: The stroma layers per stain and compartment, cell classifier", subtitle = "Q: does the prescence of sp stroma cells in stroma and in lobes (separately) differ between inner, middle and outer layers?")
+  
+Dunn_boxes_comp_sp
+
+## Not separate by compratment:
+summary_sp <- spcell_calc_frsub %>%
+  group_by(Stain, Layer) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(pos_fraction, na.rm = TRUE),
+    sd = sd(pos_fraction, na.rm = TRUE),
+    median = median(pos_fraction, na.rm = TRUE),
+    IQR = IQR(pos_fraction, na.rm = TRUE)
+  )
+summary_sp
+
+Kruskal_PKRstroma_sl_sp <- spcell_calc_frsub %>%
+  group_by(Stain) %>%
+  kruskal_test(pos_fraction ~ Layer)
+Kruskal_PKRstroma_sl_sp
+
+Dunn_PKRstroma_sp <- spcell_calc_frsub %>%
+  group_by(Stain) %>%
+  dunn_test(pos_fraction ~ Layer, p.adjust.method = "BH")
+Dunn_PKRstroma_sp
+
+# comparing the stroma layer per stain and compartment
+Dunn_PKRstroma_1_sp <- Dunn_PKRstroma_sp %>% add_xy_position(x = "Layer")
+Dunn_PKRstroma_1_sp$xmax <- Dunn_PKRstroma_1_sp$xmax-1
+Dunn_PKRstroma_1_sp$xmin <- Dunn_PKRstroma_1_sp$xmin-1
+#Dunn_PKRstroma_comp_1_sp
+
+Dunn_boxes_sp <- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction", 
+                        color = "Layer", fill = "Layer", alpha = 0.6) +
+  stat_pvalue_manual(Dunn_PKRstroma_1_sp, label = "p.adj.signif")+
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 3))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 3)) +
+  facet_grid(. ~ Stain) +
+  labs(title = "Comparison: The stroma layers per stain, cell classifier", subtitle = "Q: does the prescence of sp stroma cells in both stroma and in lobes differ between inner, middle and outer layers?")
+  
+Dunn_boxes_sp
+
+Suppl_Fig_12b <- Dunn_boxes_comp_sp
+
+Fig_4e <- Dunn_boxes_sp
+
+```
+added after biorxiv submission. 2024 03 15
+
+```{r lobule vs stroma expression comparison}
+# Question: is there a diff between lobular and stromal for each respective Stain and stroma layer? 
+
+spcell_calc_frsub$Group_StainLayer <- paste(spcell_calc_frsub$Stain, spcell_calc_frsub$Layer, sep = "_") 
+spcell_calc_frsub$Group_LayerCompartment <- paste(spcell_calc_frsub$Layer, spcell_calc_frsub$Compartment, sep = "_") 
+
+summary_ls_msp <- spcell_calc_frsub %>%
+  group_by(Stain, Layer, Compartment) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(pos_fraction, na.rm = TRUE),
+    sd = sd(pos_fraction, na.rm = TRUE),
+    median = median(pos_fraction, na.rm = TRUE),
+    IQR = IQR(pos_fraction, na.rm = TRUE)
+  )
+summary_ls_msp
+
+wilcox_PKRstroma_sllayer <- spcell_calc_frsub %>%
+  group_by(Stain, Layer) %>%
+  wilcox_test(pos_fraction ~ Group_LayerCompartment, paired = FALSE) %>% 
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+wilcox_PKRstroma_sllayer
+
+# comparing the stroma layer per stain and compartment
+wilcox_PKRstroma_sllayer_1 <- wilcox_PKRstroma_sllayer %>% add_xy_position(x = "Layer")
+
+wilcox_PKRstroma_sllayer_1$xNEW <- wilcox_PKRstroma_sllayer_1$x
+wilcox_PKRstroma_sllayer_1$xNEW <- wilcox_PKRstroma_sllayer_1$xNEW-1
+wilcox_PKRstroma_sllayer_1$x <- wilcox_PKRstroma_sllayer_1$xNEW
+wilcox_PKRstroma_sllayer_1 <- wilcox_PKRstroma_sllayer_1[, -17]
+wilcox_PKRstroma_sllayer_1$xmax <- wilcox_PKRstroma_sllayer_1$xmax-1
+wilcox_PKRstroma_sllayer_1$xmin <- wilcox_PKRstroma_sllayer_1$xmin-1
+
+wilcox_PKRstroma_sllayer_1
+
+wilcox_boxes_slcomp<- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction", 
+                        color = "Compartment", fill = "Compartment", alpha = 0.6) +
+  stat_pvalue_manual(wilcox_PKRstroma_sllayer_1, label = "p.adj.signif")+
+  scale_color_brewer(palette = "Set2") +
+  scale_fill_brewer(palette = "Set2") +
+  facet_grid(. ~ Stain) +
+  labs(title = "Comparison: The stroma layer per stain and compartment", subtitle = "Q: does the expression of sp [stain] in stroma and in lobes (separately) differ between inner, middle and outer stroma?")
+  
+wilcox_boxes_slcomp
+
+### Make a new test, not separated between all the layers. 
+summary_ls_msp_notlayer <- spcell_calc_frsub %>%
+  group_by(Stain, Compartment) %>%
+  dplyr::summarise(
+    count = n(),
+    mean = mean(pos_fraction, na.rm = TRUE),
+    sd = sd(pos_fraction, na.rm = TRUE),
+    median = median(pos_fraction, na.rm = TRUE),
+    IQR = IQR(pos_fraction, na.rm = TRUE)
+  )
+summary_ls_msp_notlayer
+
+wilcox_PKRstroma_sl <- spcell_calc_frsub %>%
+  group_by(Stain) %>%
+  wilcox_test(pos_fraction ~ Compartment, paired = FALSE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+wilcox_PKRstroma_sl
+
+# comparing the stroma layer per stain
+wilcox_PKRstroma_sl_1 <- wilcox_PKRstroma_sl %>% add_xy_position(x = "Stain")
+wilcox_PKRstroma_sl_1
+
+wilcox_boxes_slcomp_notlayer<- ggboxplot(spcell_calc_frsub, x = "Stain", y = "pos_fraction", 
+                        color = "Compartment", fill = "Compartment", alpha = 0.6) +
+  stat_pvalue_manual(wilcox_PKRstroma_sl_1, label = "p.adj.signif")+
+  scale_color_brewer(palette = "Set2") +
+  scale_fill_brewer(palette = "Set2") +
+  labs(title = "Comparison: Differential expression in the 2 compartments per stain", subtitle = "Q: does the expression of sp [stain] differ between stroma and lobes?")
+  
+wilcox_boxes_slcomp_notlayer
+
+Suppl_Fig_14c <- wilcox_boxes_slcomp
+Fig_4g <- wilcox_boxes_slcomp_notlayer
+
+
+```
+
+

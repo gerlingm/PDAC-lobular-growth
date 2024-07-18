@@ -1,0 +1,737 @@
+---
+title: "Quantification of tumor-tissue interactions, validation of machine-learning based annotations and lobular NGFR intensity"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load required packages
+
+```{r download-libraries, message=FALSE}
+# re-framing the data
+library(dplyr)
+
+# plots
+library(ggplot2)
+library(ggalluvial)
+library(RColorBrewer)
+library(circlize)
+library(ggforce)
+
+
+```
+
+
+# Tissue interactions with tumor cell detections
+
+## Import the data
+
+Data include measured distances from tumor cell centroids to the closest tissue annotations within stromal and lobular ROIs, and distance to invasion front for lobular ROIs.
+
+```{r import-data, results='asis'}
+
+# distance frame with invasion front
+dist.frame.original <- read.table('./data/tumor_tissue_interactions_ngfr_intensity_tumor.tsv', sep = '\t', header = T)
+dim(dist.frame.original) #23,390 observations in total
+
+knitr::kable(head(dist.frame.original))
+```
+
+## Data modification
+
+Modifications of the imported data frame includes cleaning and transforming the data suitable for analysis and visualization.
+
+```{r basic-modifications, results='asis'}
+
+# Subset the data to have only relevant information
+dist_frame <- dist.frame.original %>%
+  select(Image, Class, Object.ID, ends_with('AP..Mean'), starts_with('Distance'))%>%
+  data.frame()
+
+# Simplify column and variable names
+names <- colnames(dist_frame[,5:ncol(dist_frame)])
+names <- gsub("Distance.to.annotation.with.", "", names) 
+names <- gsub(".µm", "", names)
+
+dist_frame$Image <- gsub("-CD146.*|-cd146.*","",dist_frame$Image)
+unique(dist_frame$Image) # only case information left
+
+colnames(dist_frame) <- c('PKR', 'ROI', 'Object.ID', 'AP_mean', names)
+
+# exclude irrelevant distance measurements
+dist_frame <- dist_frame %>%
+  select(PKR, ROI, Object.ID, AP_mean, Langerhans, acinar, nerve, vessel, ADM, ductal, immune, tumor, fibroblasts, ends_with('Front')) %>%
+  data.frame()
+
+# convert to long format
+dist_frame <- dist_frame %>%
+  tidyr::pivot_longer(cols = c(colnames(dist_frame[,5:ncol(dist_frame)])),
+                      names_to = 'to_class',
+                      values_to = 'distance_um')
+
+#create a new column to have plain info on the ROI (stroma/lobe)
+dist_frame <- dist_frame %>%
+  tidyr::separate(col=ROI, into=c('roi', 'roi_no'), sep = ' ', remove = T)%>%
+  mutate(roi_no = paste(roi, roi_no, sep="-"))%>%
+  data.frame()
+
+# add a column with combined case and ROI info
+dist_frame$PKR_ROI = paste(dist_frame$PKR, dist_frame$roi_no, sep="-")
+
+# subset to quality control
+pkr51 <-  dist_frame %>%
+  filter(PKR == 'PKR-51')%>%
+  data.frame()
+
+nrow(dist_frame)
+dist_frame <- dist_frame%>%
+  filter(!PKR_ROI %in% c('PKR-51-lobe-2', 'PKR-51-lobe-3'))%>%
+  data.frame()
+nrow(dist_frame) #9555 rows were excluded
+
+# convertion & new columns look as they should
+knitr::kable(head(dist_frame))
+
+```
+
+## Quality control
+
+Control that data looks as it should after modifications
+
+```{r sanity-check-1, results='asis'}
+# All variables are included
+unique(dist_frame$PKR)
+unique(dist_frame$roi_no)
+unique(dist_frame$to_class)
+unique(dist_frame$PKR_ROI)
+
+(nrow(dist_frame)+9555)/13 #number of rows divided by the number of cell classes & distance to invasion front + the excluded rows (pkr-51 lobes 2 and 3)
+nrow(dist.frame.original) # should be the same than in the original frame 
+```
+
+```{r sanity-check-2, results='asis'}
+#control that there is only one closest distance for each class per tumor cell detection
+classes_n <- dist_frame %>%
+  select(Object.ID, to_class)%>%
+  group_by(Object.ID) %>%
+  dplyr::summarise(to_class_n = n())%>%
+  data.frame()
+
+knitr::kable(head(classes_n))
+
+# for each detection there should be always 13 classes
+classes_n %>% 
+  filter(to_class_n < 13)
+classes_n %>% 
+  filter(to_class_n > 13)
+
+# control that there is always 13 distinct classes per each cell detection
+distinct_classes_n <- dist_frame %>%
+  select(Object.ID, to_class)%>%
+  group_by(Object.ID) %>%
+  dplyr::summarise(to_class_n = n_distinct(to_class))%>%
+  data.frame()
+
+knitr::kable(head(distinct_classes_n))
+
+# for each detection always 13 distinct classes
+distinct_classes_n %>% 
+  filter(to_class_n < 13)
+distinct_classes_n %>% 
+  filter(to_class_n > 13)
+
+# control for missing values
+# missing values derive from invasion front annotations of lobules in case only three lobular ROIs were delineated to image (i.e. distance to invasion front 4 is NA)
+any(is.na(dist_frame))
+knitr::kable(dist_frame %>%
+  filter(is.na(distance_um))%>%
+  head(3))
+  
+```
+
+## Subset the data
+### Direct interactions according to distance to invasion front within lobular invasion ROIs
+
+```{r distance-lobular-interactions-data, results='hold'}
+# Subset only to lobular invasion ROIs
+# use distance less than 20 microns as a criteria for direct interaction and filter away the distances to tumor and invasion front annotations.
+dist_frameL.direct <- dist_frame %>%
+  filter(distance_um < 20 & !to_class %in% c('tumor', 'lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront') & grepl('lobe', roi))%>%
+  data.frame()
+
+
+# create a frame of distances to invasion front so that each lobular ROI has only distance to its invasion front and not for any other lobe
+dist_to_Inv <- dist_frame %>% # subset the data frame to have only distances to invasion front
+  filter(to_class %in% c('lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront') & grepl('lobe', roi))%>%
+  data.frame()
+
+# create vectors to loop through the data
+pkr <- c('PKR-2', 'PKR-13', 'PKR-24', 'PKR-39', 'PKR-51') # each case
+roino <- c('lobe-1', 'lobe-2', 'lobe-3', 'lobe-4') # each lobular ROI
+dist <- c('lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront') # each invasion front
+i <- 1
+j <- 1
+invfront.data <- data.frame()
+for (i in 1:length(pkr)){
+  for (j in 1:length(roino)){
+    data <- dist_to_Inv %>%
+      filter(PKR == pkr[i] & to_class== dist[j] & roi_no == roino[j])%>%
+      data.frame()
+    invfront.data <- rbind(invfront.data, data)
+    j <- j+1
+  }
+  i <- i+1
+}
+
+colnames(invfront.data)[6:7] <- c('InvFront.ID', 'distance_to_invf') # change colname
+
+# Number of direct interactions by Object id (i.e. unique tumor cell detection)
+direct_interactions <- dist_frameL.direct%>%
+  select(Object.ID, PKR_ROI, to_class)
+
+colnames(direct_interactions)[3] <- c('Interaction')
+
+
+# merge the frames of distances to invasion front and the direct tissue interactions from tumor cell detection
+invfront.data <- merge(x= direct_interactions, y =invfront.data, by = c('Object.ID','PKR_ROI'))
+invfront.data$Distance_rounded <- plyr::round_any(invfront.data$distance_to_invf, 20) # round each distance to the nearest 20µm
+
+# convertion & new columns look as they should
+knitr::kable(head(invfront.data))
+
+
+# information of the data
+
+cat(paste('The total number of direct interactions with tumor cells is', nrow(dist_frameL.direct)), '\n')
+
+cat('of which ')
+dist_frameL.direct %>%
+  filter(roi == 'stroma')%>%
+  nrow()
+cat(' are in stroma')
+
+cat(' and ')
+dist_frameL.direct %>%
+  filter(roi == 'lobe')%>%
+  nrow()
+cat(' are in lobes.', '\n')
+
+cat(paste('The total number of ROIs analysed is',length(unique(dist_frameL.direct$PKR_ROI))), '\n')
+
+cat('Of which ')
+dist_frameL.direct %>%
+  filter(roi == 'stroma')%>%
+  select(PKR_ROI)%>%
+  unique()%>%
+  nrow()
+
+cat(' are stromal ROIs')
+
+cat(' and ')
+dist_frameL.direct %>%
+  filter(roi == 'lobe')%>%
+  select(PKR_ROI)%>%
+  unique()%>%
+  nrow()
+
+cat(' lobular ROIs.')
+
+# number of observations for each ROI per case
+knitr::kable(dist_frameL.direct %>%
+  filter(roi == 'lobe')%>%
+  select(PKR_ROI)%>%
+  group_by(PKR_ROI)%>%
+  dplyr::summarise(Freq = n()))
+
+knitr::kable(dist_frameL.direct %>%
+  filter(roi == 'stroma')%>%
+  select(PKR_ROI)%>%
+  group_by(PKR_ROI)%>%
+  dplyr::summarise(Freq = n()))
+
+# no missing values
+any(is.na(dist_frameL.direct))
+dist_frameL.direct %>%
+  filter(is.na(distance_um))
+
+ 
+
+```
+
+### Visualise interactions according to distance to invasion front
+
+
+```{r distance-lobular-interactions-plot,results='hold'}
+
+# count percentage of each interaction at different distance point
+InvFront.plot <-  invfront.data%>%
+  select(PKR_ROI,Interaction, Distance_rounded)%>%
+  group_by(PKR_ROI,Interaction, Distance_rounded)%>%
+  dplyr::summarise(N = n())
+
+data <- InvFront.plot  %>%
+    group_by(Distance_rounded, Interaction) %>%
+    dplyr::summarise(n = sum(N))
+
+order <- data%>%
+  filter(Distance_rounded==0)%>%
+  arrange(desc(n))%>%
+  pull(Interaction)%>%
+  as.vector()
+  
+
+# Stacking order
+#order <- c('fibroblasts', 'ADM', 'vessel','Langerhans','acinar', 'ductal', 'immune', 'nerve')
+colors <- c('fibroblasts' = "#38f0f0",'ADM'="#007cff", 'acinar'="#c714f4",'Langerhans'="#1bf200", 'vessel'="#0000ff", 'ductal'="#f78120", 'immune'="#9a6319", 'nerve'="#008100")
+
+area.p <- data %>% 
+  arrange(n) %>%
+  mutate(Interaction = factor(Interaction, levels=order)) %>% 
+  ggplot(aes(Distance_rounded, n, fill = Interaction, label = Interaction, color = Interaction)) +
+  geom_area(position = "fill" ) +
+  scale_fill_manual(values = colors)+
+  scale_color_manual(values = colors)+
+  scale_x_continuous(breaks=c(0, 10, 20, 30, 40, 50, 125,250,375, 500),labels = c("0", "10", "20", "30", "40", "50", "125","250","375", "500"), limits = c(0,520)) +
+  scale_y_continuous(expand = c(0,0), labels = scales::percent, breaks = c(0, 0.2, 0.4, 0.6, 0.8, 1)) +
+    facet_zoom(xlim = c(0, 50))+
+  labs(x = 'Distance from invasion front (µm)', y = 'Interactions with tumor cells (%)')+
+  theme_minimal()
+
+area.p
+  
+
+```
+
+### Direct interactions within lobular and stromal invasion ROIs
+
+
+```{r lobular-stromal-interactions-data, results='hold'}
+# Include also stromal ROIs this time
+# use distance less than 20 microns as a criteria for direct interaction and filter away the distances to tumor and invasion front annotations.
+dist_frame.direct <- dist_frame %>%
+  filter(distance_um < 20 & !to_class %in% c('tumor', 'lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront'))%>%
+  data.frame()
+
+# quality control
+# information of the data look same than in the beginning but now also stromal interactions are included
+cat(paste('The total number of direct interactions with tumor cells is', nrow(dist_frame.direct)), '\n')
+
+cat('of which ')
+dist_frame.direct %>%
+  filter(roi == 'stroma')%>%
+  nrow()
+cat(' are in stroma')
+
+cat(' and ')
+dist_frame.direct %>%
+  filter(roi == 'lobe')%>%
+  nrow()
+cat(' are in lobes.', '\n')
+
+cat(paste('The total number of ROIs analysed is',length(unique(dist_frame.direct$PKR_ROI))), '\n')
+
+cat('Of which ')
+dist_frame.direct %>%
+  filter(roi == 'stroma')%>%
+  select(PKR_ROI)%>%
+  unique()%>%
+  nrow()
+
+cat(' are stromal ROIs')
+
+cat(' and ')
+dist_frame.direct %>%
+  filter(roi == 'lobe')%>%
+  select(PKR_ROI)%>%
+  unique()%>%
+  nrow()
+
+cat(' lobular ROIs.')
+
+# number of observations for each ROI per case
+knitr::kable(dist_frame.direct %>%
+  filter(roi == 'lobe')%>%
+  select(PKR_ROI)%>%
+  group_by(PKR_ROI)%>%
+  dplyr::summarise(Freq = n()))
+
+knitr::kable(dist_frame.direct %>%
+  filter(roi == 'stroma')%>%
+  select(PKR_ROI)%>%
+  group_by(PKR_ROI)%>%
+  dplyr::summarise(Freq = n()))
+
+# no missing values
+any(is.na(dist_frame.direct))
+dist_frame.direct %>%
+  filter(is.na(distance_um))
+
+
+```
+
+#### Comparision of AI based interactions to manual pins
+
+```{r validation-manual-pins-data, results='hold'}
+# import the data
+pins <- read.table("./data/manual_pins.tsv", header = TRUE, sep = "\t", dec = ".")
+
+knitr::kable(head(pins))
+
+# each row includes only one contact
+pins%>%
+  filter(Num.points != 1)
+
+# rename the Class column
+pins$Class <- sub("_direct_contact", "", pins$Class)
+
+# chech the Class and Parent names
+unique(pins$Class)
+unique(pins$Parent)
+
+```
+
+```{r validation-manual-pins-plot, results='asis'}
+
+#subset Aiforia data
+
+pkr51 <- pkr51 %>%
+  filter(distance_um < 20 & !to_class %in% c('tumor', 'lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront'))%>%
+  data.frame()
+
+pkr51 <- pkr51%>%
+  select(roi_no, to_class)%>%
+  add_count(roi_no, name = 'total')%>%
+  group_by(roi_no, to_class, total)%>%
+  dplyr::summarise(n = n())%>%
+  mutate(percent=n/total*100)
+
+pkr51$roi_no <-paste('Aiforia', pkr51$roi_no)
+pkr51$roi_no <-gsub('-', ' ', pkr51$roi_no)
+
+# manual pins data
+pkr51.pins <- pins%>%
+  filter(Parent != 'Image' & Class != 'Tumor')%>%
+  select(Parent, Class, Num.points)%>%
+  add_count(Parent, name = 'total')%>%
+  group_by(Parent, Class, total)%>%
+  dplyr::summarise(n = n())%>%
+  mutate(percent = n/total*100)%>%
+  data.frame()
+
+# harmonize data frame names
+
+colnames(pkr51.pins) <- colnames(pkr51)
+pkr51.pins$roi_no <-paste('manual', pkr51.pins$roi_no)
+pkr51.pins$to_class <- gsub('[?][?]', 'other', pkr51.pins$to_class)
+pkr51.pins$to_class <- gsub('small | cells', '', pkr51.pins$to_class)
+pkr51.pins$to_class <- gsub('vessels', 'vessel', pkr51.pins$to_class)
+pkr51.pins$to_class <- gsub('N', 'n', pkr51.pins$to_class)
+pkr51.pins$to_class <- gsub('I', 'i', pkr51.pins$to_class)
+
+# merge data and arrange by rois
+pin.contacts <- rbind(pkr51, pkr51.pins)
+pin.contacts$roi_no <- factor(pin.contacts$roi_no, levels = c(
+  'manual lobe 1', 'Aiforia lobe 1',
+  'manual lobe 2', 'Aiforia lobe 2',
+  'manual lobe 3', 'Aiforia lobe 3',
+  'manual stroma 1', 'Aiforia stroma 1',
+  'manual stroma 2', 'Aiforia stroma 2',
+  'manual stroma 3', 'Aiforia stroma 3',
+  'manual stroma 4', 'Aiforia stroma 4',
+  'manual stroma 5', 'Aiforia stroma 5'
+  ))
+
+colors = c("#c714f4","#007cff","#38f0f0","#9a6319", "#008100", "#FFFF00", "#0000ff")
+
+# pie plots
+blank_theme <- theme_minimal()+
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+
+pin.pies <- ggplot(pin.contacts, aes(x="", y=percent, fill=to_class))+
+  geom_bar(width = 1, stat = 'identity')+
+  scale_fill_manual(values=colors)+
+  coord_polar("y", start=0)+
+  geom_text(aes(x = 1.7, label = paste0(round(percent), "%")), size=3, 
+            position = position_stack(vjust = 0.5))+
+  labs(x = NULL, y = NULL, fill = NULL, title = "")+
+  theme_minimal()+
+  blank_theme+
+  theme(
+  axis.text.x = element_blank())+
+  facet_wrap(~roi_no)
+
+
+pin.pies
+
+```
+
+#### Visualistion of AI based interactions in stroma and lobules
+
+
+```{r lobular-stromal-interactions-plot, results='asis'}
+
+# data for Sankey plot of interactions
+Sankey.data <- dist_frame.direct%>%
+  select(roi, to_class)%>%
+  group_by(roi, to_class, .drop=FALSE)%>%
+  plyr::count()%>%
+  mutate(total = sum(freq),
+         percent=freq/total*100)%>%
+  data.frame()
+
+knitr::kable(Sankey.data)
+
+colors = c("#007cff", "#c714f4", "#f78120", "#1bf200", "#0000ff", "#008100","#9a6319","#38f0f0")
+
+Sankey.data$to_class <- factor(Sankey.data$to_class, levels = c('ADM', 'acinar', 'ductal', 'Langerhans', 'vessel', 'nerve', 'immune',  'fibroblasts'))
+
+ggplot(data = Sankey.data,
+       aes(axis1 = roi, axis2 = to_class, y = percent)) +
+  geom_alluvium(aes(fill = to_class),
+                width = 0.2, knot.pos = 0, reverse = T,
+                curve_type = "sigmoid") +
+  geom_stratum(alpha = 0.25, width = 0.2, reverse = T) +
+  geom_text(stat = "stratum",
+            aes(label = after_stat(stratum)), reverse = T,
+            angle=c(0,0,rep(45,8)),size=4, hjust = 1, vjust = 0.5) +
+  scale_x_discrete(limits = c("roi", "to_class"),
+                   expand = c(0.5, 0.3)) +
+  scale_fill_manual(values = colors)+
+  theme_void()+
+  theme(legend.position = "left")+
+  guides(fill = guide_legend(title = "Cell class"))
+```
+
+#### Visualistion of AI based interactions in stroma and lobules - no fibrosis
+```{r lobular-stromal-interactions-no-fibrosis, results='asis'}
+# normalize non-fibrosis interactions within the interactions in lobes or in stroma
+circ.data <- Sankey.data%>%
+  dplyr::filter(to_class != 'fibroblasts')%>%
+  select(roi, to_class, freq)%>%
+  group_by(roi)%>%
+  dplyr::mutate(total = sum(freq),
+         ratio = freq/total)%>%
+  data.frame()
+
+cell_rate <- tapply(circ.data$ratio, circ.data$to_class, FUN = sum)
+cell_rate <- data.frame(cell_rate)
+
+# fibroblasts class pop ups again!
+# getting rows  
+rows <- c(rownames(cell_rate))
+  
+# extracting data frame rows 
+cell_rate <- cell_rate[rownames(cell_rate) %in% rows[-8], ]
+cell_rate <- data.frame(cell_rate) # other rownames and data frame structure is lost
+rownames(cell_rate) <- rows[-8]
+
+cell_rate <- cell_rate[order(cell_rate$cell_rate, decreasing = TRUE),,drop=FALSE] 
+
+
+circos_rel <- circ.data%>%
+  select(roi, to_class, ratio)%>%
+  data.frame()
+
+order = c("stroma", "lobe", "ADM", "acinar", 'vessel', "nerve", "immune","Langerhans","ductal")
+
+col = c("#c714f4","#007cff","#f78120", "#9a6319","#1bf200", "#008100", "#0000ff", "#9a6319", "#008100", "#0000ff")
+grid.col = c(lobe = '#1b9e77', stroma = '#d95f02',
+             ADM = "#007cff", Langerhans = "#1bf200", acinar = "#c714f4", ductal = "#f78120", immune = "#9a6319", nerve = "#008100", vessel = "#0000ff")
+
+circos.clear()
+circos.par(gap.after = c(10, 40, rep(3, length(row.names(cell_rate))-1), 40),
+           start.degree = -112.5)
+chordDiagram(circos_rel,
+             order = order,
+             col = col,
+             grid.col = grid.col,
+             link.lty =c(0,2,0,0,0,0,0,0,0,0),
+    link.lwd = c(2,2,rep(1,(nrow(circos_rel)-2)*2)), link.border = c(0,1,0,0,0,0,0,0,0,0),
+             annotationTrack = "grid",
+             preAllocateTracks = list(track.height = max(strwidth(unlist(dimnames(circos_rel))))))
+
+# customize sector labels
+circos.track(track.index = 1, panel.fun = function(x, y) {
+    circos.text(CELL_META$xcenter, CELL_META$ylim[1], CELL_META$sector.index, 
+        facing = "clockwise", niceFacing = TRUE, adj = c(0, 0.5))
+}, bg.border = NA) # here set bg.border to NA is important
+
+highlight.sector(c('lobe', 'stroma'), track.index = 1, col = "#FF0000",
+    text = "Tumor cells", cex = 1, text.col = "black", niceFacing = TRUE)
+
+highlight.sector(c("ADM", "acinar", 'vessel', "nerve", "immune","Langerhans","ductal"), track.index = 1, col = '#7570b3', 
+    text = "Tissue", cex = 1, text.col = "black", niceFacing = TRUE)
+
+#abline(h = 0, lty = 2, col = "lightpink")
+
+```
+
+# NGFR intensity of expanded area from acinar, acinar-to-ductal-metaplasia (ADM) and tumor cell detections in lobuli
+
+## Import the acinar and ADM based intensity measurements
+
+```{r import-ngfr-data, results='hold'}
+
+# acinar cell detection based intensity measurements based on the surrounding tissue
+acinar.original <- read.table('./data/ngfr_intensity_acinar.tsv', sep = '\t', header = T)
+dim(acinar.original) #23975 observations in total
+
+# ADM cell detection based intensity measurements based on the surrounding tissue
+ADM.original <- read.table('./data/ngfr_intensity_ADM.tsv', sep = '\t', header = T)
+dim(ADM.original) #20857 observations in total
+
+knitr::kable(head(acinar.original))
+knitr::kable(head(ADM.original))
+
+```
+
+## Data modification
+
+```{r ngfr-data-modification, results='asis'}
+
+acinar <- acinar.original%>%
+  mutate(cell_type = c(rep('Acinar', nrow(acinar.original))))
+
+ADM <- ADM.original%>%
+  mutate(cell_type = c(rep('ADM', nrow(ADM.original))))
+
+
+ngfr.data <- rbind(acinar, ADM)
+
+# select only relevant columns
+ngfr.data <- ngfr.data %>%
+  select(Image, Class, cell_type, ends_with(c('AP..Mean', 'fibroblasts.µm')))%>%
+  data.frame()
+
+ngfr.data$Image <- gsub("-CD146.*|-cd146.*","",ngfr.data$Image)
+unique(ngfr.data$Image) # only case information left
+
+colnames(ngfr.data) <- c('PKR', 'ROI', 'cell_type', 'AP_mean', 'distance_to_fibroblasts')
+
+#create a new column to have plain info on the ROI (stroma/lobe)
+ngfr.data <- ngfr.data %>%
+  tidyr::separate(col=ROI, into=c('roi', 'roi_no'), sep = ' ', remove = T)%>%
+  mutate(roi_no = paste(roi, roi_no, sep="-"))%>%
+  data.frame()
+
+# add a column with combined case and ROI info
+ngfr.data$PKR_ROI = paste(ngfr.data$PKR, ngfr.data$roi_no, sep="-")
+
+nrow(ngfr.data)
+# exclude PKR-51 lobes 2 and 3
+#include only measurements locating next to class "fibroblasts"
+ngfr.data <- ngfr.data%>%
+  filter(!PKR_ROI %in% c('PKR-51-lobe-2', 'PKR-51-lobe-3') & distance_to_fibroblasts<20)%>%
+  data.frame()
+
+nrow(ngfr.data) #28700 rows were excluded
+
+unique(ngfr.data$PKR_ROI)
+
+# number of acinar cells
+ngfr.data%>%
+  filter(cell_type=='Acinar')%>%
+  nrow()
+
+# number of ADM cells
+ngfr.data%>%
+  filter(cell_type=='ADM')%>%
+  nrow()
+
+# convertion & new columns look as they should
+knitr::kable(head(ngfr.data))
+```
+
+## Visualization of NGFR intensity of the surrounding tissue of tumor cells in lobular invasion areas
+
+```{r ngfr-intensity-plot, warning=FALSE}
+
+#check in which data the maximum per case is recorded (tumor cell based on acinar/ADM cell based)
+tumor_intensities <- invfront.data%>%
+  filter(PKR != 'PKR-39' & Interaction == 'fibroblasts')%>%
+  select(Object.ID, PKR, PKR_ROI, distance_to_invf, AP_mean)
+
+# compare max values
+tumor_max <- tumor_intensities%>%
+  select(PKR, AP_mean)%>%
+  group_by(PKR)%>%
+  summarise(AP_max_tumor = max(AP_mean))
+  
+acini_max <- ngfr.data%>%
+  select(PKR, AP_mean)%>%
+  group_by(PKR)%>%
+  summarise(AP_max_acini = max(AP_mean))
+
+max_compare <- merge(x = tumor_max, y = acini_max, by = 'PKR')
+
+max_compare <- max_compare%>%
+  mutate(tumor_AP_higher = case_when(AP_max_tumor>AP_max_acini~'TRUE',
+                                     TRUE~'FALSE'))
+knitr::kable(max_compare) # maximum values in acini/adm based measures
+
+# normalization to the max intesity in each case
+tumor_intensities <- merge(x = tumor_intensities, y = acini_max, by = 'PKR')
+
+# mean lines for plot
+lines <- ngfr.data%>%
+  mutate(AP_mean = case_when(AP_mean<0~0,
+                              TRUE ~AP_mean))%>% #negative intensities to positive
+  group_by(PKR)%>% # normalize ngfr intensity
+  mutate(AP_max=max(AP_mean),
+           AP_norm=(AP_mean/AP_max))%>%
+  select(cell_type, AP_norm) %>% #compute mean
+  group_by(cell_type)%>%
+  summarise(Mean_AP_norm=mean(AP_norm))
+
+# create distance bins according to rolling mean
+tumor_intensities$distanceR <- plyr::round_any(tumor_intensities$distance_to_invf, 50)
+
+# normalize tumor intensities and subset data for plotting
+tumor_intensities <- tumor_intensities %>%
+  mutate(AP_mean = case_when(AP_mean<0~0,
+                              TRUE ~AP_mean),
+         AP_norm = AP_mean/AP_max_acini)%>%
+  group_by(distanceR)%>% # rolling mean and standard deviation
+  mutate(AP_rollmean = mean(AP_norm, na.rm = T),
+         AP_rollsd = sd(AP_norm, na.rm = T))
+
+# number of individual tumor cells
+nrow(tumor_intensities)
+length(unique(tumor_intensities$Object.ID))
+
+# plots of intensities
+ggplot(tumor_intensities, aes(x=distance_to_invf, y=AP_norm)) +
+  geom_point(size=2, shape=23, alpha=0.8) +
+  scale_color_manual(values = c('#636363'))+
+  geom_ribbon(aes(ymin = AP_rollmean - AP_rollsd, ymax = AP_rollmean + AP_rollsd), fill = '#fddbc7', alpha = 0.5)+
+  geom_line(aes(y = AP_rollmean,  x = distanceR, linetype = 'Tumor'), color = c('#FF0000'), linewidth = 1)+
+  geom_hline(aes(yintercept = lines$Mean_AP_norm[1], linetype = 'ADM'), colour = c("#007cff"), linewidth = 1) +
+  geom_hline(aes(yintercept = lines$Mean_AP_norm[2], linetype = 'Acinar'), colour = c("#c714f4"), linewidth = 1) +
+  scale_linetype_manual(name = "cell_type", values = c(2, 2, 1), 
+                      guide = guide_legend(override.aes = list(color = c("#c714f4", "#007cff", "#FF0000"))))+
+  scale_x_continuous(breaks=c(0, 125,250,375, 500),labels = c("0", "125","250","375", "500"), limits = c(0,500))+ 
+  labs(y = 'NGFR relative intensity', x ='Distance to invasion front (µm)')+
+  theme_bw()
+
+
+```
+
+```{r}
+sessionInfo()
+```
+

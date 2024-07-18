@@ -1,0 +1,234 @@
+---
+title: "Pie_area_Fig2d"
+author: "Sara Söderqvist"
+date: "2023-06-20"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+```{r data cleanup}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Source data/Degree tumor invasion per compartment") #adjust working directory
+
+path <- file.path(getwd())
+v.filename <- list.files(path, pattern="'*.csv", 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+PKR_area = do.call(rbind, lapply(v.filename, 
+                                function(x) read.csv(x)))
+library("magrittr")
+library("dplyr")
+unique(PKR_area$Image)
+PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-2-', .$Image), 'PKR_2', .$Image))
+PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-13-', .$Image), 'PKR_13', .$Image))
+PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-51-', .$Image), 'PKR_51', .$Image))
+PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-24-', .$Image), 'PKR_24', .$Image))
+PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-39-', .$Image), 'PKR_39', .$Image))
+
+
+PKR_area <- PKR_area %>% mutate(Class = ifelse(grepl('stromal', .$Class), 'Stroma', .$Class))
+PKR_area <- PKR_area %>% mutate(Class = ifelse(grepl('lobular acinar', .$Class), 'Lobular_acinar', .$Class))
+PKR_area <- PKR_area %>% mutate(Class = ifelse(grepl('other', .$Class), 'Other', .$Class))
+
+#change column names to a bit more understandable
+colnames(PKR_area) <- gsub('Image', 'Case_ID', colnames(PKR_area))
+colnames(PKR_area) <- gsub('Area.µm.2', 'Area', colnames(PKR_area))
+
+# Make column "Class" factor
+PKR_area$Class <- as.factor(PKR_area$Class)
+
+spl <- split(PKR_area, f = PKR_area$Case_ID)
+PKR_2 <- spl$PKR_2
+PKR_13 <- spl$PKR_13
+PKR_24 <- spl$PKR_24
+PKR_51 <- spl$PKR_51
+PKR_39 <- spl$PKR_39
+head(PKR_2)
+head(PKR_13)
+head(PKR_39)
+head(PKR_51)
+head(PKR_24)
+
+```
+
+
+```{r sums}
+# Sum for each group ("class") and case ID ("PKR")
+PKR2_sum <- aggregate(Area ~ Class, data = PKR_2, FUN = sum)
+head(PKR2_sum)
+
+#control
+pkr2split <- split(PKR_2, f = PKR_2$Class)
+
+pkr2_lob <- pkr2split$Lobular_acinar
+sum(pkr2_lob$Area) #same - good!
+
+#Fig_2e
+PKR39_sum <- aggregate(Area ~ Class, data = PKR_39, FUN = sum)
+head(PKR39_sum)
+
+PKR51_sum <- aggregate(Area ~ Class, data = PKR_51, FUN = sum)
+head(PKR51_sum)
+
+PKR13_sum <- aggregate(Area ~ Class, data = PKR_13, FUN = sum)
+head(PKR13_sum)
+
+PKR24_sum <- aggregate(Area ~ Class, data = PKR_24, FUN = sum)
+head(PKR24_sum)
+```
+
+```{r barcharts individual}
+library(ggplot2)
+
+PKR2_bar <- ggplot(PKR2_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+  geom_bar(width = 1, stat = "identity")
+PKR2_bar
+
+PKR24_bar <- ggplot(PKR24_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+  geom_bar(width = 1, stat = "identity")
+PKR24_bar
+
+PKR39_bar <- ggplot(PKR39_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+  geom_bar(width = 1, stat = "identity")
+PKR39_bar
+
+PKR51_bar <- ggplot(PKR51_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+  geom_bar(width = 1, stat = "identity")
+PKR51_bar
+
+PKR13_bar <- ggplot(PKR13_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+  geom_bar(width = 1, stat = "identity")
+PKR13_bar
+
+
+```
+
+```{r barchart all together}
+library(scales)
+PKR2_tot <- sum(PKR2_sum$Area)
+PKR24_tot <- sum(PKR24_sum$Area)
+PKR39_tot <- sum(PKR39_sum$Area)
+PKR51_tot <- sum(PKR51_sum$Area)
+PKR13_tot <- sum(PKR13_sum$Area)
+
+PKR13_sum$Area_norm <- PKR13_sum$Area/PKR13_tot
+PKR2_sum$Area_norm <- PKR2_sum$Area/PKR2_tot
+PKR24_sum$Area_norm <- PKR24_sum$Area/PKR24_tot
+PKR39_sum$Area_norm <- PKR39_sum$Area/PKR39_tot
+PKR51_sum$Area_norm <- PKR51_sum$Area/PKR51_tot
+
+PKR13_sum$Case <- factor('PKR13')
+PKR2_sum$Case <- factor('PKR2')
+PKR51_sum$Case <- factor('PKR51')
+PKR24_sum$Case <- factor('PKR24')
+PKR39_sum$Case <- factor('PKR39')
+
+all_sum <-  rbind(PKR13_sum, PKR2_sum)
+all_sum <-  rbind(all_sum, PKR51_sum)
+all_sum <-  rbind(all_sum, PKR24_sum)
+all_sum <-  rbind(all_sum, PKR39_sum)
+
+all_sum$Area_norm <- round(all_sum$Area_norm*100, digits = 1)
+
+```
+
+```{r}
+library(ggthemes)
+
+bar_colors <- c("#99ccfa","#999999", "#feb18b")
+
+
+all_bar <- ggplot(all_sum, aes(x = Case, y = Area_norm, fill = Class, color = Class)) +
+  geom_bar(width = 0.8, stat = "identity") +
+  scale_fill_manual(values = bar_colors) +
+  scale_color_manual(values = bar_colors) +
+  theme_clean() +
+  geom_text(aes(label = Area_norm), col = "black", position = position_stack(vjust = 0.5)) + 
+  scale_y_continuous()
+all_bar
+
+new_Fig_1e <- all_bar
+
+```
+
+
+
+```{r pie charts}
+library(scales)
+PKR2_tot <- sum(PKR2_sum$Area)
+PKR24_tot <- sum(PKR24_sum$Area)
+PKR39_tot <- sum(PKR39_sum$Area)
+PKR51_tot <- sum(PKR51_sum$Area)
+PKR13_tot <- sum(PKR13_sum$Area)
+
+pie_colors <- c("Lobular_acinar" = "#66c2a5", "Other" = "#8da0cb", "Stroma" = "#fc8d62")
+
+PKR2_pie <- PKR2_bar +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = percent(Area/PKR2_tot)), position = position_stack(vjust = 0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Area of tumor in different compartments in PKR-2") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+
+PKR2_pie
+
+PKR13_pie <- PKR13_bar +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = percent(Area/PKR13_tot)), position = position_stack(vjust = 0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Area of tumor in different compartments in PKR-13") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+
+PKR13_pie
+
+PKR24_pie <- PKR24_bar +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = percent(Area/PKR24_tot)), position = position_stack(vjust = 0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Area of tumor in different compartments in PKR-24") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+
+PKR24_pie
+
+PKR39_pie <- PKR39_bar +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = percent(Area/PKR39_tot)), position = position_stack(vjust = 0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Area of tumor in different compartments in PKR-39") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+
+PKR39_pie
+
+PKR51_pie <- PKR51_bar +
+  coord_polar("y", start = 0) +
+  geom_text(aes(label = percent(Area/PKR51_tot)), position = position_stack(vjust = 0.5)) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Area of tumor in different compartments in PKR-51") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+
+PKR51_pie
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

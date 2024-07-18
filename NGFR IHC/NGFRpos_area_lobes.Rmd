@@ -1,0 +1,107 @@
+---
+title: "NGFR positive area quantification in lobes accross four combinations of atrophy and tumor invasion"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load required packages
+
+```{r libraries}
+
+library(dplyr)
+library(ggplot2)
+library(rstatix)
+library(RColorBrewer)
+library(wesanderson)
+library(ggpubr)
+library(ggthemes)
+
+```
+
+# Import data
+
+```{r data}
+
+ngfr_area_original<-read.table('./data/ngfr_positive_area_lobes.tsv', sep = '\t', header = T)
+head(ngfr_area_original, 3)
+
+```
+
+# Data modification
+
+```{r wrangling}
+
+ngfr_area <- ngfr_area_original %>%
+  mutate(ngfr_pos_area_µm2=rowSums(across(starts_with("ngfr_thresh")), na.rm = TRUE),
+         ngfr_pos_area_percent=ngfr_pos_area_µm2/Area.µm.2*100)%>%
+  select(Image, Class, Area.µm.2,ngfr_pos_area_µm2, ngfr_pos_area_percent)%>%
+  data.frame()
+
+ngfr_area$PKR <- gsub('\\-cd146.*|\\-CD146.*', '', ngfr_area$Image)
+
+ngfr_area$Class <- factor(ngfr_area$Class, levels=c('Unaffected', 'Pancreatitis', 'Invasion', 'LateInvasion'))
+
+ngfr_area
+
+summary(ngfr_area)
+
+ngfr_area%>%
+  select(Class, Area.µm.2)%>%
+  group_by(Class)%>%
+  summarise(total_area_um2=sum(Area.µm.2))
+```
+
+# Statistical testing
+
+```{r testing}
+
+# kruskal Wallis test
+ngfr_area_res.kruskal <- ngfr_area %>%
+  kruskal_test(ngfr_pos_area_percent~Class)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+
+ngfr_area_res.kruskal
+
+# Dunn's test for pairwise comparisions
+ngfr_area_res.dunn <- ngfr_area %>%
+  dunn_test(ngfr_pos_area_percent~Class)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+
+ngfr_area_res.dunn <- ngfr_area_res.dunn %>% add_xy_position(x = 'Class')
+ngfr_area_res.dunn
+  
+```
+
+# Visualization
+
+```{r plot}
+
+ngfr_area%>%
+  ggboxplot(x = "Class", y = "ngfr_pos_area_percent", 
+                        color = "Class", fill = "Class", alpha=0.6) +
+  scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
+  scale_color_manual(values = wes_palette("GrandBudapest1", n = 4)) +
+  labs(title = "NGFR+ area in lobules") +
+  xlab(NULL) + ylab("NGFR positive area (%)") +
+  stat_pvalue_manual(ngfr_area_res.dunn, label = 'p.adj.signif',
+                     y.position = 30, step.increase = 0.1)+
+  theme_clean()
+
+```
+
+# Used libraries and versions
+
+```{r session info}
+sessionInfo()
+```
