@@ -1,0 +1,726 @@
+Image,Object ID,Name,Class,Parent,ROI,Centroid X µm,Centroid Y µm,Num Detections,Num ADM,Num Acinar,Num Ductal_Amy_overexpr,Num Immune,Num Langerhans,Num Non_malignant_duct,Num Stroma,Num Stroma_periductal,Area µm^2,Perimeter µm,Num Stroma_Amy_leakage
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),10ebfb01-122d-404f-9c36-2f5b724ed5da,l_atrophy,l_atrophy,Image,Polygon,465.77,2581.7,4102,71,12,160,162,780,981,1431,505,722526.8,3296.1,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),dd3f24a3-7e73-4c29-b369-f670b06623fb,l_atrophy,l_atrophy,Image,Polygon,4145.4,1789.8,6366,435,408,265,1013,495,1090,2230,430,1069077.4,4590,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),31ce80ac-4bb2-41f2-9993-bae4f9c3dd68,e_atrophy,e_atrophy,Image,Polygon,3002,1960.9,2449,236,253,174,231,375,382,526,272,358389.6,2571.7,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),0e491b24-bcf0-44b0-a49d-aee205e3f490,l_atrophy,l_atrophy,Image,Polygon,1682.2,2378.5,6374,117,60,199,1356,499,1099,2564,480,1117205.3,4547.1,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),8efa07bd-8a74-4188-acc2-22210d156bb0,e_atrophy,e_atrophy,Image,Polygon,3240.7,2544.1,2465,229,307,24,235,444,232,565,429,400345.1,2824.8,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),906797f0-5686-456a-918a-4c233cecd5bd,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1328.5,1189.4,3966,94,60,302,615,346,482,1730,337,699488.2,3251.7,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),1a242ca2-31a0-4026-a445-5779fa3b29e7,l_atrophy,l_atrophy,Image,Polygon,730.56,1618.6,1472,12,12,24,180,61,385,754,44,282417.7,2117.6,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),fffc7851-ca68-4e93-aa2b-c932cbc00c1b,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2873.7,284.7,1578,13,11,38,135,29,353,941,58,326075.4,2379.7,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),7c1af83d-3f3b-4c37-9e5f-1564ed714958,e_atrophy_tu,e_atrophy_tu,Image,Geometry,3109.2,1170.7,8899,569,1649,258,1029,1114,994,2436,850,1413414,5437,
+PKR11_K19amy_large p-pd lobule.nd2 - PKR11_K19amy_large p-pd lobule.nd2 (series 1),8d290d0a-cb9f-4f47-a105-00af19f92eed,Tumor,Tumor,Image,Geometry,2197.1,1208.2,0,0,0,0,0,0,0,0,0,295824.8,10563.1,
+PKR11_K19amy_d lobule A (uncropped).nd2 - PKR11_K19amy_d lobule A (uncropped).nd2 (series 1),19c86454-cbc3-4231-bfa7-c8ca5ce07dd7,l_atrophy_tu,l_atrophy_tu,Image,Polygon,602.4,823.47,3865,7,7,483,3,116,266,2647,90,785045.4,3564.2,246
+PKR11_K19amy_d lobule A (uncropped).nd2 - PKR11_K19amy_d lobule A (uncropped).nd2 (series 1),c7c81346-f727-4cae-a0e7-7af7ca2f24db,Tumor,Tumor,Image,Geometry,459.44,830.11,0,0,0,0,0,0,0,0,0,91715.4,3716.3,0
+PKR11_K19amy_d lobule B (uncropped).nd2 - PKR11_K19amy_d lobule B (uncropped).nd2 (series 1),e79c35b1-b501-43c7-b666-17a01ea73518,l_atrophy,l_atrophy,Image,Polygon,748.95,900.66,2230,8,45,18,3,105,291,1465,42,460200,2857.8,253
+PKR11_K19amy_d lobule B (uncropped).nd2 - PKR11_K19amy_d lobule B (uncropped).nd2 (series 1),078412e0-1b9b-44db-a817-8c0ce187e080,Tumor,Tumor,Image,Geometry,808.43,860.89,0,0,0,0,0,0,0,0,0,173329.3,7916.3,0
+PKR11_K19amy_d lobule C.nd2 - PKR11_K19amy_d lobule C.nd2 (series 1),c7172ef3-e82f-4c6c-b9d2-fe90f9e55372,l_atrophy,l_atrophy,Image,Polygon,883.13,1327.5,3603,20,43,25,1161,367,130,1813,44,599778.9,2966.7,
+PKR11_K19amy_d lobule C.nd2 - PKR11_K19amy_d lobule C.nd2 (series 1),77c2a7da-3fea-4df0-9df2-e3dda12645cb,Tumor,Tumor,Image,Geometry,772.89,865.77,0,0,0,0,0,0,0,0,0,105382.1,3056.9,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),e6feeb2f-2570-4347-bd9c-327f0e354ccf,l_atrophy,l_atrophy,Image,Polygon,484.17,563.79,3272,257,105,248,424,265,847,663,463,489998.1,3848.5,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),d275fc99-fa32-41c8-b56a-5c3210a72fcf,Non_malignant_duct,Non_malignant_duct,Image,Polygon,548.61,292.83,7,0,0,0,0,0,4,0,3,686.32,137.7,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),b6ad7af9-fd0e-4c47-9bd6-6f7be830c330,Non_malignant_duct,Non_malignant_duct,Image,Polygon,459.89,374.98,7,0,0,1,0,0,6,0,0,792.22,111.84,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),f94e062c-04f5-41b5-9025-c7835d0d8fef,Non_malignant_duct,Non_malignant_duct,Image,Polygon,480.16,437.85,4,0,0,0,0,0,4,0,0,265.86,61.2,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),7d95bdc9-30af-4cfb-8af8-45166aee9394,Non_malignant_duct,Non_malignant_duct,Image,Polygon,652.3,417.27,16,0,0,0,0,0,16,0,0,2255.5,283.57,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),b173e5ac-64cd-49ef-8d03-70b25e10a398,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,294.62,905.29,2,1,0,1,0,0,0,0,0,175.71,50.2,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),69413f85-613a-451e-a6f0-07b4ec7e0fe8,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,409.12,432.4,3,0,0,3,0,0,0,0,0,557.64,108.51,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),695b250a-9ea1-41fd-9028-71c888485494,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,289.79,547.97,9,0,0,7,1,0,1,0,0,821.26,107.94,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),fbba57b0-aae0-43f6-938c-090dd1a4fd80,Stroma_periductal,Stroma_periductal,Image,Polygon,320.89,520.18,6,0,0,0,1,0,0,1,4,910.85,136.38,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),f3f9194d-b951-4614-af30-96840c674009,Stroma_periductal,Stroma_periductal,Image,Polygon,837.74,591.39,37,10,4,0,0,9,0,9,5,14627.4,789.39,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),2cd0233c-09dc-4665-8622-0826e74679f9,Immune,Immune,Image,Polygon,343.5,630.3,9,0,0,0,8,0,0,1,0,886.67,109.2,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),5fd74d04-5386-41ef-9886-a8e0b5e01119,Immune,Immune,Image,Polygon,298.42,602.28,14,0,0,0,9,1,0,4,0,2110.6,171.08,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),0b71bf02-923a-44a1-beb4-820f9a40b988,Immune,Immune,Image,Polygon,730.66,66.04,15,0,0,0,4,2,0,9,0,2043.6,184.6,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),6c22c2bd-4371-49b0-aa8d-99b7b386f390,ADM,ADM,Image,Polygon,582.47,718.88,5,2,1,0,0,1,0,0,1,590.98,107.58,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),ba695d13-32bf-4133-8aba-6a3898bbc1a8,ADM,ADM,Image,Polygon,428.14,596.63,2,2,0,0,0,0,0,0,0,247.54,61.91,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),f9ef996f-3ad7-40e4-a76c-2c1385c7ba3a,ADM,ADM,Image,Polygon,445.73,619.73,2,2,0,0,0,0,0,0,0,371.03,72.85,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),edb98e6f-18d4-430f-9ab5-f6301e95439a,ADM,ADM,Image,Polygon,463.13,522.7,5,4,0,0,0,0,0,0,1,500.5,84.38,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),b2b8f0da-8ae7-451a-9e22-6c7f9827faf4,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,682.16,351.7,5,0,0,3,0,0,2,0,0,375.5,74.99,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),6e85206a-c56f-4b29-8c4e-094ccb88c33e,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,842.18,250.08,5,0,0,5,0,0,0,0,0,449.17,85.54,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),9f8cd4bb-f82c-41ce-9ca9-cd36011a4e59,Stroma,Stroma,Image,Polygon,356.89,748.98,20,1,2,0,3,1,0,13,0,4120.7,251.78,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),0bf0d86b-54f7-4fe5-9c32-0d99e548f4c2,Stroma,Stroma,Image,Polygon,512.99,836.47,4,0,0,0,0,0,0,4,0,1696.5,192.18,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),641e34ca-954a-4dd9-9fab-ed52519cd62b,Stroma,Stroma,Image,Polygon,362.64,938.38,27,0,7,0,0,1,0,19,0,8096,432.03,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),4f71964f-8413-486d-a9c2-93b9199c45cb,Stroma,Stroma,Image,Polygon,174.46,496.5,52,0,2,0,8,7,0,34,1,8554.9,594.64,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),d50a2e68-8dc1-46db-a0ae-84de31adf04a,Stroma,Stroma,Image,Polygon,201.35,668.69,36,0,0,0,7,2,1,26,0,7492.1,425.23,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),86729044-78ba-4d6c-8f08-7a8a6af663d9,Stroma,Stroma,Image,Polygon,741.35,745.17,16,0,0,1,2,0,0,13,0,3604.7,248.63,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),75d6989e-76d0-4e51-805a-32cdfe5d8451,Stroma,Stroma,Image,Polygon,588.29,374.35,3,0,1,0,1,1,0,0,0,374.49,73.1,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),342ed51a-d5a9-4845-b486-4b339aa933a4,Stroma,Stroma,Image,Polygon,500.06,469.89,2,0,0,0,1,0,0,0,1,201.46,57.9,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),225015db-5abb-43d5-a029-f2d858c46c72,Acinar,Acinar,Image,Polygon,587.3,430.78,2,0,1,0,0,0,0,1,0,174.76,53.44,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),076cb7fe-d048-4c91-9cea-9407544ea17a,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,729.9,626.68,2,2,0,0,0,0,0,0,0,171.41,48.85,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),7ecb488b-6201-4098-821a-3ba0856500f6,Stroma,Stroma,Image,Polygon,719.03,633.65,1,0,0,0,0,0,0,1,0,208.11,60.87,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),9ba3cfa3-339f-481f-8319-95a59a5c7278,cell_cleanup,cell_cleanup,Image,Geometry,720.59,417.41,0,0,0,0,0,0,0,0,0,13369.2,633.96,
+PKR11_K19amy_pd lobule A.nd2 - PKR11_K19amy_pd lobule A.nd2 (series 1),a389e4b1-f5c2-4055-9dc2-22e45bf17154,Tumor,Tumor,Image,Geometry,123.02,149.08,0,0,0,0,0,0,0,0,0,34185.5,1286.4,
+PKR11_K19amy_pd lobule B.nd2 - PKR11_K19amy_pd lobule B.nd2 (series 1),e99d1cce-f881-4c7d-9d13-0b3f0c1e0ebd,l_atrophy,l_atrophy,Image,Polygon,1399.1,2657.8,7401,2,3,404,18,40,1865,4748,33,1459997.5,4831.2,288
+PKR11_K19amy_pd lobule B.nd2 - PKR11_K19amy_pd lobule B.nd2 (series 1),95b34130-f239-47a3-83ee-77cee825df22,l_atrophy,l_atrophy,Image,Polygon,831.64,506.67,3159,3,1,45,2,15,860,2090,32,575823.9,3003,111
+PKR11_K19amy_pd lobule B.nd2 - PKR11_K19amy_pd lobule B.nd2 (series 1),184421d2-6b14-4ff4-a482-ac4c43a78f3f,Tumor,Tumor,Image,Geometry,1085.7,1158.9,0,0,0,0,0,0,0,0,0,563960.7,17468,0
+PKR14_K19amy_d lobule A.nd2 - PKR14_K19amy_d lobule A.nd2 (series 1),da12c13f-ee4c-4b09-a5e8-f7c1b106afea,l_atrophy_tu,l_atrophy_tu,Image,Polygon,907.79,715.94,1118,12,3,16,25,22,163,653,170,225188.9,2211.9,54
+PKR14_K19amy_d lobule A.nd2 - PKR14_K19amy_d lobule A.nd2 (series 1),f859e148-5c1d-4a8a-92d4-c19f4469c48d,l_atrophy_tu,l_atrophy_tu,Image,Polygon,915.28,2212.3,1170,8,1,57,14,39,251,384,371,228151.9,1937.4,45
+PKR14_K19amy_d lobule A.nd2 - PKR14_K19amy_d lobule A.nd2 (series 1),cf90365d-f9f7-4dba-bcdb-18701a05111b,Tumor,Tumor,Image,Geometry,1549.6,1777.6,0,0,0,0,0,0,0,0,0,3498097.5,48323.5,0
+PKR14_K19amy_d lobule A.nd2 - PKR14_K19amy_d lobule A.nd2 (series 1),00e718b3-541e-4c67-8978-59dc05bb365f,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1528.2,2626.3,3161,33,36,54,114,80,558,1369,651,653083.4,3669,266
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),836cc42a-083c-47fd-a317-5de0af240dff,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1747,2747.4,37273,241,5,3632,5514,11494,2228,9868,4291,8590240.6,11261.4,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),7ae98b32-11aa-48fe-afcd-f4bbbedf0ad8,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2464.3,3091.4,0,0,0,0,0,0,0,0,0,10452.3,564.69,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),31b4275e-dad9-42e7-bd29-94e4c5fea5e4,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2221.4,2550.9,0,0,0,0,0,0,0,0,0,7950.4,415.06,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),e0b33134-efaf-4619-b18a-4d029f7632ab,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1314.2,2526,0,0,0,0,0,0,0,0,0,16435.4,1056.6,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),b0908953-ee3f-49ec-8c9e-1591f9fdb67d,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,665.01,2905.3,1,0,0,1,0,0,0,0,0,16926,1013.7,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),b40a3862-ed89-4eb8-8caf-1fd8089dc215,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1136.9,1617.4,0,0,0,0,0,0,0,0,0,3918.7,353.88,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),114d1068-5729-47a8-8c38-15d5a150a94a,Acinar,Acinar,Image,Polygon,736.05,2358.4,1,1,0,0,0,0,0,0,0,126.67,46.08,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),27fd8acb-60b7-4d3d-a128-6d65f4dd36f1,Langerhans,Langerhans,Image,Polygon,722.33,1486.2,174,0,0,0,0,173,0,0,1,24566.1,600.86,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),f9cb1c00-0299-4fe6-9a97-74768c964b4a,Langerhans,Langerhans,Image,Polygon,1004,1608,197,0,0,0,0,196,0,0,1,27712.4,665.9,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),c7761224-ce29-4269-a9a6-780ae59e1dc3,Langerhans,Langerhans,Image,Polygon,2429.3,4142.4,72,0,0,0,0,71,0,0,1,11539.6,394.21,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),896b0acf-2fc8-4d01-ad77-46c1e7cf7505,Stroma,Stroma,Image,Polygon,2329.2,4113.7,10,0,0,0,0,0,0,10,0,1765.7,162.62,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),2d73a24d-5bc8-414f-a557-491f25cbef38,Stroma,Stroma,Image,Polygon,2768.4,4223.7,108,0,0,0,0,0,0,108,0,32027.4,1172.4,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),c2adb7d4-27a3-414e-93fe-66012fac58b5,Stroma,Stroma,Image,Polygon,769.52,3353.2,41,0,0,0,0,1,0,40,0,9192.8,501.51,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),e73dc1df-d350-4e43-b779-32aab28ccff0,Stroma,Stroma,Image,Polygon,1448.4,1100.9,119,0,0,0,0,0,0,119,0,57029.3,912.09,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),c9bfbb07-c931-4224-a4a5-1b663f0d60d6,Immune,Immune,Image,Polygon,760.43,1137.8,112,0,0,0,111,0,0,1,0,10370.1,387.22,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),91a6e5da-d5ee-47f1-9605-2f37b6b278a4,Immune,Immune,Image,Polygon,937.26,833.87,49,0,0,0,47,1,0,1,0,5555.2,283.17,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),35613c5f-9371-4f4b-822f-774d6e3fbad5,Immune,Immune,Image,Polygon,759.06,1854.3,68,0,0,0,64,1,0,2,1,7927.4,354.23,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),51774be0-46ab-4d28-8dc6-1e8d8ac0b3d8,Stroma,Stroma,Image,Polygon,392.82,2172.1,31,0,0,0,0,0,0,31,0,6900.1,334.78,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),3b0e138a-b8d2-4349-b628-42c597df0cc0,Stroma_periductal,Stroma_periductal,Image,Polygon,456.35,2220.6,26,0,0,0,0,0,0,0,26,2932.2,343.64,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),50a6b194-b28e-4564-af90-f8d1b2ba5fd4,Stroma_periductal,Stroma_periductal,Image,Polygon,546.47,2092,19,0,0,0,0,2,0,0,17,2622.2,192.33,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),5c308f2c-1238-4c52-8507-aed65998989d,Stroma_periductal,Stroma_periductal,Image,Polygon,507.92,2020.7,4,0,0,0,1,0,0,0,3,867.29,118.65,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),5fd62221-ec85-47f3-b77e-bd4fcc86ae98,Stroma_periductal,Stroma_periductal,Image,Polygon,1866.3,4096.2,58,0,0,0,0,0,0,0,58,7306.2,512.1,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),a965dc35-5dbf-4ade-8093-c70949b3a427,Stroma_periductal,Stroma_periductal,Image,Polygon,2209.1,1979.8,72,0,0,0,0,1,0,0,71,9550.9,575.26,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),1c579719-a2e4-44c7-882c-272a72b3f5b6,Stroma_periductal,Stroma_periductal,Image,Polygon,2089.3,1987.3,18,0,0,0,0,0,0,0,18,2419.4,213.27,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),42b8bfd6-097e-4b2a-bcb7-84155fc6c3cc,Stroma_periductal,Stroma_periductal,Image,Polygon,1921,1841.2,52,0,0,0,0,0,0,0,52,7688.8,328.08,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),08c627bc-ada7-499c-a948-5877639b8d15,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1331.5,1252.1,3,0,0,0,0,0,3,0,0,324.11,86.34,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),024227ff-30df-40cc-a1ca-1675cd152055,Non_malignant_duct,Non_malignant_duct,Image,Polygon,510,1940.1,3,0,0,0,0,0,3,0,0,275.19,65.31,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),25e79d90-9b58-446a-a2a6-78530a509cf5,ADM,ADM,Image,Polygon,460.78,2037.4,1,1,0,0,0,0,0,0,0,132.04,43.93,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),d457d138-3ac4-42ea-adbb-245acb8fefe0,ADM,ADM,Image,Polygon,484.92,2053.7,2,2,0,0,0,0,0,0,0,278.93,65.83,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),7745b290-d1ca-47cb-9c61-42b01cf549f1,Non_malignant_duct,Non_malignant_duct,Image,Polygon,457.21,1923.9,3,0,0,0,0,0,3,0,0,266.2,68.33,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),b0c4ecc7-10a9-417c-bb3c-0a650c696ca8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,637.85,1747.4,6,0,0,0,0,0,6,0,0,457.88,80.77,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),45475e03-172a-4d7a-bcf8-7c034ac5d692,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,992.67,906.64,15,0,0,15,0,0,0,0,0,2437.8,184.49,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),e4bed2d8-d596-469f-a066-7848aa9f70e9,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1397.9,1820.2,5,0,0,0,0,0,5,0,0,538.65,91.81,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),63c0e2e9-d72d-4921-94e3-f35ca26d2938,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1421.5,1797.8,9,0,0,0,0,0,9,0,0,609.69,110.72,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),4fb1a948-ceec-4ece-925f-de5daea4cfce,ADM,ADM,Image,Polygon,962.71,2108.9,5,5,0,0,0,0,0,0,0,270.89,62.14,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),cf3692a8-abe6-433d-b5eb-2ba1abea3195,ADM,ADM,Image,Polygon,879.43,2312.1,3,2,0,1,0,0,0,0,0,278.71,83.69,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),4dc447dd-6fb8-44cc-a32e-aa0e7caf7c41,Acinar,Acinar,Image,Polygon,885.73,2301,2,0,2,0,0,0,0,0,0,121.59,52.75,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),b9c8bc62-61d5-40e2-b050-d068def52cc1,Non_malignant_duct,Non_malignant_duct,Image,Polygon,559.01,2481.6,19,0,0,0,0,0,19,0,0,1584.7,222.83,
+PKR14_K19amy_pd lobule A.nd2 - PKR14_K19amy_pd lobule A.nd2 (series 1),725f2889-bbef-4446-8778-121e7ea83780,Tumor,Tumor,Image,Geometry,2183.8,2829,0,0,0,0,0,0,0,0,0,3503345.8,59156.2,
+PKR14_K19amy_pd lobule B.nd2 - PKR14_K19amy_pd lobule B.nd2 (series 1),5507acd7-1463-4010-9fa4-0a4f43f1c63f,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1159.7,1222.1,2930,13,,121,490,861,110,1200,135,812547.7,4138.9,
+PKR14_K19amy_pd lobule B.nd2 - PKR14_K19amy_pd lobule B.nd2 (series 1),cd8efc95-708c-48c7-ae55-0b5bd3ae3e8e,l_atrophy_tu,l_atrophy_tu,Image,Polygon,234,741.7,2643,10,,225,351,553,341,790,373,474399.5,2858.1,
+PKR14_K19amy_pd lobule B.nd2 - PKR14_K19amy_pd lobule B.nd2 (series 1),94d6337d-f3ca-42c0-8443-93f275461211,Tumor,Tumor,Image,Geometry,1363.9,837.04,0,0,,0,0,0,0,0,0,1307019,29853,
+PKR14_K19amy_pd lobule C (uncropped).nd2 - PKR14_K19amy_pd lobule C (uncropped).nd2 (series 1),69d339f3-1606-4bdf-85a7-9963196e8ee4,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1442.2,2075.5,12864,36,,793,1262,3923,692,4713,1445,2629712.2,,
+PKR14_K19amy_pd lobule C (uncropped).nd2 - PKR14_K19amy_pd lobule C (uncropped).nd2 (series 1),dae602b0-1fe1-4d16-b6f0-244dbfeba280,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2757.1,2479.2,3912,21,,195,318,1720,225,821,612,876332.8,4038.9,
+PKR14_K19amy_pd lobule C (uncropped).nd2 - PKR14_K19amy_pd lobule C (uncropped).nd2 (series 1),508dc492-3c2f-447e-9f53-8c16f831dd93,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2140.5,3747.7,1436,5,,57,104,808,52,207,203,362663.5,2243,
+PKR14_K19amy_pd lobule C (uncropped).nd2 - PKR14_K19amy_pd lobule C (uncropped).nd2 (series 1),a7647a40-d5ab-4af4-a373-5702e4a340c5,Tumor,Tumor,Image,Geometry,2146.6,2761.8,0,0,,0,0,0,0,0,0,2652988.5,52615.8,
+PKR14_K19amy_pd lobule D (uncropped).nd2 - PKR14_K19amy_pd lobule D (uncropped).nd2 (series 1),d08b57cc-69ee-4a26-88f6-9d404ddbdc88,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1319.7,1349.6,4058,10,0,243,217,2025,125,953,485,890850.5,4162,
+PKR14_K19amy_pd lobule D (uncropped).nd2 - PKR14_K19amy_pd lobule D (uncropped).nd2 (series 1),177192d9-b85c-47e4-9c7a-19d413c4d078,l_atrophy_tu,l_atrophy_tu,Image,Polygon,414.75,1851.7,1986,4,1,83,92,873,79,476,378,384753.5,3024.8,
+PKR14_K19amy_pd lobule D (uncropped).nd2 - PKR14_K19amy_pd lobule D (uncropped).nd2 (series 1),f3e310ef-2b72-4c8c-87e1-93fc98ef41f7,Tumor,Tumor,Image,Geometry,937.75,1501.7,0,0,0,0,0,0,0,0,0,1530099.7,27206.4,
+PKR14_K19amy_pd lobule E (uncropped).nd2 - PKR14_K19amy_pd lobule E (uncropped).nd2 (series 1),6a2b6c1f-d680-4886-95ce-df737c7289d6,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1189.5,1302.6,4101,227,17,149,464,96,438,782,1641,767713.2,4109.8,287
+PKR14_K19amy_pd lobule E (uncropped).nd2 - PKR14_K19amy_pd lobule E (uncropped).nd2 (series 1),3bf49dc2-855e-422d-a8bb-7833e2443587,Tumor,Tumor,Image,Geometry,1199.8,1368.4,0,0,0,0,0,0,0,0,0,776690.1,21224,0
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),8af0307d-039c-4f27-9c4b-c0e9f30b653b,Tumor,Tumor,Image,Geometry,695.02,920.43,0,0,0,0,0,0,0,0,0,204778.2,7109.7,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),7b573dde-575d-47da-9405-b8090d1d92ba,l_atrophy,l_atrophy,Image,Polygon,675.17,730.36,3389,103,4,623,598,899,67,180,915,767111.8,3837.5,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),0bfd2de0-f071-463f-91da-9199b510dfd2,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1119.4,444.29,11,0,0,11,0,0,0,0,0,1634.4,150.14,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),b8d75de9-b142-4903-a8fb-bc258523bae5,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1265.8,288.28,6,0,0,6,0,0,0,0,0,718.27,122.62,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),1b00f002-b808-4a32-a18e-247731b23f72,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1239.4,137.15,2,0,0,2,0,0,0,0,0,293.62,69.71,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),9c20ed04-88c3-43ab-822b-ef2959251c9b,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,653.29,761.04,18,0,0,18,0,0,0,0,0,3233.2,,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),868ac83c-970b-4ee0-a127-2d3cad1c1a1c,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,650.85,936.66,8,0,0,8,0,0,0,0,0,1775.1,177.14,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),3c510e91-1e87-4464-a9db-b3b563ce1dcc,Non_malignant_duct,Non_malignant_duct,Image,Polygon,726.67,578.03,27,0,0,24,0,0,3,0,0,3185.5,222.07,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),e02909ff-4a8a-4d3a-969b-65b7cb676262,Non_malignant_duct,Non_malignant_duct,Image,Polygon,723.32,494.99,5,0,0,5,0,0,0,0,0,676.44,101.54,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),4629f40a-4822-4c68-8551-614c64892bf5,Non_malignant_duct,Non_malignant_duct,Image,Polygon,568.18,699.86,9,0,0,8,0,0,1,0,0,903.03,110.13,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),c2b76dad-6958-4ad3-b86c-d0c473be4d59,Non_malignant_duct,Non_malignant_duct,Image,Polygon,176.25,1177.7,2,0,0,2,0,0,0,0,0,345.9,80.64,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),dcbdba00-43c8-4b3d-9790-18a9b04a5e0e,Stroma,Stroma,Image,Polygon,420.96,888.54,107,0,0,0,29,62,0,1,15,15477.4,676.87,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),33af1886-2d38-4829-9a63-12aad086038a,Stroma,Stroma,Image,Polygon,923.81,601.71,37,1,0,0,5,18,0,3,10,24365.1,582.79,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),8576ba87-2584-492a-bdbc-e51a5b932b37,Stroma,Stroma,Image,Polygon,1161.8,244.51,21,4,0,1,3,11,0,2,0,6347.8,345.87,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),ab213ded-7729-41db-ab4e-9974e902b642,Stroma,Stroma,Image,Polygon,1046.6,244.59,23,3,0,1,12,5,0,2,0,6007.2,297,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),ea826e48-c9b5-4042-8594-880eb119c4dc,Stroma_periductal,Stroma_periductal,Image,Polygon,945.31,291.05,40,1,0,10,0,2,0,0,27,5073.5,337.08,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),b3a33516-7961-4609-a372-05936add164d,Stroma_periductal,Stroma_periductal,Image,Polygon,1217.3,135.32,14,0,0,14,0,0,0,0,0,1805.2,287.53,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),e0289c14-3397-4069-bc88-1aa75eecffb0,Stroma_periductal,Stroma_periductal,Image,Polygon,841.92,504.3,10,0,0,0,0,1,0,0,9,1547.2,156.44,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),12ecf656-7ede-42c3-abb6-e5f3af8e02cc,Stroma_periductal,Stroma_periductal,Image,Polygon,432.38,750.65,28,0,0,1,1,3,2,0,21,3255.5,285.73,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),e3f648f5-f79c-4f97-8aa4-56c4fd86380b,Stroma_periductal,Stroma_periductal,Image,Polygon,169.44,1046.3,44,1,0,4,0,2,6,0,31,4398.5,284.44,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),c301a00a-aca4-4669-a1be-ca8cf6e9ea2c,Stroma_periductal,Stroma_periductal,Image,Polygon,377.49,1186.2,26,2,0,4,0,1,1,0,18,2928.6,349.57,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),c5ad10a9-239f-45d4-a631-3eec55f90a48,Immune,Immune,Image,Polygon,901.31,408.88,48,0,0,0,25,15,0,1,7,4861.1,284.03,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),1817e4d3-998e-47e4-b45f-29e15374d321,Immune,Immune,Image,Polygon,988.63,476.93,27,0,0,1,12,8,0,0,6,2372.5,185.61,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),f423ed88-f81f-45ff-b3bf-fb138284505a,Immune,Immune,Image,Polygon,1024.3,350.28,6,0,0,0,3,2,0,0,1,469.89,85,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),1ba506fc-d478-4669-a350-0720267da45f,Immune,Immune,Image,Polygon,505.92,683.74,1,0,0,0,0,0,0,0,1,104.78,41.58,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),b50f7bf2-d745-4153-9959-bb77bc3e908b,Immune,Immune,Image,Polygon,520.33,691.35,4,0,0,0,2,1,0,1,0,327.02,84.5,
+PKR16_K19amy_d lobule.nd2 - PKR16_K19amy_d lobule.nd2 (series 1),03c2fee0-9267-482f-b7d3-a2d6bbec7859,cell_cleanup,cell_cleanup,Image,Geometry,828.76,895.88,0,0,0,0,0,0,0,0,0,26797.1,982.9,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),713b338a-e51c-49ac-9f11-a94487562ad6,Tumor,Tumor,Image,Geometry,738.64,882.2,0,0,0,0,0,,0,0,0,201080.2,9694.7,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),f0ba024d-23a5-43d5-847b-46b91b875095,Acinar,Acinar,Image,Polygon,1125.3,1143,11,0,11,0,0,,0,0,0,2174.5,227.12,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),b98b0f85-58e8-4ad1-970c-8937717eef51,Acinar,Acinar,Image,Polygon,1057.1,1344,11,1,9,0,1,,0,0,0,1386.8,178.93,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),62e6f4d7-9612-4cbc-a7d3-04190fdfb9c4,Acinar,Acinar,Image,Polygon,917.44,1367.5,4,0,4,0,0,,0,0,0,716.31,107.92,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),7b0d44fc-3d07-4b66-bc6c-843407ebc022,Acinar,Acinar,Image,Polygon,1694,1597.1,9,0,9,0,0,,0,0,0,1383.6,189.42,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),5a0f39c2-6516-4261-8be1-e93657097406,Acinar,Acinar,Image,Polygon,1474.8,1760.8,5,0,5,0,0,,0,0,0,797.97,132.66,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),279cd7c2-530d-46f7-91ba-4a26c20aa8f5,Acinar,Acinar,Image,Polygon,1084.3,1751.3,4,0,4,0,0,,0,0,0,787.58,109.83,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),b775bfa2-9a08-49c9-ab32-fea6570a29af,Acinar,Acinar,Image,Polygon,637.94,1498.6,8,0,8,0,0,,0,0,0,1527.8,147.94,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),326c42ce-031f-4797-9665-0c8b21bb3e05,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2031.2,1862.9,63,0,3,57,1,,0,2,0,10953.6,710.28,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),7e60d28e-89a8-4b9c-a39f-e2673d7f5eca,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1943.7,2249.2,3,0,0,1,1,,0,0,1,250.61,59.75,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),c4cd0c6c-12e2-415e-ad4e-758d19b6167d,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1800.1,1377.4,7,0,1,3,0,,1,0,2,911.13,112.55,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),252f5174-3bce-434f-b0d8-492eb8ac1cc2,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1821.9,413.96,12,0,0,0,3,,9,0,0,1036.1,189.57,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),bdc6c0c4-6a6e-40a7-9b96-199d2cfc280e,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1867.9,456.09,9,0,1,0,0,,5,0,3,690.85,124.31,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),63a3a318-b90a-44bc-8035-fcb4ff67831a,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2111,1591.9,6,0,0,0,0,,4,0,2,500.05,92.07,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),855c2037-ce4e-4f84-aa57-6b0b621eca39,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2099,1640.9,5,0,1,0,0,,4,0,0,639.35,108.99,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),ae8c6b02-b1aa-440b-88e7-0ff22eb15c8d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,928.96,2504.2,6,0,1,0,0,,2,0,3,416.33,79.77,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),f89f3658-df75-46d2-8dd1-99dba91bac13,Non_malignant_duct,Non_malignant_duct,Image,Polygon,884.49,2486.9,3,0,1,0,0,,1,0,1,219.33,69.51,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),96be82d8-bb17-4e93-aedc-0cff5e9fb218,Non_malignant_duct,Non_malignant_duct,Image,Polygon,467.26,1330.6,4,0,0,0,0,,2,0,2,258.77,63.61,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),df35b488-363a-4050-a3a8-5fe70876762e,Non_malignant_duct,Non_malignant_duct,Image,Polygon,381.14,1447.8,2,0,0,0,0,,2,0,0,246.93,69.1,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),7d086f18-4f34-4cd9-8171-c10be346c64b,Non_malignant_duct,Non_malignant_duct,Image,Polygon,416.77,1402.1,7,0,0,0,0,,7,0,0,824.5,109.7,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),fe162c38-995c-4593-a7c2-f9e5c633e8b8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,586.46,1120.8,7,0,0,0,0,,7,0,0,749.66,142.25,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),2abf18e2-2e25-4812-8658-e62a28680e83,ADM,ADM,Image,Polygon,609.44,1120.3,2,0,0,1,1,,0,0,0,106.62,40.54,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),f456c602-a5cf-435a-ae26-fa5b97d1f11b,ADM,ADM,Image,Polygon,1194.7,663.69,4,2,2,0,0,,0,0,0,329.92,66.98,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),6742f56f-42d4-4b98-b143-bae78a5a8632,ADM,ADM,Image,Polygon,853.71,2493.7,1,0,1,0,0,,0,0,0,77.3,34.44,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),3f37d84b-ebdd-482a-a2b9-5f7f26eb0aa3,ADM,ADM,Image,Polygon,2297.4,1951.1,1,1,0,0,0,,0,0,0,140.53,48.68,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),81355d04-869e-4cc6-98b7-bfe5b624fdfc,ADM,ADM,Image,Polygon,1813.2,1474.6,4,4,0,0,0,,0,0,0,536.91,87.58,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),e956a7a8-9c49-44f8-9dc6-22cc8576192d,ADM,ADM,Image,Polygon,1418.1,2162.8,4,2,0,1,0,,0,0,1,478.49,83.07,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),8469eb21-d787-45fa-9da7-fe194ff5204e,ADM,ADM,Image,Polygon,1462.5,2234,2,1,0,0,0,,0,0,1,130.42,42.77,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),83295587-7c69-4433-85b4-31c3d9169968,ADM,ADM,Image,Polygon,2054.2,748.01,6,2,1,0,1,,0,0,2,524.01,87.81,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),ab38767c-24be-4597-b086-7aceca03a6d6,Stroma,Stroma,Image,Polygon,359.91,1657.4,33,0,0,0,3,,0,22,8,12416.6,710.47,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),ca4d5d79-06cb-4b77-8592-3e89c649a961,Stroma,Stroma,Image,Polygon,202.63,1548.3,82,0,2,0,5,,1,65,9,10702.1,420.61,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),3f8e2cce-97ac-4aca-92ce-05dc03c2846a,Stroma_periductal,Stroma_periductal,Image,Polygon,2097.7,1973.5,124,0,0,0,1,,0,2,121,14200.8,730.62,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),71f3ae1f-d29a-4d3a-91fe-4ded907371f8,Stroma_periductal,Stroma_periductal,Image,Polygon,1915.5,1903.1,68,0,1,0,1,,0,1,65,8724.2,509.49,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),399f07dd-5f1d-4dd1-a370-d26dba208e8f,Stroma_periductal,Stroma_periductal,Image,Polygon,2188.3,1384.1,166,0,1,2,2,,0,6,155,19375.8,642.71,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),3b1e6898-ce96-4bf4-8cdd-4e6f963b486c,Stroma_periductal,Stroma_periductal,Image,Polygon,985.53,1223,10,0,0,0,2,,0,0,8,832.21,125.56,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),fed807ec-0a54-4b63-9aa5-4fdf00687034,Stroma_periductal,Stroma_periductal,Image,Polygon,1064,1143.1,20,0,0,0,2,,0,2,16,1983.1,230.28,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),574e929a-6b40-4a79-819e-e22d7fce1f1f,Immune,Immune,Image,Polygon,438.48,1188.5,55,0,0,1,47,,0,0,7,5774.3,466.86,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),8d04a75f-b044-40d5-a3e7-92951e091808,Immune,Immune,Image,Polygon,624.14,1013.7,79,0,1,0,62,,0,7,9,9118.7,495.3,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),fd182790-417f-432d-8f9f-128e012ace65,Acinar,Acinar,Image,Polygon,1420.9,2427.7,12,0,10,0,0,,0,1,1,1601.5,224.03,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),2e4073a3-ae58-4468-ba2a-00a1ff1e8de3,Acinar,Acinar,Image,Polygon,1307.1,2500.6,2,0,2,0,0,,0,0,0,213.69,57.27,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),5a94434e-6800-47a4-9d13-a82f4fb862cc,Acinar,Acinar,Image,Polygon,1329.1,2432,3,0,2,0,0,,0,0,1,535.07,86.2,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),c5ff2343-bca6-4169-8514-b01fd14dc74e,Acinar,Acinar,Image,Polygon,929.46,2373.4,23,1,19,0,0,,1,2,0,3751.2,335.42,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),21c8d83a-5ad1-42a8-9437-1ef349b6a50a,Acinar,Acinar,Image,Polygon,979.48,1857.1,11,0,10,0,0,,0,1,0,1786.8,174.94,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),3574883d-3f30-41a6-b528-66a2962fafb1,Acinar,Acinar,Image,Polygon,1382.4,1480.7,4,0,4,0,0,,0,0,0,529.37,89.94,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),4febe2fa-421b-453b-9ae0-04f779787b94,Acinar,Acinar,Image,Polygon,1401.3,1506.7,10,0,9,0,0,,0,0,1,1404.1,165.48,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),884d277e-9357-4c28-99e2-c3040c21a865,ADM,ADM,Image,Polygon,1328.9,1657.3,3,0,1,0,1,,1,0,0,310.77,79.78,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),06611c3d-b65b-4e41-8526-33fe0e6710d7,ADM,ADM,Image,Polygon,1221.8,1740.4,9,7,0,0,0,,0,0,2,728.49,135.9,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),0a678bf5-ff55-4bb8-8afd-db64020e906f,Acinar,Acinar,Image,Polygon,874.17,1424.3,7,0,6,0,1,,0,0,0,1063.8,159.71,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),7169a4dc-ac6d-40f2-85cd-21022a19ca29,Stroma,Stroma,Image,Polygon,1464.8,1139.7,4,0,0,0,1,,0,2,1,1781.3,203.49,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),b9cb8022-b5ec-43fe-a2ed-df145b6c65b2,Stroma,Stroma,Image,Polygon,791.5,1189.8,4,0,0,0,0,,0,2,2,458.94,100.28,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),d614ae61-be89-4f76-9763-30de0f17e8e6,Stroma,Stroma,Image,Polygon,729.14,1230.1,8,0,0,0,0,,0,3,5,1007.8,163.79,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),0b54748f-6e60-4335-885f-be5c2ac36f6e,Stroma,Stroma,Image,Polygon,1658.3,2549.6,7,0,0,0,0,,0,7,0,806.18,124.61,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),c5d15c23-cd67-48ad-a227-0eb1b53e3dbb,ADM,ADM,Image,Polygon,1245.5,1523.8,4,1,2,0,0,,0,0,1,308.98,64.73,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),84c6a7f3-2aa4-422b-8e75-f746b225d330,ADM,ADM,Image,Polygon,1273.2,1498.6,4,4,0,0,0,,0,0,0,446.99,111.09,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),1c32d9c2-20c3-4dac-9d84-2ecd1d5f5cf8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1211.1,1232.5,1,0,0,0,0,,0,1,0,165.72,51.09,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),dd32cf06-65f7-44b1-affa-9c8460a6f865,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1195.7,1251.5,3,0,0,0,0,,3,0,0,364.83,74.2,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),ffe1a17c-c4b6-4481-b8c6-1bb2ef0bb692,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1222.3,1255.8,2,0,0,1,0,,1,0,0,213.47,58.35,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),20e8d61a-332c-4e01-8700-aa6f9a36dd7f,Non_malignant_duct,Non_malignant_duct,Image,Polygon,893.24,1281.8,4,0,0,0,0,,4,0,0,350.14,93.1,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),d9ed39f7-b6dd-4eaa-a6f2-5abea2fbde41,Non_malignant_duct,Non_malignant_duct,Image,Polygon,873.05,1273.9,4,0,0,0,1,,2,0,1,351.93,91.44,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),a7736bb4-58be-466a-bf23-20b954f643f4,e_atrophy,e_atrophy,Image,Polygon,1991.2,1992.6,7226,256,1293,176,928,,524,1034,3015,949548.4,4817.8,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),c16a0566-0d1a-4512-81ba-0e69fb001361,Preserved,Preserved,Image,Polygon,1352.9,1816.2,11318,540,4376,85,893,,780,1417,3227,1538748.1,5823.5,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),38d75ac1-c951-4a52-9b13-2c1aef313c7a,Preserved,Preserved,Image,Polygon,1344.3,993.38,8840,411,2923,61,615,,588,1284,2958,1170452.4,5840.1,
+PKR16_K19amy_p lobule.nd2 - PKR16_K19amy_p lobule.nd2 (series 1),bb4f5edd-ced1-4658-8737-b2ffd374fc6b,l_atrophy,l_atrophy,Image,Polygon,567.23,1210.1,3925,92,166,90,964,,403,516,1694,478995.2,4334,
+PKR18_K19amy_d lobule_A.nd2 - PKR18_K19amy_d lobule_A.nd2 (series 1),09e47ca9-856b-4600-b61f-0ffa6cc12a03,l_atrophy,l_atrophy,Image,Polygon,554.09,384.74,3192,,,,517,30,1,2293,21,593044.5,2957.6,330
+PKR18_K19amy_d lobule_B.nd2 - PKR18_K19amy_d lobule_B.nd2 (series 1),e534fafb-161f-4658-ba95-ac8138d6492e,l_atrophy,l_atrophy,Image,Polygon,819.34,999.9,5802,4,,5,1263,37,5,3363,7,1101232.6,7175,1118
+PKR18_K19amy_d lobule_C.nd2 - PKR18_K19amy_d lobule_C.nd2 (series 1),243ad731-6117-4d78-8b66-206d4ec212b1,l_atrophy,l_atrophy,Image,Polygon,1130.3,845.99,6883,16,7,28,5171,526,58,750,327,1423118.1,7300.6,
+PKR18_K19amy_pd lobule_A.nd2 - PKR18_K19amy_pd lobule_A.nd2 (series 1),96800ff8-5020-40bd-9005-edac39faead7,e_atrophy,e_atrophy,Image,Polygon,603.67,931.92,9714,766,531,743,4550,741,404,1733,246,1651334.6,5036.3,
+PKR18_K19amy_pd lobule_A.nd2 - PKR18_K19amy_pd lobule_A.nd2 (series 1),3089084c-d518-4ad2-8633-b5717588d769,e_atrophy,e_atrophy,Image,Polygon,2291.1,1142.6,13699,1801,1874,1132,5193,794,919,1576,410,2021970.5,6546.3,
+PKR18_K19amy_pd lobule_A.nd2 - PKR18_K19amy_pd lobule_A.nd2 (series 1),91c840cb-f08c-4a7c-91a1-c2ab32905819,e_atrophy,e_atrophy,Image,Polygon,1334.7,998.35,1217,130,333,74,367,71,50,173,19,170612.5,1605.1,
+PKR18_K19amy_pd lobule_A.nd2 - PKR18_K19amy_pd lobule_A.nd2 (series 1),cb80b292-f22d-4af3-aa8d-b5a65e9798d7,e_atrophy,e_atrophy,Image,Polygon,1473.8,1712.6,3391,266,443,211,1115,332,139,765,120,577302.3,2919.1,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7c8b6acb-82f5-4e7e-9f67-6938d68f83f0,l_atrophy,l_atrophy,Image,Polygon,823.45,660.48,4932,121,120,270,2245,657,127,1097,295,779963,4639.6,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8d735f93-e532-40fe-aeb0-141d72e442e8,e_atrophy,e_atrophy,Image,Polygon,852.34,2535.5,23938,1697,1896,1423,12971,1467,1103,2406,975,3532741.1,9160,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),4fad870f-e695-4ffb-9373-d9b6e0389b15,l_atrophy,l_atrophy,Image,Polygon,268.51,4092.6,2805,159,175,200,1275,397,110,404,85,462636.1,2903.5,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8777530f-c793-49c9-9af2-5a437af2bdd8,e_atrophy,e_atrophy,Image,Polygon,1620.8,3885.3,5673,733,1214,542,1818,204,319,558,285,842304.9,3887.6,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),75a528b2-0816-4f83-8c82-908efe3c021c,e_atrophy,e_atrophy,Image,Polygon,2772.2,3900.6,8094,871,1349,773,2848,517,544,981,211,1222796.9,4709.4,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2f07df98-d7fc-4d3c-a2bc-6b84dcf9cd32,l_atrophy,l_atrophy,Image,Polygon,3585.9,3563,5593,450,558,228,2459,697,243,874,84,842226.5,5308.3,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7c148311-e3f2-4310-9aa3-64793bd87749,l_atrophy,l_atrophy,Image,Polygon,3439.4,2015.7,7170,283,288,200,3631,641,209,1551,367,1178991.3,5366.9,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),508f898b-56be-4fd1-987f-331c2b55ab5a,l_atrophy,l_atrophy,Image,Polygon,2671.9,1194.8,13427,889,1652,665,5487,1234,745,2071,684,2183657.7,8199.2,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),ad6231f9-176d-4d8c-8a09-3f36516f3861,e_atrophy,e_atrophy,Image,Polygon,1702.5,834.49,8171,925,1645,422,2597,693,532,1201,156,1252890.6,4963.4,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),d3bac4a9-79d8-4a0c-ac35-42a250fe78d2,Tumor,Tumor,Image,Geometry,36.04,328.04,0,0,0,0,0,0,0,0,0,2559.7,320.06,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),90cf4175-ae71-48cd-b56f-caca5326a99a,Acinar,Acinar,Image,Polygon,2850.4,3841.4,3,0,3,0,0,0,0,0,0,402.14,76.24,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),60b8d904-3257-45f1-a758-85221f4d291e,Acinar,Acinar,Image,Polygon,2980.2,3820.2,7,0,7,0,0,0,0,0,0,1070.9,121.54,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),ddcac821-fa61-4f5d-b1bc-f561360a4d9d,Acinar,Acinar,Image,Polygon,2975.5,4249.8,10,0,10,0,0,0,0,0,0,1143.5,135.95,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),b9f5b45d-b544-4588-a5fd-644056ecde7a,Acinar,Acinar,Image,Polygon,3121.6,4051.2,5,0,5,0,0,0,0,0,0,485.03,86.31,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8395cb3a-3c5a-4327-b1bc-ae92345439ea,ADM,ADM,Image,Polygon,3210.2,4176.8,2,2,0,0,0,0,0,0,0,168.9,50.75,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8a9caddb-875a-4173-82e8-f73f9910f87d,ADM,ADM,Image,Polygon,3174.3,4188.8,6,6,0,0,0,0,0,0,0,1227.3,154.33,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2708419e-852c-444d-a0c9-305c8da3d5c5,ADM,ADM,Image,Polygon,2562.7,4001.5,2,2,0,0,0,0,0,0,0,696.93,109.6,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),bcbe8db6-6234-47d5-948d-7122338a1c24,ADM,ADM,Image,Polygon,1253.2,2829.4,2,2,0,0,0,0,0,0,0,316.35,72.13,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),5416aaec-cb92-4e98-814c-cd4e28ef3bd3,ADM,ADM,Image,Polygon,1249.3,2847.4,2,2,0,0,0,0,0,0,0,150.91,48.96,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),dd7c66ea-9084-495a-98ac-2debd9c6c606,Acinar,Acinar,Image,Polygon,2404.1,1867,14,0,14,0,0,0,0,0,0,2009.6,201.54,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),181c78f6-980b-4865-bfcb-73a38257daff,Acinar,Acinar,Image,Polygon,2355.3,1890.7,5,0,5,0,0,0,0,0,0,537.7,91.45,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),86ffa9b7-d2af-4dfa-98f1-802a1d1dd37a,Acinar,Acinar,Image,Polygon,2465.4,2043.4,6,0,6,0,0,0,0,0,0,1284.8,150,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),62761f2d-d650-410a-b16b-1a55476b985a,Acinar,Acinar,Image,Polygon,1651.6,1283.3,7,0,7,0,0,0,0,0,0,1730.5,160.63,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),73952257-f02c-4c98-8b7c-c7cb6a6d6264,Acinar,Acinar,Image,Polygon,1595.1,1387.4,6,0,6,0,0,0,0,0,0,1549.8,155.23,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),86ea888c-5040-4d17-a7b9-48affe44c298,ADM,ADM,Image,Polygon,3755.8,1710.2,6,6,0,0,0,0,0,0,0,970.11,123.98,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7d8bd04e-6d64-40d6-9e36-dbd054138ffe,Acinar,Acinar,Image,Polygon,3272.9,974.5,4,0,4,0,0,0,0,0,0,542.22,86.59,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),30765a7c-12cf-4086-9ee7-f664b41e2b40,Acinar,Acinar,Image,Polygon,3255.2,1002.2,4,0,4,0,0,0,0,0,0,540.15,101.56,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),aeb08589-1977-48f7-b7d6-a3bed2cc2a10,Acinar,Acinar,Image,Polygon,2976,906.86,8,0,8,0,0,0,0,0,0,1477.1,167.2,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),f6d2cb06-f241-44f3-b044-d322680818b8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2573.6,1091.9,8,0,0,0,0,0,8,0,0,1269.1,155.39,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),e52d1a98-f644-4eef-9817-a9d136b242c9,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2695.8,1128.8,5,0,0,0,0,0,5,0,0,685.37,96.09,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2ebeb738-67a6-4868-a38f-132c8cba5f9e,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2577.1,1474.6,12,0,0,0,0,0,12,0,0,1371.9,226.23,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7912ee1d-6fed-4143-8716-1096679ba159,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1746.3,1066.2,9,0,0,1,0,0,8,0,0,1506.6,186.59,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8ace556c-6057-4a6a-a825-93ff3567713d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1799.3,1009.5,1,0,0,0,0,0,1,0,0,288.87,64.36,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),1a35e61f-12a9-416d-8980-952ce0fca8b8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1690.6,947.86,5,0,0,0,0,0,5,0,0,519.49,95.79,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),c71efb90-4ddd-4bd3-aff3-50a8ca2b5459,Non_malignant_duct,Non_malignant_duct,Image,Polygon,811.54,2098.7,7,0,0,0,0,0,7,0,0,723.85,135.42,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),17248660-ae09-4d85-9410-5549a89172ca,Non_malignant_duct,Non_malignant_duct,Image,Polygon,865.11,2161.8,4,0,0,0,0,0,4,0,0,629.35,94.88,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),febced47-a2fb-48f3-b48a-c20a39269412,Non_malignant_duct,Non_malignant_duct,Image,Polygon,923.51,2139.5,4,0,0,0,0,0,4,0,0,362.88,79.52,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),511de334-a2cf-4af3-91c0-357dce80d576,Non_malignant_duct,Non_malignant_duct,Image,Polygon,578.82,1858.8,6,0,0,0,0,0,6,0,0,748.04,117.28,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2e027c00-0793-4e2c-9c49-f60d4a0f3933,Non_malignant_duct,Non_malignant_duct,Image,Polygon,633.59,1924.1,2,0,0,0,0,0,2,0,0,180.13,50.51,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7ad65b09-eb66-4afd-8eab-bc9bb137786d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,718.7,1460.6,15,0,0,0,1,0,14,0,0,1806.9,249.3,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),700b936b-3198-4429-9c31-1e4c2d8f9272,Langerhans,Langerhans,Image,Polygon,332.01,4089.2,129,0,0,0,6,123,0,0,0,18293.6,520.34,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),277e286e-a597-4e4c-a34c-f68a338cce76,Langerhans,Langerhans,Image,Polygon,3626.9,3923.4,272,1,0,0,22,249,0,0,0,39251.7,738.63,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),319ca9f7-97f7-4951-9428-9b501dc9d30c,Langerhans,Langerhans,Image,Polygon,3664.1,1931,124,0,0,0,5,119,0,0,0,17136.3,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),0b96223c-cd2e-4a8c-94d9-ab879939703f,Stroma,Stroma,Image,Polygon,1780.3,731.34,17,0,0,0,0,0,0,17,0,2286.8,291.31,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),28e8a273-ce99-49e7-8fc4-a971fcbb310f,Langerhans,Langerhans,Image,Polygon,963.36,971.23,69,0,0,0,4,65,0,0,0,9512.7,359.35,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),3ed93e9d-ae7a-47e7-86aa-ee5a57e40341,Stroma,Stroma,Image,Polygon,827.22,934.56,50,0,0,0,2,0,0,48,0,9780,410.92,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),99de3e8b-ae47-4917-8fb3-8e5690f451c2,Stroma,Stroma,Image,Polygon,983.64,823.07,39,0,0,0,9,0,0,30,0,7452.2,321.24,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),0f337924-f950-4932-a487-75602476a662,Stroma_periductal,Stroma_periductal,Image,Polygon,1152.8,899.8,78,0,0,0,7,0,0,1,70,11543.4,625.65,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),962a0c5d-bf69-42dc-b58a-35f55ec152b7,Stroma,Stroma,Image,Polygon,916.66,2428.2,64,0,0,0,1,0,0,63,0,13064.7,767.02,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),07f3a654-6a14-43cf-8490-5a9850cec0c9,Stroma_periductal,Stroma_periductal,Image,Polygon,842.14,1915.1,62,0,0,0,3,0,0,0,59,11254.8,493.86,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),ce09ca2a-d363-4ac4-913d-fef5a597c282,Stroma,Stroma,Image,Polygon,959.12,3939.2,257,0,0,0,19,0,0,238,0,37572,777.14,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),38562223-5291-4310-887b-d3456025a02e,ADM,ADM,Image,Polygon,886.68,3761.9,9,9,0,0,0,0,0,0,0,985.3,155.1,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),54fda76c-4fd4-4938-ad81-353e6f9b7c5f,ADM,ADM,Image,Polygon,876.69,3816,6,5,0,0,1,0,0,0,0,493.57,98.27,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),d84e30a7-eded-467b-aa67-24a1c517b029,ADM,ADM,Image,Polygon,970.05,3800.5,7,7,0,0,0,0,0,0,0,643.37,92.66,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),3ef6896e-f312-499c-9aed-bb0ab0247456,Stroma,Stroma,Image,Polygon,620.93,3943,92,0,0,0,4,0,0,88,0,16293.8,809.81,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),d282688c-df12-4d3e-8e8b-cad64fd6c9c9,Immune,Immune,Image,Polygon,15.44,3666.8,10,0,0,0,10,0,0,0,0,725.98,106.43,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),b6628906-2157-4daf-af85-8eefab43dd50,Stroma_periductal,Stroma_periductal,Image,Polygon,75.13,3885.6,36,0,0,0,4,1,0,0,31,6401.2,473.4,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),fbd5f003-e427-4279-b24d-c40eea707375,Immune,Immune,Image,Polygon,410.58,1171.1,659,0,0,0,659,0,0,0,0,71081.1,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),432154b2-ecff-4a8c-80da-5687877c4be3,Immune,Immune,Image,Polygon,434.76,1625.7,344,0,0,0,344,0,0,0,0,42036.2,837.36,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),e6e5165c-d409-46b1-ada2-db37ef23f3a0,Immune,Immune,Image,Polygon,202.59,2547.2,232,0,0,0,232,0,0,0,0,25132.6,623.92,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2f1ef636-0810-4492-b73f-88f0399260c0,Immune,Immune,Image,Polygon,3793.2,2037.3,407,0,0,0,406,1,0,0,0,51626.2,1180.9,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),1e58cc03-8cef-4e38-8a04-87c6690cd36a,ADM,ADM,Image,Polygon,3685.7,2131,5,5,0,0,0,0,0,0,0,439.34,82,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),a6cb15eb-5245-4479-a8cf-39eeee73413d,ADM,ADM,Image,Polygon,3726,2105.7,5,5,0,0,0,0,0,0,0,558.42,90.45,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),74bcea6d-f5e3-48c2-86b1-731540d1014b,Stroma_periductal,Stroma_periductal,Image,Polygon,3012.9,2340.1,89,0,0,0,11,1,0,1,76,13120.1,739.56,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7ce19c9a-b808-43ad-a8f1-1d36d21c21d3,Stroma_periductal,Stroma_periductal,Image,Polygon,2704.4,1783,69,0,0,0,5,0,0,0,64,9099.3,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),19d0a143-7945-4571-9391-3380f9ce0c2c,Acinar,Acinar,Image,Polygon,888.25,327.78,5,0,5,0,0,0,0,0,0,472.95,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),5b788c27-3b12-45b3-8e8a-9a8d1fa193db,Acinar,Acinar,Image,Polygon,684.86,434.62,10,0,9,0,1,0,0,0,0,1006,150,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),1b8ead75-fe91-459c-a6b2-1fc86ac3e459,ADM,ADM,Image,Polygon,663.95,427,2,2,0,0,0,0,0,0,0,188.5,54.7,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),7fbe233f-fb35-4984-ab8a-64b6715caa4e,ADM,ADM,Image,Polygon,650.65,459.11,4,3,0,0,0,1,0,0,0,279.6,67.4,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),82217751-1ce7-4478-adca-b9b3715e1cec,Acinar,Acinar,Image,Polygon,687.68,1327,2,0,2,0,0,0,0,0,0,206.27,70.14,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),eab4ec60-faa6-48eb-8132-fe07efcd1c0b,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,768.86,1890.6,22,0,0,22,0,0,0,0,0,4070,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),8788e7ea-49e0-4899-a85c-db304e90a4e6,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1171.5,2628.8,43,0,0,42,1,0,0,0,0,6886.1,468.77,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),f55f0f3b-b5df-4f13-b3fd-35a49e03c169,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1287.3,3355.2,24,0,0,24,0,0,0,0,0,5235.5,277.33,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),2a890dc2-8e75-4878-9346-d075dfc1ca3b,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1471.8,3597.5,48,0,0,48,0,0,0,0,0,7162.9,,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),c74a8b4c-cb44-436e-8023-0173e51a6cf7,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2799.4,3258.4,45,0,0,45,0,0,0,0,0,8064.8,694.26,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),70e4e07c-cd66-43d8-93ba-dd2442c81a0f,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,3478.5,1729.1,38,0,0,38,0,0,0,0,0,7593.3,594.39,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),20ce5b17-951a-4bfd-af44-bf8f8161e0be,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1133,954.71,37,0,0,37,0,0,0,0,0,5812.8,278.82,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),1b18bb8d-628a-42db-b4dc-dd1bf6ec67e9,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,913.3,670.32,52,0,0,52,0,0,0,0,0,10016.5,503.38,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),f5ac08ad-0d49-418c-8aba-1b5890cf6983,Acinar,Acinar,Image,Polygon,876.75,575.07,3,0,3,0,0,0,0,0,0,360.7,73.24,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),db74ad54-1b81-491d-9082-c95d24dbb147,Acinar,Acinar,Image,Polygon,850.57,613.93,4,0,4,0,0,0,0,0,0,399.8,81.49,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),788bfd5c-9ad6-4f75-b599-8bc64318f136,Acinar,Acinar,Image,Polygon,868.87,520.23,5,0,5,0,0,0,0,0,0,602.65,109.36,
+PKR18_K19amy_pd lobule_B.nd2 - PKR18_K19amy_pd lobule_B.nd2 (series 1),9dd3469f-1e27-4147-89e5-d454d9848dcb,ADM,ADM,Image,Polygon,675.7,146.42,9,8,1,0,0,0,0,0,0,1244.2,196.6,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),a8613d43-c11b-4946-9052-13de15ddf42b,Tumor,Tumor,Image,Geometry,571.79,912.13,0,0,0,0,0,0,0,0,0,515129.3,12094.3,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),076dafa5-83ed-472f-9bfe-922f968ea5b0,l_atrophy,l_atrophy,Image,Polygon,777.08,1055.5,1970,24,18,35,977,154,200,492,70,367168.6,2372,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),b54ca9ee-eea7-42dc-b121-4b4738c0e78e,e_atrophy,e_atrophy,Image,Polygon,1257.2,234.86,2481,88,226,152,1175,130,162,427,121,394710,2577.7,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),d95f2901-a9f8-44cd-99f3-6f617eed8710,e_atrophy_tu,e_atrophy_tu,Image,Polygon,2141.5,1525.4,12230,691,1295,478,4725,1106,656,2638,641,2127134.3,6150.4,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),7c73c631-7b41-411a-a7c0-94504287ff93,e_atrophy,e_atrophy,Image,Polygon,1088.1,2167.8,7112,565,714,463,3132,371,448,972,447,1180182.7,4439.7,
+PKR18_K19amy_pd lobule_C (uncropped).nd2 - PKR18_K19amy_pd lobule_C (uncropped).nd2 (series 1),45c2292d-7b50-43f7-aefd-3601f833d238,l_atrophy,l_atrophy,Image,Polygon,2292.4,2649,3178,155,116,36,1982,281,87,378,143,530571,3310.4,
+PKR67_K19-amy_pd lobule A.nd2 - PKR67_K19-amy_pd lobule A.nd2 (series 1),e469fb76-acd0-4b9d-adeb-92f6f0b7f970,e_atrophy,e_atrophy,Image,Polygon,936.03,1056.6,13188,2187,3934,1542,3252,337,430,1439,67,1795488.9,5141.8,
+PKR67_K19-amy_pd lobule A.nd2 - PKR67_K19-amy_pd lobule A.nd2 (series 1),1a46097e-44d2-4e7f-8c1f-b90377749651,Tumor,Tumor,Image,Geometry,475.36,757.87,0,0,0,0,0,0,0,0,0,164079.6,8454.7,
+PKR67_K19-amy_wp lobule A.nd2 - PKR67_K19-amy_wp lobule A.nd2 (series 1),3eec5680-b8b2-4fed-b671-84b0cd064ac4,e_atrophy_tu,e_atrophy_tu,Image,Polygon,972.4,1258,8649,1111,3264,387,2635,110,35,1104,3,1076227.7,4391.1,
+PKR67_K19-amy_wp lobule A.nd2 - PKR67_K19-amy_wp lobule A.nd2 (series 1),43a3fe58-8c7c-49fe-b57a-6edff6e2035f,Tumor,Tumor,Image,Geometry,748.37,755.41,0,0,0,0,0,0,0,0,0,202635,9772.4,
+PKR67_K19-amy_wp lobule B.nd2 - PKR67_K19-amy_wp lobule B.nd2 (series 1),4db6a66e-3c3b-40b2-8920-7baf651822cb,Preserved,Preserved,Image,Geometry,611.13,544.05,3464,521,2750,32,70,7,8,74,2,451841.1,3857.1,
+PKR67_K19-amy_wp lobule B.nd2 - PKR67_K19-amy_wp lobule B.nd2 (series 1),29ba9bdd-cacd-4911-97b4-94c029a75486,Preserved,Preserved,Image,Polygon,689.74,1882.5,10809,965,8629,228,501,22,97,202,165,1406881.6,10374.3,
+PKR67_K19-amy_wp lobule B.nd2 - PKR67_K19-amy_wp lobule B.nd2 (series 1),ef7c0733-ceb1-48a9-982c-126c057205a7,Preserved,Preserved,Image,Polygon,1595.1,161.33,2097,324,1403,88,157,2,50,29,44,249739.5,2374.8,
+PKR67_K19-amy_wp lobule B.nd2 - PKR67_K19-amy_wp lobule B.nd2 (series 1),9ea35e2c-9d21-4761-84a8-682f10542364,Preserved,Preserved,Image,Polygon,1422.4,1087,8941,1071,6577,278,422,24,154,339,76,1171877,9178.2,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),54460188-2842-4d0b-9d7d-e8d363df85b0,Tumor,Tumor,Image,Geometry,1518.4,1171.5,0,0,0,0,0,0,0,0,0,182808.9,5326.9,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),338e823f-2d0b-4646-9429-030efaa4289c,e_atrophy_tu,e_atrophy_tu,Image,Polygon,666.19,928.58,5368,945,19,1526,1373,1109,0,10,386,767328.6,4374.8,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),3d76a326-0084-4c04-98d3-fff5507454f4,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1065,409.88,4708,767,11,1130,1473,916,0,15,396,693839.7,3255.9,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),e37e14cc-b294-4f32-af3b-483e2db315fd,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1868.7,864.45,6581,998,14,1897,2000,971,1,25,675,1052214.8,5088.1,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),e8d721ca-7784-4511-98c2-eea22729d8f6,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1490.2,1838.1,5899,1044,23,1428,1633,1315,3,12,441,831694,4049.5,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),cdd5be29-ad3c-42e7-a1df-35e31a05b1d3,e_atrophy,e_atrophy,Image,Geometry,452,1640,6637,997,33,1988,1306,1938,0,8,367,904494.7,4945.5,
+PKR51_K19-amy_ADM_pd lobule 2.nd2 - PKR51_K19-amy_ADM_pd lobule 2.nd2 (series 1),80be3def-15ce-4cbe-877e-a7b0aad69ac9,cell_cleanup,cell_cleanup,Image,Polygon,1411.8,2120.1,0,0,0,0,0,0,0,0,0,22512.4,542.01,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9c58df9e-3887-411c-81ba-486be5912896,Tumor,Tumor,Image,Geometry,1182.3,624.11,0,0,0,0,0,0,0,0,0,137530.9,3255.3,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),3192b9ad-fbc2-44af-a31e-aacd1cfd328e,e_atrophy_tu,e_atrophy_tu,Image,Geometry,1102.4,881.1,12947,1510,19,2565,5769,1766,4,53,1261,1962280.2,7220.6,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),fcb62e6b-e58c-41d3-b587-973bcc83a7b9,Acinar,Acinar,Image,Polygon,724.62,688.44,3,0,0,0,3,0,0,0,0,338.08,71.52,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),b0769c68-9c52-4131-a392-e74a1a33d64e,Acinar,Acinar,Image,Polygon,657.6,873.48,5,0,1,0,3,1,0,0,0,415.49,100.22,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9379d78f-7546-44b4-9afd-657dba393789,Acinar,Acinar,Image,Polygon,614.12,1345.6,4,0,0,1,2,1,0,0,0,512.34,90.21,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),eef80537-3300-487a-ae1e-abdc95eaf688,Acinar,Acinar,Image,Polygon,1472.8,41.7,3,2,0,0,0,1,0,0,0,146.17,53.92,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),51556170-bb7b-4380-a9d1-620e62181664,Acinar,Acinar,Image,Polygon,1608.2,302.96,3,0,0,0,3,0,0,0,0,262.29,70.34,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),d0c9b523-8fbc-4acb-bae8-0b0ba63f7f0f,Acinar,Acinar,Image,Polygon,1163.6,1449.4,1,1,0,0,0,0,0,0,0,113.94,40.33,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),42513bf8-ecf2-48e0-aa08-956834ddcf00,Acinar,Acinar,Image,Polygon,1153.4,1404.7,4,0,0,0,1,3,0,0,0,372.37,79.11,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),72311595-8540-491c-a147-754209dcbb42,Acinar,Acinar,Image,Polygon,1107.7,1279,2,0,0,0,0,2,0,0,0,191.97,55.77,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),4753904c-ec5c-4a60-9a7a-4257ab82c880,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1232,1185.9,10,0,0,10,0,0,0,0,0,1234.5,133.42,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),92f5dc3c-ff6f-4100-95a0-76cf8be5913a,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1086.5,1138.5,5,0,0,5,0,0,0,0,0,737.99,110.21,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),e5bbf249-aa6f-4cde-ad1b-d92cc57dee95,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1063.3,994.45,6,0,0,6,0,0,0,0,0,709.61,100.18,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),33792586-5720-45e6-a9b5-be96823c1e4a,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1177.4,1020.9,2,0,0,2,0,0,0,0,0,252.01,60.86,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),465a9dcf-9d02-4e05-ae7d-d37acdb5f13d,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,948.02,1099.9,5,0,0,5,0,0,0,0,0,489.77,82.92,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),41f94870-f8eb-4cd5-9fdc-643cb1318fdb,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,564.41,1062.1,1,0,0,1,0,0,0,0,0,236.15,57.99,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),4939cb4d-89f2-4175-b642-579d9929d309,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,793.18,569.49,12,0,0,12,0,0,0,0,0,1369.9,176.1,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),59dd54d9-0130-4f0a-96fc-602af302f13d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,877.13,540.7,6,0,0,4,0,0,0,0,2,463.86,107.7,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),dfff8889-4d74-42dd-97ad-06a8a6e9c72e,Non_malignant_duct,Non_malignant_duct,Image,Polygon,678.64,770.81,7,0,0,1,0,0,0,0,6,656.55,124.3,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),66a45f53-f29a-4eb6-bb89-5b3a7b05c4db,Non_malignant_duct,Non_malignant_duct,Image,Polygon,393.92,1037.9,7,0,0,6,0,0,0,0,1,642.92,129.16,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),3dd5928c-9c0a-4b53-a4f4-ee68274cc257,Non_malignant_duct,Non_malignant_duct,Image,Polygon,367.91,1238.2,9,0,0,8,0,0,0,0,1,907.72,170.86,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),a6625c66-e055-48c1-bd25-9c75c1a2d6cb,Non_malignant_duct,Non_malignant_duct,Image,Polygon,338.57,1252.8,2,0,0,2,0,0,0,0,0,473.3,88.27,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),e91d0101-3eeb-4fa2-af61-301f7df47f80,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1333.1,76.91,4,0,0,4,0,0,0,0,0,439.84,93.89,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),fcd8879d-b77d-4828-a55f-d6bbabc1de18,Langerhans,Langerhans,Image,Polygon,782.69,353.58,2,0,0,0,2,0,0,0,0,533.68,91.24,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9a4c5e27-2ddf-4f1d-ac13-79831f5900cd,Langerhans,Langerhans,Image,Polygon,1751.8,1215,6,0,0,0,5,1,0,0,0,829.25,128.64,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),394b7aee-66dc-4055-9aa2-aaafcbad7b75,Langerhans,Langerhans,Image,Polygon,1768.3,1400.8,6,0,0,0,6,0,0,0,0,351.59,70.96,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),bafd50a9-ad11-42e5-bc2e-e6fd707e811e,Stroma,Stroma,Image,Polygon,1171.4,229.22,164,0,0,0,160,1,0,3,0,26852.7,939.35,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),c17b8aef-d32b-415a-86fe-0abd9f345dd1,Stroma,Stroma,Image,Polygon,706.85,1298.2,14,0,0,0,13,1,0,0,0,2528.5,303.85,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),6936ce3a-099b-402b-b2ff-352156d4e557,Stroma,Stroma,Image,Polygon,800.32,1286.4,8,0,0,0,6,1,0,0,1,926.43,174.12,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),b1a21e21-cc30-4a76-9848-4ba0dd01392b,Stroma_periductal,Stroma_periductal,Image,Polygon,1299.6,973.31,14,1,0,4,0,0,0,0,9,1862.8,263.93,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),cd13fde8-adfc-455a-b721-e135ecc6e3ed,Stroma_periductal,Stroma_periductal,Image,Polygon,1280.1,1135.8,7,2,0,4,0,1,0,0,0,1494.3,274.39,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),70322427-7919-45d0-b5f8-b06278136412,Stroma_periductal,Stroma_periductal,Image,Polygon,1214.4,1171.3,14,7,0,1,4,2,0,0,0,2319.3,301.08,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9ae1a5bb-8a0e-437c-b156-ae73d837f26b,Stroma_periductal,Stroma_periductal,Image,Polygon,599.3,1504,65,1,0,0,25,21,0,1,17,10811.7,623.15,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),2d2648b8-fa8a-4fcd-aeea-ddccbbaee503,Stroma_periductal,Stroma_periductal,Image,Polygon,275.77,926.91,30,0,0,0,6,18,0,0,6,6148.4,343.36,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),078cc7b6-584a-4197-ac06-e76771e273bf,Immune,Immune,Image,Polygon,1560.3,522.3,2,0,0,0,2,0,0,0,0,376.06,73.59,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),478c9fc1-daec-4364-8c9d-9145daca4a18,Immune,Immune,Image,Polygon,433.5,681.06,1,0,0,0,1,0,0,0,0,155.22,46.86,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),37200194-4f2c-4cb1-bbdd-e05d51e3a2ee,Immune,Immune,Image,Polygon,708.12,909.91,2,0,0,0,2,0,0,0,0,629.74,97.81,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),28c5e17b-228f-459e-bd07-81d213c5cb18,Immune,Immune,Image,Polygon,958.91,277.05,12,0,0,0,12,0,0,0,0,2296.8,226.05,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9d96ef11-f356-45f0-99c8-e4d27ae10e74,ADM,ADM,Image,Polygon,877.64,262.95,4,1,0,1,0,1,0,0,1,456.15,79.8,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),317455bc-f0ae-4cc1-8db9-d104bd57750c,ADM,ADM,Image,Polygon,699.92,609.91,2,1,0,0,1,0,0,0,0,212.58,55.28,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),d259ab58-ca86-4cdd-bf37-b03b7d5ee9be,ADM,ADM,Image,Polygon,581.74,659.23,2,2,0,0,0,0,0,0,0,193.2,54.98,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9eef4653-e8f1-4e9b-9147-0826a734d0e4,ADM,ADM,Image,Polygon,558.78,702.04,3,1,0,0,1,1,0,0,0,392.03,72.74,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),b8a99681-75ad-4100-8e69-7b76651057e0,ADM,ADM,Image,Polygon,608.93,829.52,3,1,0,0,1,1,0,0,0,529.93,83.99,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),f3dae486-8016-4f3e-81f2-342dbf2ea59f,ADM,ADM,Image,Polygon,383.47,1063.4,4,0,0,3,0,1,0,0,0,557.25,96.36,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),1e623907-edd8-4545-9866-189289dfcef9,ADM,ADM,Image,Polygon,407.55,1175.1,15,5,0,4,2,4,0,0,0,1587.9,182.55,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),9cb8f602-ca3c-484f-a815-c6d415ca79a4,ADM,ADM,Image,Polygon,1472.5,1514.3,17,7,0,3,6,1,0,0,0,1958.5,222.07,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),66bee613-a52b-492f-903a-b75ee6db7205,ADM,ADM,Image,Polygon,2055.1,1291.2,6,1,0,4,1,0,0,0,0,891.92,120.34,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),bd303b5c-6f76-4e98-a330-2354218bb6c5,ADM,ADM,Image,Polygon,1891.7,1076.7,4,1,0,1,1,1,0,0,0,400.3,80.2,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),82e9622e-0eb7-43fe-95a1-4becdc2f3d7c,ADM,ADM,Image,Polygon,1881.3,1158.1,2,2,0,0,0,0,0,0,0,223.24,59.15,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),d36b1df2-a9e4-4c9d-ba0d-b31b3513cf7f,ADM,ADM,Image,Polygon,1861.9,1192.2,4,3,0,0,0,1,0,0,0,551.55,102.22,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),4b3c1672-f7b5-4fb8-bd9a-ac081b729255,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1537.4,825.77,86,11,0,4,61,9,0,1,0,12421.2,415.74,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),310d51a7-e66a-4cb5-9ee0-ee5bbbea2581,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1435.6,894.63,20,2,0,1,12,4,0,1,0,3130.3,209.55,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),eee02943-8789-4810-b365-c68424aa0f90,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1517.8,1167.8,54,11,0,2,38,3,0,0,0,7815.8,486.37,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),934a3173-f33c-49f3-9590-5b690a7e0f4f,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1305.3,1219.1,59,11,3,1,34,9,0,1,0,8316.7,343.9,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),8df05365-41a9-41c3-88d8-b9dbd45a3945,Non_malignant_duct,Non_malignant_duct,Image,Polygon,780.44,918,7,1,0,0,0,0,0,0,6,693.47,116.6,
+PKR51_K19-amy_ADM_pd lobule 3.nd2 - PKR51_K19-amy_ADM_pd lobule 3.nd2 (series 1),aeccf603-d208-46ec-a3ff-621759bc117d,ADM,ADM,Image,Polygon,901.18,465.14,4,2,0,0,1,0,0,0,1,255.81,77.48,
+PKR51_K19-amy_ADM_wp lobule 1.nd2 - PKR51_K19-amy_ADM_wp lobule 1.nd2 (series 1),5317cba0-f09a-4ec4-bc4e-d23fb1399436,e_atrophy,e_atrophy,Image,Polygon,2474.3,1904.1,4789,723,1912,1487,54,213,35,,312,629738.5,3060.3,53
+PKR51_K19-amy_ADM_wp lobule 1.nd2 - PKR51_K19-amy_ADM_wp lobule 1.nd2 (series 1),f85cf50a-6289-4002-8d05-c2bc85accd44,e_atrophy,e_atrophy,Image,Polygon,1411.1,1838.5,4106,607,1928,1047,10,68,26,,389,532750.1,3148.5,31
+PKR51_K19-amy_ADM_wp lobule 1.nd2 - PKR51_K19-amy_ADM_wp lobule 1.nd2 (series 1),d5c28a0b-0110-43bc-938d-5643f23d7295,e_atrophy,e_atrophy,Image,Polygon,3058,1616.6,1404,145,406,476,6,181,24,,155,209753.9,1881.2,11
+PKR51_K19-amy_ADM_wp lobule 1.nd2 - PKR51_K19-amy_ADM_wp lobule 1.nd2 (series 1),1f3747f9-ea59-42c6-9dcc-70c0ed939287,e_atrophy,e_atrophy,Image,Polygon,3384.3,1262.6,2573,162,1132,727,12,260,31,,193,377705.8,2533.3,56
+PKR51_K19-amy_ADM_wp lobule 2.nd2 - PKR51_K19-amy_ADM_wp lobule 2.nd2 (series 1),2c9420a1-a9f8-4cfe-8cb6-00c6b3f21dee,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1389.4,525.35,10600,1176,5438,2034,952,3,453,29,388,1426243.1,4840.3,127
+PKR51_K19-amy_ADM_wp lobule 2.nd2 - PKR51_K19-amy_ADM_wp lobule 2.nd2 (series 1),28f9fcfa-6bc5-4f69-95df-6fdceffa9322,Tumor,Tumor,Image,Geometry,1329.6,493.08,0,0,0,0,0,0,0,0,0,8655.2,557.32,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a3d5e526-2907-4a6f-a310-48dbe1cb084c,e_atrophy_tu,e_atrophy_tu,Image,Polygon,758.94,2099,8914,1194,38,791,1666,148,1357,1646,733,1319777.5,4500.2,1341
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),29304c63-9db7-431f-b3cf-b89dc62d3838,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2148.7,1575,19556,972,15,1688,1596,404,3010,6700,1155,2963978.5,7476,4016
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),d15431f6-750d-493d-b767-106cf26ea95c,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,766.52,573.9,23,0,0,23,0,0,0,0,0,2917.5,207.28,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),fc3c3b94-bd83-471a-879c-a007d9cb69e2,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,831.15,2254,2,0,0,2,0,0,0,0,0,672.36,99.91,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),39cb44ee-a814-4b9e-82a0-3de98aea5f3d,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,776.51,2256.9,3,0,0,2,0,0,0,0,0,1118.7,129.15,1
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),eca643ac-ba81-414d-a6bd-1346fa362039,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,597.79,2221.3,3,0,0,3,0,0,0,0,0,702.69,105.48,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),049c0c65-99da-4369-ae51-745cbc9e4a43,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,360.35,2618.8,7,0,0,7,0,0,0,0,0,657.33,93.48,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),acc2380a-236d-4270-bfb9-088239343ca1,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,169.55,2478.6,15,0,0,15,0,0,0,0,0,1688.8,164.63,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f655732e-b8ea-47d6-b797-534e6f54ef28,Acinar,Acinar,Image,Polygon,574.79,1860.8,2,0,2,0,0,0,0,0,0,167.67,47.37,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),9588fa37-66ae-4d79-9f1d-d89c73050164,Acinar,Acinar,Image,Polygon,252.11,2392,3,0,3,0,0,0,0,0,0,417.61,82.54,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),1db238e3-93a8-413d-ac9e-c99d1dcc57e1,Acinar,Acinar,Image,Polygon,851.38,1968.7,2,0,2,0,0,0,0,0,0,184.04,54.98,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),207f58d2-bf29-454b-b203-6c6b2e6bb61a,ADM,ADM,Image,Polygon,590.13,2321.5,3,3,0,0,0,0,0,0,0,449.84,77.31,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),542dd512-7ab0-49b3-8de2-f8bb78c9de7a,ADM,ADM,Image,Polygon,721.71,2329.9,2,2,0,0,0,0,0,0,0,166.61,50.02,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),e8a1f75b-1fd0-46d5-b84b-517931aa0df9,ADM,ADM,Image,Polygon,289.29,2372.1,3,3,0,0,0,0,0,0,0,298.09,70.8,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),40d59a2f-5a7f-44e7-8499-d9bc18b546b9,ADM,ADM,Image,Polygon,374.64,2287.5,4,4,0,0,0,0,0,0,0,423.09,82.5,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),4c5434bb-8123-405e-a123-6527fe68359f,ADM,ADM,Image,Polygon,2864.4,1553.5,5,5,0,0,0,0,0,0,0,284.63,76.23,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a0901834-d7d7-4209-9eeb-9a5ada576874,ADM,ADM,Image,Polygon,2896.5,1571.6,0,0,0,0,0,0,0,0,0,306.74,74.03,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),5827125f-1541-4674-b810-d3040d79d954,ADM,ADM,Image,Polygon,2822.9,1586.4,3,3,0,0,0,0,0,0,0,310.21,64.03,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),186d7c76-b2cb-480b-babf-07d0057a9e75,ADM,ADM,Image,Polygon,2867.1,1828.1,4,3,0,0,0,0,1,0,0,381.53,81.15,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),9d31fd05-e146-43b9-90eb-51f4359fe693,Acinar,Acinar,Image,Polygon,2825.6,1828.5,3,0,2,0,0,0,0,0,0,246.65,64.78,1
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),465670fd-8ce4-4970-a77f-a83e70d12c03,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2762.3,1709,12,0,0,0,0,0,12,0,0,990.27,210.96,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),4c56a228-cb32-4770-97ed-73284392a8f2,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2710.5,1659.7,8,0,0,0,0,0,8,0,0,927.16,150.5,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),47ae061d-aef8-4956-8f5e-33f72aeaae64,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2750.8,1385.6,8,0,0,0,0,0,8,0,0,596.12,115.32,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),e506f57b-a66b-428c-8ad5-fb50ff68d96a,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1805.5,623.38,6,0,0,0,0,0,6,0,0,608.74,93.97,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),fcb8844d-b27e-4d9c-93bd-852c06da2f42,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1674.9,664.82,9,0,0,0,0,0,9,0,0,780.49,119.04,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f6a7f711-b90a-46b1-82dd-cb0034bcf47c,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1721.3,752.85,4,0,0,0,0,0,4,0,0,405.38,77.07,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a730d9b8-3a54-4f4e-ad7b-8c536918aceb,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1867.1,1059.6,9,0,0,1,0,0,8,0,0,695.31,102.04,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),5a05292a-cbc6-4038-9a7e-68de2f1b3258,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1716.6,1872.3,12,0,0,0,0,0,12,0,0,998.48,137.86,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),ab42a2aa-911e-4fa3-a625-e9b98db41285,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1831.1,1841,9,0,0,0,0,0,9,0,0,787.97,125.42,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f683cf0b-f8a1-4fba-a8b0-c6e551f09ded,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1884.1,1933.2,9,0,0,0,0,0,9,0,0,819.48,116.63,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),77887da0-d16e-43fe-9e37-ae8d88b0c017,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1893.3,1858.2,4,0,0,0,0,0,4,0,0,472.91,93.41,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),ed34290f-4669-436f-92ea-7c33bbcbbc8a,Non_malignant_duct,Non_malignant_duct,Image,Polygon,805.42,2020.2,8,0,0,0,0,0,8,0,0,780.94,126.86,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a5f3770d-38af-4500-b903-f72bb32a7407,Langerhans,Langerhans,Image,Polygon,174.91,2326.8,28,0,0,0,0,27,0,0,1,2810,200.66,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),5651f0ac-55f5-482d-84ce-e9dbb08ca6ba,Langerhans,Langerhans,Image,Polygon,1822.6,486.22,42,0,0,0,5,34,0,3,0,5360,301.05,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),50dab743-0345-4b82-b3d3-2893b147a9f0,Stroma,Stroma,Image,Polygon,1287.9,994.68,45,0,0,0,2,0,0,43,0,10684,451.44,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),de5183cf-ba22-4e4f-8d00-5cd2d95904d3,Stroma,Stroma,Image,Polygon,243.54,2230.8,16,0,0,0,1,0,0,14,1,2516.6,271.53,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),17c9c6c0-8658-4087-aab8-95c753e6f728,Stroma,Stroma,Image,Polygon,783.74,1545.3,64,0,0,0,1,0,0,63,0,14818.8,1032.7,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),921e9f0e-d449-4726-8bb3-be158e4ce036,Stroma,Stroma,Image,Polygon,292.3,1729.4,30,0,0,0,1,0,0,29,0,5475.5,462.59,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),97e9dc5b-44f9-4b82-a09c-1b3b6aa3e6d0,Stroma,Stroma,Image,Polygon,289.42,2188.1,3,0,0,0,0,0,0,3,0,594.05,,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),18f7582b-c325-4504-8fc9-09695b4ba9d0,Stroma,Stroma,Image,Polygon,1283.6,2370.2,8,0,0,0,0,0,0,8,0,1021.3,133.78,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f5ca5f97-aada-4f18-9d84-185fa4708c46,Stroma,Stroma,Image,Polygon,1521.5,2153.4,31,0,0,0,0,0,0,31,0,7247.1,448.9,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),08e9f693-bafc-4b47-b0f7-083bff1d510e,Stroma,Stroma,Image,Polygon,1978.6,358.79,17,0,0,0,0,0,0,17,0,3151,379.2,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f9c88c9a-ee10-42f0-9a4e-da530fde9a73,Stroma_periductal,Stroma_periductal,Image,Polygon,612.71,525.58,9,0,0,0,1,0,0,0,8,1424.4,156.62,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),4cada2ea-8d91-436e-9b81-098129e05b4c,Stroma_periductal,Stroma_periductal,Image,Polygon,767.76,583.83,46,0,0,0,1,0,0,0,45,5397.2,,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a96fbf61-f5ce-45d6-8b3f-4b6efab30267,Stroma_periductal,Stroma_periductal,Image,Polygon,506.38,711.42,21,1,0,0,0,0,0,0,20,2436.9,219.85,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),5d4786b8-5762-4714-a328-968f8ebcfb4b,Stroma_periductal,Stroma_periductal,Image,Polygon,2099.5,829.41,20,0,0,0,0,0,0,0,19,2835.4,318.47,1
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),0f24e688-cc25-4bc5-ae1e-8d9c55084cd5,Immune,Immune,Image,Polygon,620.88,418.1,89,0,0,0,89,0,0,0,0,10733.9,449.72,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),1e9cf9bd-6776-4bd9-9879-fea4446020d5,Immune,Immune,Image,Polygon,523.22,580.29,124,0,0,0,124,0,0,0,0,15072.8,593.88,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),74eb62a4-cd68-42ef-aa43-0ce2f8909005,Immune,Immune,Image,Polygon,439.2,737.91,79,0,0,0,78,0,0,1,0,9814.9,481.79,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),e2096da9-b97a-40bc-99d6-8dd0c931a23a,Immune,Immune,Image,Polygon,211.42,2554.7,22,0,0,0,22,0,0,0,0,2185.7,177.12,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),3d9ebcd4-2285-4d1e-91bb-4276ad9f36f8,Immune,Immune,Image,Polygon,1505.2,436.48,7,0,0,0,7,0,0,0,0,548.48,97.87,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),481014e6-ef5d-420a-b22e-d8747165e46a,Immune,Immune,Image,Polygon,1162.2,1129.2,16,0,0,0,16,0,0,0,0,1820.8,164.24,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),066f989e-e954-4679-8f33-a07128cea173,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1050.4,1093.1,22,0,0,0,0,0,0,0,0,4316.9,280.03,22
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),16ad315b-91c5-4eea-a688-9743ab3915cf,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,773.39,898.62,101,0,0,0,0,0,0,0,0,18716.8,559.47,101
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),45b34d06-2b82-4cd4-9a48-b2137195c056,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,573.26,888.46,57,0,0,0,1,0,0,0,0,8583,445.64,56
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),76e55a9e-7962-42fd-bc2c-37e9d4b906d9,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,2469.4,2346.1,165,0,0,0,0,0,0,0,0,21592.2,686.32,165
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),28ebf1d4-7e32-489a-94d7-0a313a84cd5a,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,2383.9,2546.7,106,0,0,0,0,0,0,0,0,11723.9,419.72,106
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),c2cdd1f8-5c34-49b3-a9d0-cff90713490e,ADM,ADM,Image,Polygon,343.56,2248.6,2,2,0,0,0,0,0,0,0,242.01,60.58,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),45704673-8baa-4c82-9d62-c424d17a1159,Acinar,Acinar,Image,Polygon,353.78,2237,1,0,1,0,0,0,0,0,0,150.13,49.99,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),8a942eec-b115-4505-bead-d5abd65a5928,ADM,ADM,Image,Polygon,691.39,2125.5,5,5,0,0,0,0,0,0,0,539.32,91.4,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),96691b06-cbcf-4add-90a9-42e2826173d2,ADM,ADM,Image,Polygon,400.81,2321.7,2,2,0,0,0,0,0,0,0,194.82,53.94,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),878698bf-0215-4baf-beff-f2601cc0b1c3,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,411.38,2305.6,3,1,0,2,0,0,0,0,0,218.94,58.69,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),a70297d9-f179-49a0-8c73-818bf0e7cc32,ADM,ADM,Image,Polygon,1809.5,730.88,4,4,0,0,0,0,0,0,0,453.75,88.43,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),b058c6b1-597a-4848-b1a8-9c17f51b56d8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1638.5,949.35,7,0,0,0,0,0,7,0,0,617.45,108.44,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),e006543e-efcd-4b77-bc73-b1d5425aa592,Acinar,Acinar,Image,Polygon,1528.5,900.08,2,0,2,0,0,0,0,0,0,246.76,63.13,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),480096ba-ad6e-49b4-9e7d-a4b38a93cd81,ADM,ADM,Image,Polygon,1486.6,899.36,1,1,0,0,0,0,0,0,0,128.18,44.48,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),3263b87b-5313-4815-83e1-b95af39c9aea,ADM,ADM,Image,Polygon,1453.7,979.25,6,6,0,0,0,0,0,0,0,507.37,84.11,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),7e3bc03c-3a12-415c-bc1e-579aa03f1e61,Acinar,Acinar,Image,Polygon,1904.1,1142.7,2,0,1,0,0,0,0,0,0,224.36,57.43,1
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),beb70e87-ed9f-4df8-bf91-2c2aef7d7ac3,ADM,ADM,Image,Polygon,1898.4,1152.4,3,3,0,0,0,0,0,0,0,286.48,,0
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),f796285b-3278-4651-8948-f12ad8d75e05,l_atrophy_tu,l_atrophy_tu,Image,Polygon,932.18,813.9,4931,189,4,335,1924,42,321,1067,273,768350.3,3994.8,776
+PKR51_K19-amy_pd lobule 1.nd2 - PKR51_K19-amy_pd lobule 1.nd2 (series 1),69d9809e-e876-4f81-9b7e-f69e8a4b6964,Tumor,Tumor,Image,Geometry,2154.9,1037.9,4715,126,0,1675,13,0,130,79,32,2063008.6,36262.8,2660
+PKR24_K19-amy_d lobule A.nd2 - PKR24_K19-amy_d lobule A.nd2 (series 1),5909ace5-2d71-4ff1-931c-89bf4c5aa4f1,l_atrophy_tu,l_atrophy_tu,Image,Polygon,975.58,3505,2365,,,59,18,414,279,1090,292,366152.9,2635,213
+PKR24_K19-amy_d lobule A.nd2 - PKR24_K19-amy_d lobule A.nd2 (series 1),bf046bfb-f2b8-45b6-8a59-b40db2a5a232,Tumor,Tumor,Image,Geometry,881.97,3407.5,0,,,0,0,0,0,0,0,136947.6,7116.6,0
+PKR24_K19-amy_pd lobule A.nd2 - PKR24_K19-amy_pd lobule A.nd2 (series 1),4881ffb5-18b2-49e6-961a-77297a6450db,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1250.3,1523.8,25040,1626,6701,629,4221,2510,1312,7048,993,4046005.3,7969.3,
+PKR24_K19-amy_pd lobule A.nd2 - PKR24_K19-amy_pd lobule A.nd2 (series 1),3006e379-4ff8-4fe3-a625-06c34aefa1f2,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2365.8,829.3,6740,120,297,99,2646,531,396,2524,127,1043797.4,3784.3,
+PKR24_K19-amy_pd lobule A.nd2 - PKR24_K19-amy_pd lobule A.nd2 (series 1),40adb239-0f44-4cbc-a174-3cb9e3d6a58c,Tumor,Tumor,Image,Geometry,2297.1,859.17,0,0,0,0,0,0,0,0,0,134995.1,8268.5,
+PKR24_K19-amy_pd lobule B.nd2 - PKR24_K19-amy_pd lobule B.nd2 (series 1),4be17a95-6fb2-4424-aefc-2b1bec80884c,l_atrophy_tu,l_atrophy_tu,Image,Geometry,1138.3,768.26,10507,,2,124,34,2470,1580,4687,1381,1476984.1,7148.7,229
+PKR24_K19-amy_pd lobule B.nd2 - PKR24_K19-amy_pd lobule B.nd2 (series 1),8ad3d2e2-a6bf-4cd5-aded-4f8d5fe16d9f,Tumor,Tumor,Image,Geometry,1155.8,569.6,0,,0,0,0,0,0,0,0,108367.1,5666.7,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),463f3550-ccfd-42cb-914e-859778a6f857,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2137.7,1078.1,9411,,,316,642,2529,1095,3472,783,1411132.9,4689.5,574
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),c16f7887-af99-42ae-bfa7-64e4fc2a9e49,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1262,1766.5,6621,,,139,1608,70,836,1423,164,977600.4,4077.7,2381
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),89ea4a1e-4111-49d6-949e-bd68ade27f25,l_atrophy,l_atrophy,Image,Polygon,1166.7,2926.8,4129,,,132,135,54,635,459,143,592708.6,2981.6,2571
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),4e61afc6-ebf3-4c37-b83a-3f43cba7184a,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2096.9,2594.1,5597,,,181,31,1338,840,1796,1160,700955.5,,251
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),6a5bfb0f-2392-487d-9cbd-54ee78fb8237,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2168.2,2228.6,13,,,0,0,0,13,0,0,1277.6,160.83,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),fecfba98-6e8f-4a48-a748-8e5d61378684,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2342.4,2212,6,,,0,0,0,6,0,0,541.05,87.56,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),01ca9f3b-e0c3-46cd-93c5-dfd52214c7a7,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1790.7,2551.8,7,,,0,0,0,7,0,0,777.53,106.27,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),9a6d8441-f960-4180-8e4e-785801c93006,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1736.2,2546.2,5,,,0,0,0,5,0,0,481.12,85.42,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),ae693757-1f67-4b22-bf60-acb1a8e3a647,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2209.7,2722.3,16,,,0,0,0,16,0,0,1397.3,230.8,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),75f25af2-6cd1-49a3-a019-9c786f8f6adc,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1265.5,2701.8,17,,,1,0,0,16,0,0,1633,191.69,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),b6564b7b-2957-4a91-ad1c-6282ad4793f0,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1233.2,2781.4,10,,,0,0,0,10,0,0,1446.9,156.16,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),935ddfd6-51b3-4d01-8214-fab8585fd1c0,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1041.7,3193.4,25,,,0,0,0,25,0,0,2997,239.93,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),3bc0c695-0120-442c-85da-6b9a59291c78,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1186.6,3291.2,7,,,0,0,0,7,0,0,761.89,103.72,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),d08a3f2c-4988-417c-8a18-aa3120361f43,Non_malignant_duct,Non_malignant_duct,Image,Polygon,634.25,1460.5,0,,,0,0,0,0,0,0,1277.9,166.99,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),637d59c1-9c34-4961-91eb-847c30563068,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1159.7,2013.7,9,,,0,0,0,9,0,0,793.45,107.68,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),19e9dee9-2422-46ef-bae9-d460a646f081,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1070.5,1834.8,13,,,0,0,0,13,0,0,1364.2,159.83,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),4abbcba2-1a9b-4cd8-882f-ad2fc12f29c7,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1297,1923.7,5,,,0,0,0,5,0,0,482.46,84.76,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),319cad6b-9baa-40c1-8260-0dfc22c0c829,Acinar,Acinar,Image,Polygon,148.8,1212.8,0,,,0,0,0,0,0,0,3127.5,,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),5b21f19d-347f-44f3-a729-e992e426267c,Acinar,Acinar,Image,Polygon,242.98,1202.5,0,,,0,0,0,0,0,0,545.57,93.23,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),ab8e9e4d-0022-4bca-9e21-9035e814e344,Acinar,Acinar,Image,Polygon,190,1405.4,0,,,0,0,0,0,0,0,1886.5,235.8,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),e8bb703a-97c3-4994-bfb5-9757c57a3923,Acinar,Acinar,Image,Polygon,606.46,1800,0,,,0,0,0,0,0,0,1690.1,175.01,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),ae2076fa-c413-4023-9f3d-175297895b32,Acinar,Acinar,Image,Polygon,149.2,1774,0,,,0,0,0,0,0,0,828.3,130.31,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),432baf67-b84b-400f-a299-22fe85fa12ad,Acinar,Acinar,Image,Polygon,181.89,1727.9,0,,,0,0,0,0,0,0,3113.6,279.08,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),3e75af41-db6c-4292-95f9-629227e6ecc0,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,288.39,1620.6,0,,,0,0,0,0,0,0,2375.5,177.03,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),7c86fde8-8920-40b2-8899-c8ae931b308f,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1891.2,2817,87,,,87,0,0,0,0,0,15054.6,,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),19487b14-3296-462b-a10f-8360b478c5e0,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2648.7,2420,1,,,1,0,0,0,0,0,988.6,178.73,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),1b9f7bdb-ab24-4daa-832c-ad2a8e237a6c,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1396.4,1906.8,17,,,17,0,0,0,0,0,2326.3,345.35,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),d581f07d-2c04-458a-8b07-11e9938deea2,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1395.9,2043.5,8,,,7,0,0,1,0,0,1369.7,135.83,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),4d5c2bea-4365-40bc-8b05-9fec833a90c8,Langerhans,Langerhans,Image,Polygon,1822.9,1366.4,210,,,0,0,210,0,0,0,29128.5,643.29,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),66589070-caae-47bb-af95-c466d9904dd5,Langerhans,Langerhans,Image,Polygon,1998.9,1123.1,60,,,0,0,60,0,0,0,8942.9,346.82,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),13b49cc5-f5c5-41da-a325-2ed15ed269af,Langerhans,Langerhans,Image,Polygon,2995.8,241.76,0,,,0,0,0,0,0,0,7356.6,345.56,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),74b4bc52-500d-45ab-9561-977a8ed6dc33,Stroma,Stroma,Image,Polygon,697.69,1634.6,0,,,0,0,0,0,0,0,6999.7,651.28,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),cc2f9156-d7f3-44f6-8d0a-317682515f0b,Stroma,Stroma,Image,Polygon,585.72,2164.5,0,,,0,0,0,0,0,0,5515,351.91,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),1e757387-e451-4873-b9a4-407e87d6116b,Stroma,Stroma,Image,Polygon,788.7,2806.8,55,,,0,1,0,0,54,0,12583.3,624.02,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),5220a41d-edef-4358-a2a7-de3b7f55ca28,Stroma,Stroma,Image,Polygon,2213.4,557.69,80,,,0,0,0,0,80,0,24688.8,919.92,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),18519a3d-b8b9-46a9-9665-31d8b9882662,Stroma_periductal,Stroma_periductal,Image,Polygon,2459.1,765.11,68,,,0,0,0,0,0,68,9820.9,,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),fe3cfc91-a717-4e95-b150-bbd4f3b39c0d,Stroma_periductal,Stroma_periductal,Image,Polygon,2047.4,2752.3,99,,,0,0,0,0,0,98,13678.1,719.52,1
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),9d9e50a3-05c5-4d38-97c9-40f5f98241ad,Stroma_periductal,Stroma_periductal,Image,Polygon,1785.3,2917.5,55,,,0,0,1,0,0,54,7432.2,380.41,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),4b21e52f-4765-46c9-9bc2-24dd56ac1b1c,Stroma_periductal,Stroma_periductal,Image,Polygon,1365.5,1812.6,38,,,0,0,0,0,0,37,5095,356.38,1
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),19fb6830-cecc-4758-9054-46c3741b8b5b,ADM,ADM,Image,Polygon,680.01,1804.7,0,,,0,0,0,0,0,0,189.01,56.02,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),334c4ee3-25d1-457f-86e3-4ec1cb0f38c8,ADM,ADM,Image,Polygon,673.12,1859.6,0,,,0,0,0,0,0,0,273.57,61.25,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),6c70ef71-bc21-4000-83ca-1ee442a2d511,ADM,ADM,Image,Polygon,386.35,1123.7,0,,,0,0,0,0,0,0,227.55,56.11,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),f5a769ab-b6ca-4408-b81f-5a22f715ad87,ADM,ADM,Image,Polygon,324.72,1068,0,,,0,0,0,0,0,0,215.7,54.86,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),f1e350e5-a2d4-4f1d-bb1d-5e4fd57e0cec,Immune,Immune,Image,Polygon,1095.1,1194.7,382,,,0,382,0,0,0,0,48780.7,1313,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),a33c0099-531c-4974-90b0-a05ddc3e7865,Immune,Immune,Image,Polygon,1510.8,905.4,97,,,0,97,0,0,0,0,11371.4,390.05,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),f16595b5-52fc-4a55-818c-a4a1974e2cd9,Immune,Immune,Image,Polygon,349.2,1707.5,0,,,0,0,0,0,0,0,17018,655.5,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),625b9b70-3ef6-4903-af51-9c45a1353ad3,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,846.76,3055.6,86,,,0,0,0,0,0,0,16034.7,600.13,86
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),a9333136-817a-4002-b789-92bf8db1bcae,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1155.2,2899.3,47,,,0,0,0,0,0,0,7035.3,568.9,47
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),11534ca2-3d80-4f2a-bbde-db2320088af0,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1225.4,3346,71,,,0,0,0,0,0,0,11259.3,467.89,71
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),8d216c2a-bf4c-41d5-b7e4-082067a27fdc,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1026.3,3344.8,49,,,0,0,0,0,0,0,6017.5,309.31,49
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),36bb2529-8a3a-42b3-a68c-e03b07b07328,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1527.3,2063.7,86,,,0,0,0,0,0,0,11781.9,421.49,86
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),1f01b3db-e5b0-4bca-94a5-7bbd7b5e2a5f,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1540.8,1866.7,19,,,0,0,0,0,0,0,3074.7,250.07,19
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),73f0ff42-64bc-46e9-b356-878b02a604ff,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1470.9,1241.6,22,,,0,1,0,0,0,0,2736.3,,21
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),ab2ade9c-7d2b-4cde-9e3c-7bb0ab1b6e35,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1183,1415.4,60,,,0,0,0,1,0,0,9302.3,398.31,59
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),84e5251f-0e92-4a0c-94fb-d6e9433bc336,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1582.2,1537.8,12,,,0,0,0,0,0,0,1073,136.4,12
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),113eb1c3-bbce-4bc3-a587-74a9ad58834c,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1401.4,1511.5,50,,,0,0,0,0,0,0,7891.2,414.8,50
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),b818dd3e-77c8-40cf-9d0f-dbf5c11825a1,Stroma,Stroma,Image,Polygon,1679.9,1346.7,45,,,0,0,0,0,45,0,6723,362.21,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),5124b709-3dc6-4055-897f-15349957062f,Stroma,Stroma,Image,Polygon,2094.9,1371.7,42,,,0,0,1,0,41,0,6114.3,380.46,0
+PKR24_K19-amy_pd lobule C.nd2 - PKR24_K19-amy_pd lobule C.nd2 (series 1),4ab9585a-bd88-48a7-a94b-475a6f3bf2f2,Tumor,Tumor,Image,Geometry,2331.9,2584.9,0,,,0,0,0,0,0,0,534070.8,18207.3,0
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),5d7b3e16-4abc-4e78-b1bf-da773cb9d4bb,l_atrophy_tu,l_atrophy_tu,Image,Polygon,744.63,2416.1,2401,7,61,135,40,57,452,736,50,345891.5,3321.2,863
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),e54ed928-a1d8-4330-9f73-2b3bc0846a4e,l_atrophy,l_atrophy,Image,Geometry,1706.6,754.88,3926,36,34,35,78,92,345,1531,51,591787.8,4919.6,1724
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),cd44e218-3ec5-4e7f-bd54-d87e4c2c19f1,l_atrophy_tu,l_atrophy_tu,Image,Geometry,2055.6,1534.7,4804,51,162,238,91,62,982,1003,99,777763.4,4076.1,2116
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),6eae4da2-90db-4ef1-ac9f-aefb4c0ae8e9,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2931.7,1004.1,7379,119,232,339,99,202,1104,2738,339,1159274.6,7135.4,2207
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),12265b46-880e-4b19-9846-470a604003aa,Tumor,Tumor,Image,Geometry,2135.2,2866,1209,9,81,451,10,0,377,18,24,1188669.5,39105.9,239
+PKR24_K19-amy_pd lobule D.nd2 - PKR24_K19-amy_pd lobule D.nd2 (series 1),f3d04f0b-e2aa-4ab2-80f3-21720de5302e,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1193.7,2472.2,18113,65,91,1229,300,1037,4683,8719,527,2546931.8,9124.1,1462
+PKR24_K19-amy_wp lobule A.nd2 - PKR24_K19-amy_wp lobule A.nd2 (series 1),5e3782ec-457e-48e5-a017-340b8b5c0d2b,e_atrophy_tu,e_atrophy_tu,Image,Polygon,3119.7,1197.1,22503,127,6146,211,4837,1692,275,8948,267,3426089.4,7590.5,
+PKR24_K19-amy_wp lobule A.nd2 - PKR24_K19-amy_wp lobule A.nd2 (series 1),6e2c1f2f-97cd-4398-b4ca-327f57fc3ae7,Preserved,Preserved,Image,Polygon,1100.7,1044.8,14755,141,6870,71,3531,567,121,3343,111,2349390.5,6822.5,
+PKR24_K19-amy_wp lobule A.nd2 - PKR24_K19-amy_wp lobule A.nd2 (series 1),2b430d17-25c6-43c6-882c-53ca549c1f02,Preserved,Preserved,Image,Geometry,2468.7,272.53,6599,31,1888,66,3046,402,125,997,44,1013325.7,5724.4,
+PKR24_K19-amy_wp lobule A.nd2 - PKR24_K19-amy_wp lobule A.nd2 (series 1),021c3be8-4e48-4276-9f2c-d5efa4ffaa06,Tumor,Tumor,Image,Geometry,3514,1311.6,0,0,0,0,0,0,0,0,0,73540.5,3031.4,
+PKR24_K19-amy_wp lobule B.nd2 - PKR24_K19-amy_wp lobule B.nd2 (series 1),eebbf068-3d2a-44ab-8751-2d935d62de52,Preserved,Preserved,Image,Polygon,1264.1,1315.8,26828,443,7173,340,15646,659,397,2014,156,4035865.9,10709.7,
+PKR24_K19-amy_wp lobule B.nd2 - PKR24_K19-amy_wp lobule B.nd2 (series 1),fee0023c-95d0-4c42-ba3e-c0ecc5109fde,Preserved,Preserved,Image,Polygon,3040.5,1816.1,10586,93,2715,77,5294,621,243,1485,58,1604196.7,5632.3,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),a2133f18-21e8-4577-b73f-2a733ab80920,Preserved,Preserved,Image,Polygon,1772.4,1738.3,9638,311,7721,282,170,514,230,285,125,1810429.5,5781.8,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),61770c7b-21a8-47cb-aba3-1d7a38a2b466,Preserved,Preserved,Image,Polygon,1633.5,2726,7778,177,5943,378,451,31,160,580,58,1480278.2,4977.5,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),2195c7de-e0fc-40c3-acbb-e8837067385d,Tumor,Tumor,Image,Geometry,2140.4,1032.8,0,0,0,0,0,0,0,0,0,100664,5284.2,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),1dcb542e-0285-4724-9d01-7b41ab1cc914,Preserved,Preserved,Image,Polygon,1680.4,926.08,4133,26,2413,100,960,271,45,63,255,769310.4,3441.5,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),c5f7d41d-77c5-463f-8bb2-3fd67bc8eb6c,Langerhans,Langerhans,Image,Polygon,2390.1,1754.5,74,0,0,0,0,74,0,0,0,16489.9,481.08,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),62f05f23-6c46-467d-ae62-16e49c78070c,Langerhans,Langerhans,Image,Polygon,1319.8,740.14,17,0,0,0,0,17,0,0,0,1790.5,159.24,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),0a0a3506-6f04-4446-855a-f1ee989f9c79,Langerhans,Langerhans,Image,Polygon,1839.3,706.18,29,0,0,0,0,29,0,0,0,4379.9,255.2,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),8a13f879-fdde-422f-b338-daa195e988c3,Stroma,Stroma,Image,Polygon,2350.6,2669.9,21,0,0,0,0,0,0,21,0,5608.9,406.69,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),1d7e0cb2-e698-4cc8-b211-c0d44ab2a506,Stroma,Stroma,Image,Polygon,2102.5,2916.6,13,0,0,0,0,0,0,13,0,2684,205.31,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),e9376c17-e5d6-447e-812f-1b345f28d8af,Stroma,Stroma,Image,Polygon,1143,1175,16,0,0,0,0,0,0,16,0,5001.1,397,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),afbc6c19-2b2b-43cc-8bd2-6d050532f42f,Stroma_periductal,Stroma_periductal,Image,Polygon,1450.3,478.66,40,0,0,0,0,0,0,0,40,7731.6,616.18,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),15ee180b-04e9-44f2-81f7-900de2bbaba3,Stroma_periductal,Stroma_periductal,Image,Polygon,1821.5,1123.8,6,0,0,0,0,0,0,0,6,805.79,111.38,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),c0c3be00-9305-4d46-a1de-8725c65b3f53,Stroma_periductal,Stroma_periductal,Image,Polygon,1837.3,3384.6,13,0,0,0,0,0,0,0,13,2239.6,270.38,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),9f0fcd90-78b9-432c-99fc-2ad96813611d,Immune,Immune,Image,Polygon,2014.5,795.4,63,0,0,0,63,0,0,0,0,6672.3,402.54,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),33d268c7-5395-4c2c-a2ba-1de78746ea5a,Immune,Immune,Image,Polygon,2155.4,889.62,37,0,0,0,37,0,0,0,0,4732,275.09,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),111258d7-cadc-44ab-9703-d42727f275d8,Immune,Immune,Image,Polygon,1781.7,540.71,13,0,0,0,13,0,0,0,0,1975.8,177.4,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),cca681e3-998c-4b08-89f4-89dbe6047f27,Immune,Immune,Image,Polygon,2108.2,2098.7,11,0,0,0,11,0,0,0,0,1420.2,137.58,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),196197cd-849c-41a0-89fa-22c00b076023,Immune,Immune,Image,Polygon,2285.2,2382.5,38,0,0,0,38,0,0,0,0,5725.4,315.94,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),d7fb1fca-03af-4cc8-869f-4d8ee03d58f5,Immune,Immune,Image,Polygon,2088.5,2467.7,9,0,0,0,9,0,0,0,0,1064.1,131.97,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),938befef-639e-43f3-a953-e5a00f28ce57,Immune,Immune,Image,Polygon,1811,3224.5,24,0,0,0,24,0,0,0,0,2682,234.42,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),97df9d4f-fcd6-46c7-b334-28a59796da44,Acinar,Acinar,Image,Polygon,1703.3,3071.5,7,0,7,0,0,0,0,0,0,1624.5,155.9,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),ca953db5-44cc-44be-87df-1dd44c9da51e,Acinar,Acinar,Image,Polygon,1619.9,3173.9,18,0,18,0,0,0,0,0,0,3284.8,209.04,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),bffcdcce-89d0-4c29-aec8-b3f3c5a72b4c,Acinar,Acinar,Image,Polygon,1576,2814.3,30,0,30,0,0,0,0,0,0,5878,299.21,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),3ccfe637-7d53-4a63-b506-a2cc0a304ef3,Acinar,Acinar,Image,Polygon,1354.8,2457.6,34,0,34,0,0,0,0,0,0,7004.7,311.23,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),33bfa724-581e-44a9-ad5d-196b319f8609,Acinar,Acinar,Image,Polygon,1762.1,1562.7,5,0,5,0,0,0,0,0,0,954.64,139.74,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),bf294f44-b2ab-4c2a-b9f3-aabc198d92d4,Acinar,Acinar,Image,Polygon,1714.6,1612.5,4,0,4,0,0,0,0,0,0,741.34,127.12,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),e7afb646-76a0-4f42-a804-47e79e7119ab,Acinar,Acinar,Image,Polygon,1622.1,1571.9,11,0,11,0,0,0,0,0,0,2043.3,207.85,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),6efbfe12-8ab6-4927-b2aa-41bd3d39dd38,Acinar,Acinar,Image,Polygon,1522.2,1518.7,51,0,51,0,0,0,0,0,0,11384.9,440.61,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),3a455f49-c23b-4554-89ce-5878f7c5e7cc,Acinar,Acinar,Image,Polygon,1588.8,652.8,34,0,34,0,0,0,0,0,0,6210.6,350.01,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),438ef234-1950-4dfa-b5bd-21ac3edd4acd,Acinar,Acinar,Image,Polygon,1176.8,868.13,17,0,17,0,0,0,0,0,0,2322.5,219.12,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),a140e38f-68e6-4749-a537-a2762131e7d1,Acinar,Acinar,Image,Polygon,965.14,1593.7,5,0,5,0,0,0,0,0,0,858.46,119.12,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),3a2d2ce2-0d38-466b-bdf1-08ce943dd036,Acinar,Acinar,Image,Polygon,1014.8,1571.3,4,0,4,0,0,0,0,0,0,759.27,105.58,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),4f13a9a2-0895-4d4e-a364-8a3d0e3b72d7,ADM,ADM,Image,Polygon,2724.5,1966.3,5,5,0,0,0,0,0,0,0,791.1,104.44,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),748f7c0f-e83a-4b12-ae95-7c11672ae9a2,ADM,ADM,Image,Polygon,2524.1,1481.6,4,4,0,0,0,0,0,0,0,367.46,75.84,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),59b967f7-6d50-4f94-9a60-832f95f202c9,ADM,ADM,Image,Polygon,2051.6,2155.1,3,3,0,0,0,0,0,0,0,267.7,60.71,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),2cc5a812-5d98-42c6-b7f8-ab13db6c9212,ADM,ADM,Image,Polygon,2098.7,2142.2,4,4,0,0,0,0,0,0,0,389.18,74.66,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),312797a5-6b7e-43dd-9c46-443cce195256,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1807.3,2732,7,0,0,7,0,0,0,0,0,979.38,119.41,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),2252193e-5117-4aa4-a575-d7377a83a43d,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1834.3,2751.8,6,0,0,6,0,0,0,0,0,671.97,99.74,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),7188d7e1-07a1-46ec-93d2-814eaa3eb8c8,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1894.6,1207.6,11,0,0,11,0,0,0,0,0,943.97,116.21,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),4e2dd706-99d0-4295-9986-d1d8e1ce61e6,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2083.2,2763.6,0,0,0,0,0,0,0,0,0,327.52,78.99,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),a497583d-8005-4c5e-8dff-74ca33e9af1f,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1931.6,3309.7,6,0,0,0,0,0,6,0,0,711.12,99.9,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),bf5f6f40-5f51-4630-aeab-8cc25cd58c5d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2094.5,3281.7,4,0,0,0,0,0,4,0,0,446.82,90.3,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),2d2a0450-80a6-4002-90b5-0845ed67a0a7,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1765.4,2771.1,3,0,0,0,0,0,3,0,0,364.16,78.27,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),e3cba452-fed2-4183-90f9-94aa101833a2,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1029.1,1774.2,2,0,0,0,0,0,2,0,0,263.46,77.34,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),83b2c975-ffc7-437e-a713-802d17e1561a,Non_malignant_duct,Non_malignant_duct,Image,Polygon,900.56,1565.8,6,0,0,0,0,0,6,0,0,707.43,124.84,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),a0e4c885-8886-499c-bdd3-49842ff40da9,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1699.2,1444.6,4,0,0,0,0,0,4,0,0,402.7,83.11,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),07e58ffe-a04e-4c44-8328-e9e5176a372e,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1763.2,1459.4,5,0,0,0,0,0,5,0,0,597.29,103.13,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),d4d0123c-81ad-48be-afff-2a6b2e572b53,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1548.9,863.93,5,0,0,0,0,0,5,0,0,441.35,81.52,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),2faeff2b-c0c5-430a-9b00-cdbb69a4a154,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1548,2064.3,11,0,0,11,0,0,0,0,0,1164.3,154,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),3520a668-605b-45b2-8ad5-9706272c9c88,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2047.5,2095,18,0,0,0,0,0,18,0,0,2118.6,203.15,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),23a10879-ba56-46b7-af90-2db90b4c2ca1,Acinar,Acinar,Image,Polygon,1741.6,3200.5,10,0,10,0,0,0,0,0,0,1926.6,170.86,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),e2ef6b07-e987-45a9-af8e-0264736d0134,Acinar,Acinar,Image,Polygon,2491.2,1871.4,12,0,12,0,0,0,0,0,0,1762.3,,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),5e61bdea-3508-420f-9f0c-82e6e7559dcf,Acinar,Acinar,Image,Polygon,2538.1,1960,17,0,17,0,0,0,0,0,0,3067.9,248.78,
+PKR24_K19-amy_wp lobule C.nd2 - PKR24_K19-amy_wp lobule C.nd2 (series 1),21a179b6-619e-4473-ac17-277dea48f90f,Acinar,Acinar,Image,Polygon,2152.5,1919.6,26,0,26,0,0,0,0,0,0,4373.2,258.13,
+PKR13_K19-amy_pd lobule A.nd2 - PKR13_K19-amy_pd lobule A.nd2 (series 1),9bd3a576-435d-45b8-bb9b-5ca58ebde81a,Tumor,Tumor,Image,Geometry,869.31,549.38,0,0,0,0,0,0,0,0,0,174607.3,9457.8,0
+PKR13_K19-amy_pd lobule A.nd2 - PKR13_K19-amy_pd lobule A.nd2 (series 1),832253ff-f068-43ac-9b26-1635940eeca9,e_atrophy,e_atrophy,Image,Geometry,1156.7,731.89,5568,823,3002,824,64,73,73,27,539,749107.1,6424.3,143
+PKR13_K19-amy_pd lobule B.nd2 - PKR13_K19-amy_pd lobule B.nd2 (series 1),bd577789-1105-4e81-94ea-7ea465980b84,l_atrophy_tu,l_atrophy_tu,Image,Polygon,820.57,1279.4,10358,763,483,219,765,71,1398,743,1674,1729321.2,5256.3,4242
+PKR13_K19-amy_pd lobule B.nd2 - PKR13_K19-amy_pd lobule B.nd2 (series 1),cec9d44f-8fae-4838-9060-3b3e5201ea23,e_atrophy_tu,e_atrophy_tu,Image,Polygon,2115.8,999.33,10114,1440,519,890,657,520,1944,901,2210,1521691.6,4544.4,1033
+PKR13_K19-amy_pd lobule B.nd2 - PKR13_K19-amy_pd lobule B.nd2 (series 1),d76d1e2e-b920-4691-afb5-d3bb230649a6,l_atrophy,l_atrophy,Image,Polygon,2895.8,1761.4,3290,338,18,206,202,102,1294,180,910,443084.6,2802.5,40
+PKR13_K19-amy_pd lobule B.nd2 - PKR13_K19-amy_pd lobule B.nd2 (series 1),d3e895a1-f26c-47eb-a524-c8acb6577a4d,Tumor,Tumor,Image,Geometry,929.18,1219.7,0,0,0,0,0,0,0,0,0,696334.3,31506.5,0
+PKR13_K19-amy_pd lobule C.nd2 - PKR13_K19-amy_pd lobule C.nd2 (series 1),42169441-3983-4791-ad7f-25ceab4cb4ec,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2969.3,1221.8,7106,445,151,242,1319,416,1076,641,670,1164374.7,5359.9,2146
+PKR13_K19-amy_pd lobule C.nd2 - PKR13_K19-amy_pd lobule C.nd2 (series 1),4851291d-9629-401d-9656-25ad390538e7,e_atrophy_tu,e_atrophy_tu,Image,Polygon,2017.1,1177.9,9532,884,1257,226,1251,292,1291,671,914,1479596.8,4819.4,2746
+PKR13_K19-amy_pd lobule C.nd2 - PKR13_K19-amy_pd lobule C.nd2 (series 1),687e1d2f-dd0c-4bc3-8f72-41d3daa3ccf0,e_atrophy_tu,e_atrophy_tu,Image,Polygon,878.8,547.88,6801,899,915,178,596,153,1008,394,664,968572.3,3946.8,1994
+PKR13_K19-amy_pd lobule C.nd2 - PKR13_K19-amy_pd lobule C.nd2 (series 1),b10c0b63-761a-44ee-a212-3ef4aa8e9647,Tumor,Tumor,Image,Geometry,2143.7,1201.2,0,0,0,0,0,0,0,0,0,847785.1,28790.5,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),a2bb24e9-a496-4006-a328-56484d0c504d,l_atrophy_tu,l_atrophy_tu,Image,Polygon,914.69,1213.2,4344,224,56,221,931,108,507,630,553,696394.7,3381.3,1114
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),96020b39-0e30-467f-a272-b51c1654a8ff,l_atrophy_tu,l_atrophy_tu,Image,Polygon,349.17,544.14,2966,267,71,54,457,82,567,651,312,421039.8,2639.3,505
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),b7096fae-9023-4aaa-a1de-0ffd80369ace,ADM,ADM,Image,Polygon,427.2,505.81,9,9,0,0,0,0,0,0,0,777.03,123.64,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e3088dba-4f4f-4538-abe1-7cc22a178cd0,ADM,ADM,Image,Polygon,351.3,688.76,3,3,0,0,0,0,0,0,0,239.94,57.92,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),563ca91e-c7d8-468c-969e-81c69100113b,ADM,ADM,Image,Polygon,362.6,383,3,3,0,0,0,0,0,0,0,121.2,43.46,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),2cc914ea-0dec-4f2a-92b9-cb8cffb9618a,Acinar,Acinar,Image,Polygon,319.62,489.89,1,0,1,0,0,0,0,0,0,104.28,40.74,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),d5411da7-2005-4d6e-b2f6-2e6cbdb69114,Acinar,Acinar,Image,Polygon,279.65,497.88,2,0,2,0,0,0,0,0,0,223.52,58.46,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),9ead5242-1360-466b-a8f8-f09f6a8af11e,Acinar,Acinar,Image,Polygon,332.61,608.48,2,0,2,0,0,0,0,0,0,135.78,48.45,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),586e5632-3e4a-4b8f-bf29-c0bcfd110cbc,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,458.08,1012.5,1,0,0,1,0,0,0,0,0,403.2,95.76,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),a1cb212d-8191-4a9a-9a74-acdaf9574291,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,412.11,930.6,8,0,0,7,0,0,1,0,0,642.7,95,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),f80e0b16-612b-4cbe-bdb2-34f98069e480,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,142.15,396.04,3,0,0,3,0,0,0,0,0,113.21,52.09,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),241bfbbd-e24d-47ab-9cde-8db06f24e04f,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,313.61,471.52,2,0,0,2,0,0,0,0,0,226.54,60.18,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),ee405220-ce4b-4249-bfca-d7ca7aaf4a9e,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,112.03,353.94,2,0,0,2,0,0,0,0,0,294.01,74.79,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),74cf1b9b-be28-4d84-8e0d-e744e88ce3a9,Non_malignant_duct,Non_malignant_duct,Image,Polygon,355.75,258.81,4,0,0,0,0,0,4,0,0,374.83,79.55,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),8012fd59-98dd-450f-910e-a10d56a36373,Non_malignant_duct,Non_malignant_duct,Image,Polygon,429.78,284.92,4,0,0,0,0,0,4,0,0,368.13,75.94,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),619bebe3-0c4b-4b17-baba-271c21c3b4b8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,268.44,553.04,4,0,0,0,0,0,4,0,0,274.07,66.33,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),5abd843b-7ad2-4cd6-8f8b-5d75fb776140,Non_malignant_duct,Non_malignant_duct,Image,Polygon,224.01,564.61,3,0,0,0,0,0,3,0,0,180.57,51.71,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e4de2ef8-ef08-411d-bcd1-2189039523b3,Non_malignant_duct,Non_malignant_duct,Image,Polygon,206.84,582.86,6,0,0,0,0,0,6,0,0,846.95,134.74,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),9c5cbac8-e603-43c6-bb9d-c29dbb396aea,Non_malignant_duct,Non_malignant_duct,Image,Polygon,467.81,815.46,5,0,0,0,0,0,5,0,0,456.6,81.97,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e160ff4b-3922-4bc4-8a92-5779de1c604a,Non_malignant_duct,Non_malignant_duct,Image,Polygon,336.89,808.46,1,0,0,0,0,0,1,0,0,273.01,61.27,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),7bfb8ebb-c174-4253-953a-6c3c5271621e,Stroma,Stroma,Image,Polygon,1142.5,866.85,59,0,0,0,0,0,0,59,0,15487.8,627.81,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),21a9250b-8f76-43fe-aeec-8be5cb36429e,Stroma,Stroma,Image,Polygon,1317.9,1209.7,5,0,0,0,1,0,0,4,0,668,138.65,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),057bbec5-82e3-44a5-bc70-ee767467d2da,Stroma,Stroma,Image,Polygon,1049,1470.7,4,0,0,0,0,0,0,4,0,998.88,140.07,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),0ce7c288-deda-4452-8f78-ce67b7cf747c,Stroma,Stroma,Image,Polygon,653.22,1162.8,11,0,0,0,0,0,0,11,0,2303.7,276.47,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),00141ebe-a353-4677-b615-ada57ec4fd13,Stroma,Stroma,Image,Polygon,493.39,1208,11,0,0,0,0,0,0,11,0,3603,315.03,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),3c111afa-83af-4c77-af0e-9afbc5c3a242,Stroma,Stroma,Image,Polygon,278.95,203.73,5,0,0,0,0,0,0,5,0,1056.2,131.75,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),0e8e62fa-d655-4c5f-9d14-36e02b9aa54e,Stroma,Stroma,Image,Polygon,464.31,256.01,6,0,0,0,0,0,0,6,0,701.57,137.55,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),d7da0613-d6a0-4ea5-b4ef-5154705215fd,Stroma_periductal,Stroma_periductal,Image,Polygon,180.18,409.88,9,0,0,0,0,0,0,0,9,1230.9,178.37,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),fb06bc6e-f6e4-444c-85e5-4e92625df5a3,Stroma_periductal,Stroma_periductal,Image,Polygon,188.17,506.76,4,0,0,0,0,0,0,0,4,406.39,79.14,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),edad5adb-417e-44a2-9aa5-eb0da9535e2a,Stroma_periductal,Stroma_periductal,Image,Polygon,378.04,823.84,2,0,0,0,0,0,0,0,2,868.63,209.06,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),ef664fb0-c39a-4676-bbed-4829992db4a4,Stroma_periductal,Stroma_periductal,Image,Polygon,545.55,1147,19,0,0,0,0,0,0,1,18,2850.5,307.03,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),2f79697d-b8e2-4aea-b43d-b736c261b8f9,Stroma_periductal,Stroma_periductal,Image,Polygon,849.06,1226.2,17,0,0,0,0,0,0,0,17,1913.2,206.76,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),51d6e92b-ebb1-4b45-8901-779f490beedc,Immune,Immune,Image,Polygon,933.13,1210.5,32,0,0,0,32,0,0,0,0,2437,207.05,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),89d67bdb-9ddb-4bf2-95f9-545ae98aa6e4,Immune,Immune,Image,Polygon,527.56,1321.9,56,0,0,0,55,0,0,0,0,5675.6,339.99,1
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),3a105810-ebc6-479e-bb01-6fdfb48f3568,Immune,Immune,Image,Polygon,588.33,1463.7,32,0,0,0,32,0,0,0,0,3516.6,245.24,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e68d1ee6-0fcb-4fc1-910d-38a0f6e81aa6,Immune,Immune,Image,Polygon,476.82,1440.7,13,0,0,0,13,0,0,0,0,1366.3,138.12,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),bafad2f7-0ebb-4b9b-8f01-76cc4154f4e0,Immune,Immune,Image,Polygon,336.26,180.87,22,0,0,0,21,0,0,0,0,2580,195.99,1
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),f8ed6d6a-94a2-4ace-b756-1b9721223ef1,l_atrophy_tu,l_atrophy_tu,Image,Polygon,1365.6,368.8,1964,197,262,32,136,39,206,282,119,286500.3,3459.1,691
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),2ffb7e67-7786-4e03-b633-1dd4da2ff7f0,Acinar,Acinar,Image,Polygon,1503.3,312.33,11,0,11,0,0,0,0,0,0,1709.5,262.16,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),8c9af9b2-9f0d-463a-87f6-4544d579258e,Acinar,Acinar,Image,Polygon,1517.1,351.91,2,0,2,0,0,0,0,0,0,182.19,51.82,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),26a1ffa5-168c-42a0-8bc1-f1f0405345e4,Acinar,Acinar,Image,Polygon,1520.2,206.39,11,0,11,0,0,0,0,0,0,1561.2,152.57,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),f6679600-d691-4586-a1d5-db2012c522d3,Acinar,Acinar,Image,Polygon,1450,292.92,7,0,7,0,0,0,0,0,0,697.66,97.79,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),0923d135-994b-4485-a2eb-1be360a79013,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1467.5,247.71,10,0,0,0,0,0,9,0,1,1065.1,139.8,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),f18e2001-3a08-44d9-8813-645025732af8,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1378.6,418.83,3,0,0,0,0,0,3,0,0,174.37,54.34,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),b7799b96-05b0-4fe3-817d-76cb4b093300,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1372.6,361.42,4,0,0,0,0,0,4,0,0,271.17,67.11,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),9e278464-be5e-43d5-a59b-8c78baee90a1,Stroma_periductal,Stroma_periductal,Image,Polygon,1407.5,518.43,6,0,0,0,0,0,0,0,6,560.93,87.97,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),43ada135-6951-411c-943f-ba8059f85900,ADM,ADM,Image,Polygon,1454.6,510.87,3,3,0,0,0,0,0,0,0,437.55,116.69,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),07c33b8d-ee1f-435c-8148-600182a6cd7c,ADM,ADM,Image,Polygon,1373.8,384.44,1,1,0,0,0,0,0,0,0,165.21,49.61,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),7c5f352a-323b-4069-83f6-a807f029e776,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1367.4,130.17,7,0,0,1,0,0,6,0,0,861.53,172.97,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),b5162b41-1876-4b7c-a1b6-96486e5b54d5,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1405.4,249.31,4,0,0,0,0,0,4,0,0,366.62,74.71,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),45ae416f-d681-4712-a2ae-0db2d066fb2c,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1311.9,299.48,5,0,0,0,0,0,5,0,0,408.23,83.13,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),d4325955-561b-400b-8e72-3b1ee15da859,Non_malignant_duct,Non_malignant_duct,Image,Polygon,931.22,1006,11,0,0,0,0,0,11,0,0,1387.3,190.26,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),00edfb6d-2492-4976-a1c4-22f7e48aad0d,Non_malignant_duct,Non_malignant_duct,Image,Polygon,930.26,1044.6,5,0,0,0,0,0,5,0,0,728.77,120.84,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),9f517756-3b9d-4e9d-b50a-b9b2bc1cda3b,ADM,ADM,Image,Polygon,955.3,1052.4,1,1,0,0,0,0,0,0,0,226.76,68.14,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),85bd189f-d195-4c2b-aae6-d0bde84926fd,ADM,ADM,Image,Polygon,855.81,1317.2,4,4,0,0,0,0,0,0,0,489.83,82.05,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e750ca78-0a5b-4775-a3d7-502ef2455f6e,ADM,ADM,Image,Polygon,1092.6,1355.4,3,3,0,0,0,0,0,0,0,250.33,61.67,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e50ebf2f-bad2-4d40-a1f0-45682e0469d9,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1314.8,1070.4,75,0,0,0,0,0,0,0,0,14288.4,494.61,75
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),6f040a77-a026-4b8b-9814-8343a926ee18,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1302.2,62.56,7,0,0,0,0,0,0,0,0,1164.5,168.26,7
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),8c831ba4-a741-48b3-9f2c-ba9e56ebc443,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1249.6,390.52,7,0,0,0,0,0,0,0,0,1070.9,139.18,7
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),5ae0fc2d-efec-481a-8cc4-24134e6d2b5a,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1387.3,833.26,54,0,0,0,2,0,0,0,0,7263.3,419.07,52
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),4f98c223-0b51-4a61-b80b-d8908eb7cba0,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,1229.5,342.99,10,0,0,0,0,0,0,0,0,1275.9,221.87,10
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),9d10485f-e6cf-482d-806d-83a742afbedf,Stroma_Amy_leakage,Stroma_Amy_leakage,Image,Polygon,137.92,742.34,34,0,0,0,0,0,0,0,0,5361.4,381.21,34
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),8410aee2-9e89-4b7b-839e-38b03e7e3500,Stroma_periductal,Stroma_periductal,Image,Polygon,132.8,637.73,9,0,0,0,0,0,0,0,9,1628.5,207.82,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),c9715a81-3bf1-41f1-9c58-76ba3c09cfe6,Acinar,Acinar,Image,Polygon,401.54,380.71,2,0,2,0,0,0,0,0,0,224.86,60.31,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),e687693b-62f1-437d-a79a-587910c8f27f,Acinar,Acinar,Image,Polygon,442.96,350.64,2,0,2,0,0,0,0,0,0,217.6,68.47,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),73f55c21-33fc-429b-8546-3ce61204765b,Non_malignant_duct,Non_malignant_duct,Image,Polygon,469.35,373.46,6,0,0,0,0,0,6,0,0,359.13,80.4,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),3e6119c1-93f6-4920-a9ce-6f985a2e33bd,Stroma_periductal,Stroma_periductal,Image,Polygon,335.57,570.48,3,0,0,0,0,0,0,0,3,357.4,74.53,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),1e23836c-ba62-49c5-ba08-6f20b3d9f190,Langerhans,Langerhans,Image,Polygon,1541.8,298.34,23,1,0,0,0,21,0,1,0,2605.4,207.22,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),de20e4c3-12d2-448c-9b4c-7041a0c1d2c5,ADM,ADM,Image,Polygon,336.11,676.51,10,10,0,0,0,0,0,0,0,1045.7,159.88,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),30a18110-5702-4cd2-8c9e-485c22f1556b,ADM,ADM,Image,Polygon,317.52,709.37,5,5,0,0,0,0,0,0,0,498.77,89.12,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),dbf68f06-abe4-4f20-8aa1-0f159f82ee97,Stroma_periductal,Stroma_periductal,Image,Polygon,873.53,886.32,24,0,0,0,1,0,0,0,23,3177.9,331.25,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),47df0d80-08d0-4e95-b8c5-59a07750e484,Stroma_periductal,Stroma_periductal,Image,Polygon,940.02,863.31,4,0,0,0,0,0,0,0,4,744.19,120.92,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),24c0d75b-c5af-433c-a039-f4317f0ceb13,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1075.9,978.91,7,0,0,7,0,0,0,0,0,1302.3,135.96,0
+PKR13_K19-amy_pd lobule D.nd2 - PKR13_K19-amy_pd lobule D.nd2 (series 1),6f59bb85-fb48-4264-b73f-90f0091f4182,Tumor,Tumor,Image,Geometry,802.38,780.55,0,0,0,0,0,0,0,0,0,295725.7,11302.2,0
+PKR13_K19-amy_pd lobule E.nd2 - PKR13_K19-amy_pd lobule E.nd2 (series 1),f8781d45-2f16-4718-ac1d-a566a69bf3a2,Tumor,Tumor,Image,Geometry,2045.1,2182.7,0,0,0,0,0,0,0,0,0,732265.9,36124.2,0
+PKR13_K19-amy_pd lobule E.nd2 - PKR13_K19-amy_pd lobule E.nd2 (series 1),d15150e8-aae9-4ade-9419-c75f97a60cf7,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1584.2,1833.3,20720,3555,1992,1615,686,401,3472,2196,3925,2942216.7,7118.3,2878
+PKR13_K19-amy_pd lobule E.nd2 - PKR13_K19-amy_pd lobule E.nd2 (series 1),a2444f31-909d-402c-90e1-a8399a033de5,l_atrophy_tu,l_atrophy_tu,Image,Polygon,2602.5,2447,9734,1037,735,459,481,352,1724,786,1168,1463814.8,5664.2,2992
+PKR13_K19-amy_pd lobule G.nd2 - PKR13_K19-amy_pd lobule G.nd2 (series 1),a2f519cf-b0f3-4149-8c72-507e399f1d44,e_atrophy,e_atrophy,Image,Polygon,987.32,1642.8,4060,1703,527,448,811,45,125,229,172,533048.7,5366.9,
+PKR13_K19-amy_pd lobule H.nd2 - PKR13_K19-amy_pd lobule H.nd2 (series 1),eea0d12e-bfc2-4d2a-9ba6-5eefcdaddc33,e_atrophy_tu,e_atrophy_tu,Image,Geometry,1175.8,2106.7,6828,1416,2158,2268,40,,415,4,501,1035041.9,5703.2,26
+PKR13_K19-amy_pd lobule H.nd2 - PKR13_K19-amy_pd lobule H.nd2 (series 1),1fd2e84d-6598-4710-822e-e86f55dd9e0e,Tumor,Tumor,Image,Geometry,1445.8,2728.4,0,0,0,0,0,,0,0,0,114969.7,8202.2,0
+PKR13_K19-amy_pd lobule I.nd2 - PKR13_K19-amy_pd lobule I.nd2 (series 1),f0847fa5-c885-487d-9b0b-943d70fd68ca,e_atrophy_tu,e_atrophy_tu,Image,Geometry,1364.1,1370,9969,108,4762,1512,302,110,152,2647,376,1421493.1,9105.3,
+PKR13_K19-amy_pd lobule I.nd2 - PKR13_K19-amy_pd lobule I.nd2 (series 1),40be8089-7bfd-4bb8-b39a-e285b69f711c,e_atrophy_tu,e_atrophy_tu,Image,Polygon,472.67,750.17,5280,231,2546,939,142,183,106,872,261,812111.4,5397.8,
+PKR13_K19-amy_pd lobule I.nd2 - PKR13_K19-amy_pd lobule I.nd2 (series 1),a89eb6d1-1179-4b32-a7c2-0e4f99750085,Tumor,Tumor,Image,Geometry,712.82,1757.5,0,0,0,0,0,0,0,0,0,136130.7,11820,
+PKR13_K19-amy_pd lobule I.nd2 - PKR13_K19-amy_pd lobule I.nd2 (series 1),a2e3de02-c81d-49df-b46b-1117b4a93ff5,cell_cleanup,cell_cleanup,Image,Polygon,308.02,1087,0,0,0,0,0,0,0,0,0,6283.5,327.55,
+PKR13_K19-amy_pd lobule J.nd2 - PKR13_K19-amy_pd lobule J.nd2 (series 1),4a32da96-db7b-4c6b-a412-d2a831ce5992,e_atrophy_tu,e_atrophy_tu,Image,Polygon,1052.9,1365,10380,309,3811,1576,876,115,156,3090,447,1456577.5,4687.7,
+PKR13_K19-amy_pd lobule J.nd2 - PKR13_K19-amy_pd lobule J.nd2 (series 1),9cdbf27d-270e-498b-8e97-dc4b8de7c17f,Tumor,Tumor,Image,Geometry,1321.7,1696.5,0,0,0,0,0,0,0,0,0,351643.3,16943.5,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),4f5df1de-112c-42ef-aaa9-5077347a4717,Preserved,Preserved,Image,Polygon,1093.4,1860.7,7753,194,5658,675,63,134,204,416,409,1103230.4,5089.7,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),667d4dd3-1e5f-46c2-8f66-d309419749a4,Preserved,Preserved,Image,Geometry,1901.3,2381.9,4399,105,3327,344,31,149,84,210,149,654042.7,4854.9,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),77519e7b-c0fb-4ad3-b6ef-d9ca0d89eef1,PathAnnotationObject,,Image,Geometry,488.8,1231.5,4540,633,2650,510,65,17,194,136,335,670409,5701.1,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),8d747a6f-4460-47ce-8e8c-88dfee451f9e,ADM,ADM,Image,Polygon,851.65,739.29,4,4,0,0,0,0,0,0,0,756.75,104.86,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),a29a1d8e-502a-4f9a-a211-72f15b072703,ADM,ADM,Image,Polygon,827.01,738.08,2,2,0,0,0,0,0,0,0,230.56,60.13,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),9f34adc9-af14-4fca-8163-1cfc513bb9db,ADM,ADM,Image,Polygon,675.2,727.43,3,3,0,0,0,0,0,0,0,386.89,75.87,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),d1da8ae3-754d-4bf0-84cc-bc3cb470a812,Acinar,Acinar,Image,Polygon,612.52,1262.1,1,0,1,0,0,0,0,0,0,375.44,77.46,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),6ea5061f-ea87-4354-8bf2-38c2f9f4ceb2,Acinar,Acinar,Image,Polygon,406.12,1276.1,6,0,6,0,0,0,0,0,0,1282.9,192.83,
+PKR13_K19-amy_wp lobule A.nd2 - PKR13_K19-amy_wp lobule A.nd2 (series 1),790a0961-776c-42a7-bd67-a555f614e819,Acinar,Acinar,Image,Polygon,256.97,1056.3,6,0,6,0,0,0,0,0,0,1549.7,178.18,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),9d6e64b0-baf8-450e-8ca7-51f9302c8022,Preserved,Preserved,Image,Geometry,952.63,648.16,2964,10,2511,100,24,62,8,236,13,427457.1,3701.9,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),e9feae31-478d-4484-a180-83cd7d4c8b80,PathAnnotationObject,,Image,Geometry,1255.2,908.17,4866,29,3738,358,22,181,43,443,52,718173.4,10199.8,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),b2c1dbaa-5f55-4937-b8f7-46ad15d3fba3,Acinar,Acinar,Image,Polygon,1743.2,819.19,15,0,15,0,0,0,0,0,0,2115.4,203.51,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),352f70cf-b92c-4e83-8509-552aadfe14c6,Acinar,Acinar,Image,Polygon,1693.4,773.51,26,0,26,0,0,0,0,0,0,3834.5,244.39,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),e98f23ec-b164-44a6-b44e-c2dd342921e6,Acinar,Acinar,Image,Polygon,1182.3,1097,51,0,51,0,0,0,0,0,0,10722.9,728.28,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),78b53cf8-5bdb-44af-b8b9-3cff16fa59e0,Acinar,Acinar,Image,Polygon,633.24,1088.3,51,0,51,0,0,0,0,0,0,8392,378.06,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),99cd0b09-755f-4d5b-bc55-8234b90c5378,Acinar,Acinar,Image,Polygon,2100.2,1558.6,15,0,15,0,0,0,0,0,0,2600.4,268.95,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),ef71f0b0-7acf-4dd2-a991-e816a83ab593,Acinar,Acinar,Image,Polygon,1988.1,1668.2,34,0,34,0,0,0,0,0,0,5914.7,411.53,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),4692ee0d-d2fd-49d7-8ff2-0f1538e28728,Acinar,Acinar,Image,Polygon,1967.3,1436.7,28,0,28,0,0,0,0,0,0,4196.6,305.85,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),b3318ad6-3ed1-4b94-8575-70ffb629f518,Acinar,Acinar,Image,Polygon,343.44,683.66,47,0,47,0,0,0,0,0,0,6940.9,423.12,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),405e1f79-22cc-49c7-9125-757451c2f465,Acinar,Acinar,Image,Polygon,427.16,961.3,36,0,36,0,0,0,0,0,0,5135.3,415.79,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),e84f36a3-103b-460f-a174-1f6305cf0bd8,Acinar,Acinar,Image,Polygon,666.55,215.97,7,0,7,0,0,0,0,0,0,881.97,118.9,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),0534e894-7bac-4d4e-a86d-faeca822cb89,Acinar,Acinar,Image,Polygon,780.91,215.94,22,0,22,0,0,0,0,0,0,3512.6,351.78,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),765365d3-6ebe-441e-9aff-f33313592c70,Acinar,Acinar,Image,Polygon,1131.5,162,23,0,23,0,0,0,0,0,0,3234.1,219.84,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),d8da0e37-4bf0-40ec-bf0f-e3d3a0ac12cc,Acinar,Acinar,Image,Polygon,1038.8,209,35,0,35,0,0,0,0,0,0,5298.1,345.81,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),e89ef4fc-b6d7-4b7f-9b7d-9d2ac84c1e79,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1575.1,682.77,1,0,0,1,0,0,0,0,0,88.81,39.23,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),bea13729-5b09-4cc4-933c-2886c7d611c2,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2128.6,1433.7,5,0,0,5,0,0,0,0,0,502.79,87.1,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),8c30db83-7164-40c3-855c-922f28119aea,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2154.8,1425.7,5,0,0,5,0,0,0,0,0,355.9,71.8,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),3094e08b-ea91-49b1-a5d5-53c2d148cbf8,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2151.2,1752.7,3,0,0,3,0,0,0,0,0,315.9,77.88,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),f6e7e32b-18f8-4022-b9a5-a80ac87f9f4f,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1831.6,1035.8,3,0,0,0,0,0,3,0,0,261.28,63.63,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),65dd742d-afda-46d2-a024-06569f009e41,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1821.3,1098.5,1,0,0,0,0,0,1,0,0,148.57,48.76,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),541358af-8c45-42c3-811d-b70fc109087a,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1849.6,805.16,1,0,0,1,0,0,0,0,0,70.77,33.19,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),685e1130-2eec-4e8d-8164-1b9c13627930,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1664.6,609.99,3,0,0,0,0,0,3,0,0,281.28,64.02,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),8de13e62-427f-42d6-9750-fc6ed3a99e19,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,2205.1,1426.3,5,0,0,5,0,0,0,0,0,447.77,88.07,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),c28910d7-1b81-4475-a9bd-4a2c5d64176f,Non_malignant_duct,Non_malignant_duct,Image,Polygon,2160.7,1695.9,3,0,0,0,0,0,3,0,0,237.65,58.92,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),f9d42ca5-815a-4ec2-b89a-90d5599062e5,Stroma_periductal,Stroma_periductal,Image,Polygon,318.79,838.2,8,0,0,0,0,0,0,0,8,1041.8,144.68,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),1bb2f302-0980-46bd-914e-8f7242d23140,Stroma,Stroma,Image,Polygon,632.62,183.25,3,0,0,0,0,0,0,3,0,289.82,89.41,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),c4cf4418-1f24-45c3-95e3-87f9cfc4ceaa,Stroma,Stroma,Image,Polygon,1059.8,238.99,5,0,0,0,0,0,0,5,0,263.85,78.88,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),3525a75c-0fc2-4a8c-b3a6-c16bcb11a716,Stroma,Stroma,Image,Polygon,1082.7,191.13,1,0,0,0,0,0,0,1,0,119.19,50.65,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),f0f8c81b-8b8d-4aa2-9d6d-8dc22768cd20,Non_malignant_duct,Non_malignant_duct,Image,Polygon,1352.1,322.17,4,0,0,1,0,0,3,0,0,239.16,66.24,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),3b163640-4aad-4ce4-8e3e-d51a7d07f878,Stroma,Stroma,Image,Polygon,1616.2,646.79,1,0,0,0,0,0,0,1,0,286.81,84.1,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),0e3d8b68-ee10-44ad-8a9b-90676f1d7137,Stroma,Stroma,Image,Polygon,1486.6,796.91,9,0,0,0,0,0,0,9,0,851.93,163.05,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),3ff2f56d-8c83-44fc-a928-528458bec126,Stroma,Stroma,Image,Polygon,1783.4,824.85,5,0,0,0,0,0,0,5,0,896.78,116.25,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),38921e86-a9b7-444f-b81e-99bdb7d411b5,Stroma,Stroma,Image,Polygon,1791.7,1021.5,2,0,0,0,0,0,0,2,0,393.88,86.22,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),8d38795d-ce4f-44f4-9d96-4d596b501667,Stroma,Stroma,Image,Polygon,1760.2,1077.7,2,0,0,0,0,0,0,2,0,269.88,81.46,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),75218e15-6d36-456a-a09b-96a5f74efa7e,Stroma_periductal,Stroma_periductal,Image,Polygon,1838.1,1677,6,0,0,0,0,0,0,1,5,525.41,97.38,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),437d76dc-24f5-4ce8-a12b-1a82ab2635d4,Stroma_periductal,Stroma_periductal,Image,Polygon,1028.9,1061,3,0,0,0,0,0,0,0,3,351.71,68.56,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),63737c1d-adf6-4abb-bc87-51cdfb44bf60,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1299.4,988.01,2,0,0,2,0,0,0,0,0,215.7,60.5,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),c5ea355e-39d9-413c-aa47-76387358c460,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1471.6,696.8,5,0,0,5,0,0,0,0,0,454.03,81.1,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),9983ce12-0593-4eb3-b56c-b63d9b007d9b,Langerhans,Langerhans,Image,Polygon,1876,1532.8,17,0,0,0,0,17,0,0,0,2155.9,283.77,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),6bdc5b8e-ff50-4d8f-a9b6-64a62ba164af,Immune,Immune,Image,Polygon,231.56,919.78,4,0,0,0,4,0,0,0,0,443.42,110.06,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),52d03655-f53c-42ef-b3de-6c11d5b9d1a5,Stroma,Stroma,Image,Polygon,484.33,933.89,1,0,0,0,0,0,0,1,0,143.54,51.66,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),bc8e46b9-20e0-400a-9416-58f62920842e,Stroma_periductal,Stroma_periductal,Image,Polygon,993.49,270.66,4,0,0,1,0,0,0,0,3,287.48,72.55,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),2bfd2bad-8697-4b07-be37-bd98bbc8a21e,Immune,Immune,Image,Polygon,1748.6,776.55,3,0,0,0,3,0,0,0,0,195.82,54.49,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),77dcd2c1-805b-412a-bf56-de0259d385c3,Langerhans,Langerhans,Image,Polygon,2069.2,1761.7,3,0,0,0,0,3,0,0,0,228.22,60,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),62a48b7d-0103-4a8c-9070-af9a29e4eebb,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1449.1,940.94,8,0,0,8,0,0,0,0,0,593.1,93.25,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),07c05ef7-c103-41bd-ba5c-9a6f55a638e2,Ductal_Amy_overexpr,Ductal_Amy_overexpr,Image,Polygon,1495.1,662.25,3,0,0,3,0,0,0,0,0,321.27,71.37,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),34319480-4cd6-46d1-9d9e-bd37323adfba,ADM,ADM,Image,Polygon,2241.4,1516.7,1,1,0,0,0,0,0,0,0,195.71,53.75,
+PKR13_K19-amy_wp lobule B.nd2 - PKR13_K19-amy_wp lobule B.nd2 (series 1),742334e6-8dbc-4b34-b8ce-60a1111834ff,ADM,ADM,Image,Polygon,403.02,819.16,3,2,1,0,0,0,0,0,0,358.74,73.23,
