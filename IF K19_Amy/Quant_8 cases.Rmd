@@ -9,8 +9,22 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-The research question, how frequent is ADM in different stages of lobular atrophy
-K19 (ductal marker) and Amylase (acinar marker) expression, if double positive, cells can be consiedered early ADM.
+This script explores how frequent acinar, earlier acinar - to ductal metaplasia (ADM) and pure ductal cells & fully transformed ADM cells are stratified on lobules in different stages of atrophy. The data stems from an immunofluorescence staining of n = 8 human PDAC resections, with the markers Keratin 19 (K19) and alpha-amylase (Amy). The marker combinations are interpreted as below:
+
+* Amy+ K19- cells = acinar cells
+* K19+Amy+ cells = earlier ADM cells
+* K19+Amy- cells = "pure" ductal cells *and* fully transformed, late ADM cells which have completely lost the Amy expression.
+
+```{r load in required libraries}
+library(ggplot2)
+library(ggthemes)
+library(forcats)
+library(rstatix)
+library(ggpubr)
+library(RColorBrewer)
+library(wesanderson)
+```
+
 
 ```{r read in file}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/IF K19_Amy") #Adjust working directory
@@ -51,12 +65,9 @@ Lobular_stage <- Lobular_stage[, -c(3, 5:8,19)]
 Lobular_stage[is.na(Lobular_stage)] <- 0 # if there are no detections, it became NA.
 ```
 
-```{r explorative chunk}
+```{r explorative plots}
 classes <- split(Lobular_stage, f = Lobular_stage$Class)
-
 lapply(classes, nrow)
-library(ggplot2)
-library(ggthemes)
 
 scatter_cellcounts <- ggplot(Lobular_stage, aes(x = Class, y = Num.Detections, color = Class, size = 3, alpha = 0.9))
 scatter_cellcounts + 
@@ -69,33 +80,24 @@ scatter_ROIareas +
   geom_jitter(width = 0.15, height = 0.15) + 
   theme_clean() +
   ggtitle("Jitter Areas of all ROIs")
-
-
-
 ```
 
 
-
 ```{r add explorative groupings}
-
 #Calculate ADM fractions
 Lobular_stage$ADM_fraction <- (Lobular_stage$Num.ADM/Lobular_stage$Num.Detections)*100
 Lobular_stage$Duct_fraction <- ((Lobular_stage$Num.Ductal_Amy_overexpr+Lobular_stage$Num.Non_malignant_duct)/Lobular_stage$Num.Detections)*100
 Lobular_stage$Duct_K19spfraction <- (Lobular_stage$Num.Non_malignant_duct/Lobular_stage$Num.Detections)*100
-#factorise and set the levels
 
-library(forcats)
+#factorise and set the levels
 Lobular_stage$Class <- as.factor(Lobular_stage$Class)
 Lobular_stage$Class <- fct_relevel(Lobular_stage$Class, c('Preserved', 'e_atrophy', 'e_atrophy_tu', 'l_atrophy', 'l_atrophy_tu'))
 str(Lobular_stage$Class)
-
 ```
+
 Not normalised:
 
 ```{r summary and statistics ADM per lobualar stage of atrophy}
-library(ggpubr)
-library(RColorBrewer)
-
 # The lobular stages here are not pathologist curated. However he prescence of tumor is correct (defined by the consecutive p53 stain, K19 expression and morphology)
 ## ADM defined by double positive for amylase and K19
 summary_lobstage <- Lobular_stage %>%
@@ -120,7 +122,6 @@ hist_lobstage <- Lobular_stage %>%
 hist_lobstage
 
 # Kruskal wallis test and post hoc Dunns test
-library(rstatix)
 Kruskal_Lobstage <- Lobular_stage %>%
   kruskal_test(ADM_fraction ~ Class)
 Kruskal_Lobstage
@@ -144,7 +145,6 @@ dp_boxplot_with_sign <- dp_boxplot +
                                 Dunn_lobstage_1, tip.length = 0) 
 
 dp_boxplot_with_sign
-
 ```
 
 
@@ -172,7 +172,6 @@ hist_lobstage_duct <- Lobular_stage %>%
 hist_lobstage_duct
 
 # Kruskal wallis test and post hoc Dunns test
-library(rstatix)
 Kruskal_Lobstage_duct <- Lobular_stage %>%
   kruskal_test(Duct_fraction ~ Class)
 Kruskal_Lobstage_duct
@@ -180,7 +179,6 @@ Kruskal_Lobstage_duct
 Dunn_lobstage_duct <- Lobular_stage %>%
   dunn_test(Duct_fraction ~ Class, p.adjust.method = "BH")
 Dunn_lobstage_duct
-
 ```
 
 ```{r boxplot on how frequent ductal cells exist per lobular degradation stage}
@@ -194,11 +192,9 @@ dp_boxplot_with_sign_duct <- dp_boxplot_duct +
                                 Dunn_lobstage_1_duct, tip.length = 0) 
 
 dp_boxplot_with_sign_duct
-
 ```
 
-
-```{r summary and statistics ductal cells per lobular stage of atrophy}
+```{r summary and statistics ductal cells per lobular stage of atrophy 2}
 ## Ductal cells
 summary_lobstage_ductK19sp <- Lobular_stage %>%
   group_by(Class) %>%
@@ -222,7 +218,6 @@ hist_lobstage_ductK19sp <- Lobular_stage %>%
 hist_lobstage_ductK19sp
 
 # Kruskal wallis test and post hoc Dunns test
-library(rstatix)
 Kruskal_Lobstage_ductK19sp <- Lobular_stage %>%
   kruskal_test(Duct_K19spfraction ~ Class)
 Kruskal_Lobstage_ductK19sp
@@ -233,7 +228,7 @@ Dunn_lobstage_ductK19sp
 
 ```
 
-```{r boxplot on how frequent ductal cells exist per lobular degradation stage}
+```{r boxplot on how frequent ductal cells exist per lobular degradation stage 2}
 dp_boxplot_ductK19sp <- ggboxplot(Lobular_stage, x = "Class", y = "Duct_K19spfraction", color = "Class", fill = "Class", palette = "Dark2", alpha = 0.5) +
   labs(title = "Fraction of K19 single positive ductal cells in lobules in various stages of atrophy") +
   theme_clean()
@@ -262,12 +257,9 @@ dotplot_lobstage_area <- ggdotplot(Lobular_stage, x = "Object.ID", y = "non.pare
   theme_clean()
 
 dotplot_lobstage_area
-
-
 ```
 
 ```{r acinar cell fraction}
-
 Lobular_stage$acinar_fraction <- ((Lobular_stage$Num.Acinar)/Lobular_stage$Num.Detections)*100
 
 summary_lobstage_acinar <- Lobular_stage %>%
@@ -300,7 +292,9 @@ dp_boxplot_with_sign_acinar <- dp_boxplot_acinar +
 dp_boxplot_with_sign_acinar
 ```
 
-With Grouping based on pathologist's classification of lobular atrophy
+Grouping based on pathologist's classification of lobular atrophy.
+
+Each lobule was scored by collaborating pathologist CFM, blindly to the immunofluorescence stains, on HE and CD146_NGFR consecutive IHC stains to minimal, mild, moderate, severe or end-stage atrophy. The corresponding lobules are then manually assigned the atrophy staging by the individual Object ID. 
 
 ```{r classification of lobules by Carlos atrophy staging}
 #This is the patholohist blinded setting of lobular class.
@@ -308,7 +302,6 @@ Lobular_stage$Atrophy_grade <- Lobular_stage$Object.ID
 
 #remove: fffc7851-ca68-4e93-aa2b-c932cbc00c1b -> likely septum according to Carlos
 Lobular_stage <- Lobular_stage[Lobular_stage$Atrophy_grade != "fffc7851-ca68-4e93-aa2b-c932cbc00c1b", c(colnames(Lobular_stage))]
-
 
 # MINIMAL
 Lobular_stage_car <- Lobular_stage %>% mutate(Atrophy_grade = ifelse(grepl("4f5df1de-112c-42ef-aaa9-5077347a4717|667d4dd3-1e5f-46c2-8f66-d309419749a4|9d6e64b0-baf8-450e-8ca7-51f9302c8022|4db6a66e-3c3b-40b2-8920-7baf651822cb|29ba9bdd-cacd-4911-97b4-94c029a75486|ef7c0733-ceb1-48a9-982c-126c057205a7|9ea35e2c-9d21-4761-84a8-682f10542364", .$Object.ID), 'Minimal', .$Atrophy_grade))
@@ -327,7 +320,6 @@ Lobular_stage_car <- Lobular_stage_car %>% mutate(Atrophy_grade = ifelse(grepl("
 
 unique(Lobular_stage_car$Atrophy_grade)
 ```
-
 
 ```{r plots after atrophy grading }
 Lobular_stage_car$Atrophy_grade <- as.factor(Lobular_stage_car$Atrophy_grade)
@@ -364,7 +356,6 @@ hist_lobstage_car <- Lobular_stage_car %>%
 hist_lobstage_car
 
 # Kruskal wallis test and post hoc Dunns test
-library(rstatix)
 Kruskal_Lobstage_car <- Lobular_stage_car %>%
   kruskal_test(ADM_fraction ~ Atrophy_grade)
 Kruskal_Lobstage_car
@@ -372,7 +363,6 @@ Kruskal_Lobstage_car
 Dunn_lobstage_car <- Lobular_stage_car %>%
   dunn_test(ADM_fraction ~ Atrophy_grade, p.adjust.method = "BH")
 Dunn_lobstage_car
-
 
 # As defined by K19_amy dp
 dp_boxplot_car <- ggboxplot(Lobular_stage_car, x = "Atrophy_grade", y = "ADM_fraction", color = "Atrophy_grade", fill = "Atrophy_grade", palette = "Dark2", alpha = 0.5) +
@@ -530,7 +520,6 @@ Dunn_lobstage_1_all3 <- Dunn_lobstage_all3 %>% add_xy_position(x = "Atrophy_grad
 Dunn_lobstage_1_all3
 
 #color opt #1
-library(wesanderson)
 dp_boxplot_all3 <- ggboxplot(Lobular_stage_all3, x = "Atrophy_grade", y = "fraction", color = "Cell_type", fill = "Cell_type", alpha = 0.8) +
   labs(title = "Fraction of three celltypes in lobules with pathology staged atrophy") +
     scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
@@ -550,9 +539,7 @@ aiforia_colors <- c(acinar_fraction = "#CC79A7", ADM_fraction = "#55B4E9", Duct_
 dp_boxplot_with_sign_all3 <- dp_boxplot_all3 + 
   stat_pvalue_manual(label = "p.adj.signif",
                                 Dunn_lobstage_1_all3, tip.length = 0, color = "Cell_type", step.group.by = "Cell_type") 
-dp_boxplot_with_sign_all3 # Fig 3e
-
-
+dp_boxplot_with_sign_all3 
 ```
 
 
