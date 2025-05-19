@@ -1,0 +1,90 @@
+---
+title: "Tumor clonality od murine PDAC"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    toc: true
+    toc_depth: 3
+    number_sections: true
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Load required packages
+
+```{r}
+library(dplyr)
+library(rstatix)
+library(ggplot2)
+library(ggpubr)
+library(RColorBrewer)
+```
+
+
+# Quantification of tumor clonality in murine PDAC
+
+## Import the data
+
+```{r data}
+gRNA_data <- read.table('./data/tumor_clonality_mice.txt', header = T)
+gRNA_data
+```
+
+## Data Clean-Up
+
+```{r}
+# turn into percentage
+gRNA_data$ratio <- gRNA_data$ratio*100
+
+# create variable when clone abundance rate is other than 1-7
+total <- gRNA_data%>%
+  select(mouse, ratio)%>%
+  group_by(mouse)%>%
+  summarise(total= sum(ratio))%>%
+  data.frame()
+
+
+total$ratio <-100-total$total # subtract the sum of all other guides (1-7) from 100% to get the ratio for other guides (no 8)
+
+other <- total%>%
+  select(mouse, ratio)%>%
+  mutate(clone_abundance_rate=c(rep(8, nrow(total))),
+         Barcode_ID = c(rep('other', nrow(total)))) %>%
+  data.frame()
+
+# merge with original data
+gRNA_data <- rbind(gRNA_data, other)
+  
+# arrange decreasing
+gRNA_data <- gRNA_data[order(gRNA_data$ratio, decreasing = F),]
+
+# arrange mouse ID nicer for plotting
+gRNA_data$mouse <- factor(gRNA_data$mouse, levels=c('J154-2', 'J154-3', 'J154-1', 'J154-5'))
+
+gRNA_data
+```
+
+## Visualization of tumor composition in each mouse
+
+```{r stacked, echo=FALSE}
+
+# stacked
+ggplot(gRNA_data, aes(fill=factor(clone_abundance_rate, levels = as.factor(c(8:1))), y=ratio, x=mouse)) + 
+    geom_bar(position="stack", stat="identity", width = 0.5) +
+    scale_fill_brewer(palette = 'Set2', direction = 1, limits = as.factor(c(1:8)), name = 'clone abundance rate') +
+    theme_minimal() +
+  scale_y_continuous(position = 'right')+
+  theme(aspect.ratio =1/4, legend.position = 'bottom', legend.direction = 'horizontal')+
+    xlab("")+
+  ylab('Tumor composition (%)')+
+  coord_flip()
+```
+
+
+```{r}
+sessionInfo()
+```

@@ -1,0 +1,378 @@
+---
+title: "Analysis of scRNA-seq data of orthotopic timecourse KPC mice (GSE217846) part 2/2"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    df_print: "kable"
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Information
+
+**Publication:** *IL-1β+ macrophages fuel pathogenic inflammation in pancreatic cancer Caronni et al.* 2023 (<https://www-nature-com.proxy.kib.ki.se/articles/s41586-023-06685-2#Sec1>)
+
+Original code on GitHub:(<https://github.com/ostunilab/PDAC_Nature_2023/tree/main/scRNAseq/Mouse/Timecourse_KPC>)
+
+## Import libraries
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(tidyverse)
+library(scDblFinder)
+library(UCell)
+
+
+set.seed(123)
+```
+
+```{r}
+# save for easier import
+seurat_object <- readRDS("./GSE217846_RAW/data/timecourseKPC_preprocessed.rds")
+
+```
+
+```{r}
+# clean up identity names
+seurat_object@meta.data$CellType_cluster <- Idents(seurat_object)
+seurat_object@meta.data$CellType <- gsub('\\_.*','',seurat_object@meta.data$CellType_cluster)
+
+unique(seurat_object@meta.data$CellType_cluster)
+unique(seurat_object@meta.data$CellType)
+
+seurat_object
+head(seurat_object)
+```
+
+```{r}
+# subset the to the cells of interest
+Idents(seurat_object) <- 'CellType'
+fibroblasts <- subset(seurat_object, idents = c("Fibroblasts"))
+
+```
+
+## Inspect fibroblast subset
+
+### DE analysis (Ngfr+ fibroblasts vs. the all other fibroblasts)
+
+```{r}
+# join layers
+fibroblasts <- JoinLayers(fibroblasts)
+
+
+
+#Ngfr+ cells
+Ngfr_fibroblasts <- WhichCells(subset(x = fibroblasts, subset = Ngfr > 0))
+
+fibroblasts@meta.data$Ngfr_status <- ifelse(fibroblasts@meta.data$cell_id%in%Ngfr_fibroblasts, 'Ngfr+', 'Ngfr-')
+
+# sanity check
+nrow(fibroblasts@meta.data[fibroblasts@meta.data$Ngfr_status=='Ngfr+',])
+nrow(fibroblasts@meta.data[fibroblasts@meta.data$Ngfr_status=='Ngfr-',])  
+
+fibroblasts
+
+table(fibroblasts@meta.data$orig.ident, fibroblasts@meta.data$Ngfr_status)
+```
+
+```{r}
+Idents(fibroblasts) <- 'Ngfr_status'
+Ngfr.markers_all <- FindAllMarkers(fibroblasts, only.pos = FALSE)
+
+Ngfr.markers <- FindMarkers(fibroblasts, ident.1 = "Ngfr+", ident.2 = "Ngfr-", verbose = FALSE)
+head(Ngfr.markers, n = 20)
+
+Ngfr.markers
+```
+
+```{r}
+
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Mm.eg.db)
+
+gene_ls <- rownames(Ngfr.markers[Ngfr.markers$avg_log2FC>1 & Ngfr.markers$p_val_adj<0.01,])
+
+GO_results <- enrichGO(gene=gene_ls, OrgDb = "org.Mm.eg.db", keyType = 'SYMBOL', ont = "BP")         
+
+
+result_df <- as.data.frame(GO_results)
+
+result_df <- result_df[order(result_df$FoldEnrichment, decreasing = T),]
+
+result_df
+```
+
+```{r}
+
+library(ggplot2)
+library(ggbreak)
+library(viridis)
+
+
+top10 <- result_df[1:20,]
+top10 <- top10[order(top10$FoldEnrichment, decreasing = F),]
+
+# Create the lollipop plot
+ggplot(top10, aes(x = factor(Description, levels= unique(Description)), y = FoldEnrichment, color=p.adjust)) +
+  geom_segment(aes(xend = Description, yend = 0)) +
+  geom_point(aes(size = Count)) +
+#  scale_color_gradientn(colors=c('red', 'purple', 'blue'), 
+#                        values = c(0, 0.5, 1),
+#                        limits=c(0,0.05))+#
+  scale_color_viridis(option = "C", direction=1, begin=0.2, end = 1, limits=c(0,0.05)) +
+  coord_flip() +
+  labs(
+    x = "",
+    y = "FoldEnrichment",
+    title = "",
+    size = "Gene Count"
+  ) +
+  theme_minimal()
+
+```
+
+```{r}
+# CAF signatures
+iCAF <- read_lines('./GSE217846_RAW/data/signature genes/iCAF_sig.genes_KPC.txt')
+apCAF <- read_lines('./GSE217846_RAW/data/signature genes/apCAF_sig.genes_KPC.txt')
+myCAF <- read_lines('./GSE217846_RAW/data/signature genes/myCAF_sig.genes_KPC.txt')
+```
+
+```{r}
+# gene signature scoring
+library(UCell)
+
+signatures <- list(Ngfr_sign=gene_ls,
+                   iCAFs=iCAF,
+                   apCAFs=apCAF,
+                   myCAFs=myCAF)
+
+
+fibroblasts <- AddModuleScore_UCell(fibroblasts, 
+                                      features=signatures, name=NULL)
+
+
+
+
+```
+
+```{r}
+# control how many genes are present in the data set
+length(intersect(iCAF, rownames(fibroblasts)))/length(iCAF)
+length(intersect(apCAF, rownames(fibroblasts)))/length(apCAF)
+length(intersect(myCAF, rownames(fibroblasts)))/length(myCAF)
+```
+
+```{r}
+
+library(wesanderson)
+library(ggpubr)
+cols <- wes_palette("GrandBudapest1", n = 4)
+
+CAFs <- subset(x=fibroblasts, subset = orig.ident != c('Healthy'))
+
+VlnPlot(fibroblasts, features = c("Ngfr_sign","iCAFs", "apCAFs", "myCAFs"), group.by = 'orig.ident', cols=cols, pt.size = 0, ncol=4)
+
+p1 <- VlnPlot(CAFs, features = c("Ngfr_sign"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p2 <- VlnPlot(CAFs, features = c("iCAFs"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p3 <- VlnPlot(CAFs, features = c("apCAFs"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p4 <- VlnPlot(CAFs, features = c("myCAFs"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+
+ggarrange(p1,p2,p3,p4, ncol = 4, common.legend = T)
+```
+
+### CAF marker expression pattern of Ngfr+ fibroblasts
+
+```{r}
+
+CAFs <- c('Ngfr', 'Pdgfra', 'Acta2', 'Cd74')
+
+# Identify cells expressing selected genes in each cluster
+fibroblast_genes <- FetchData(fibroblasts, vars = CAFs, layer = "scale.data")
+
+count_matrix <- t(fibroblast_genes)
+
+# Extract expressed genes as a list
+expressed_genes <- apply(count_matrix, 1, function(counts) {
+  genes_expressed <- colnames(count_matrix)[counts > 0]
+  genes_expressed
+})
+
+#subset list to only Ngfr+ cells
+Ngfr_cells <- expressed_genes$Ngfr
+Ngfr_expressed <- lapply(expressed_genes, function(x) x[x %in% Ngfr_cells])
+
+# Venn diagram
+library(ggVennDiagram)
+venn <- Ngfr_expressed[c(-1)]
+venn_plot_data <- process_data(Venn(venn[-4]), shape_id = '301')
+v <- plot_venn(venn_plot_data)+#, label = 'percent', order.intersect.by = 'name')+
+  scale_fill_distiller(palette = "YlGnBu")+
+  theme_void()
+v
+
+# proportional venn
+library(BioVenn)
+draw.venn(venn$Acta2, venn$Pdgfra, venn$Cd74, title = '', nrtype="abs",
+          xtitle = 'Acta2', ytitle = 'Pdgfra', ztitle = 'Cd74')
+
+```
+
+## Tumor subtype signatures
+
+```{r}
+tumor <- subset(x=seurat_object, subset = CellType== c('Tumor cells') & orig.ident != c('Healthy'))
+tumor <- JoinLayers(tumor)
+tumor
+```
+
+```{r}
+
+# import gene lists
+basal <- readxl::read_excel('./GSE217846_RAW/data/signature genes/NIHMS1831177-supplement-11.xlsx', sheet = 'Basal')
+basal <- c(colnames(basal), basal$Arfgef1)
+
+classical <- readxl::read_excel('./GSE217846_RAW/data/signature genes/NIHMS1831177-supplement-11.xlsx', sheet = 'Classical')
+classical <- c(colnames(classical), classical$Lypla1)
+
+mesechymal_I <- readxl::read_excel('./GSE217846_RAW/data/signature genes/NIHMS1831177-supplement-11.xlsx', sheet = 'Mesenchymal I')
+mesechymal_I <- c(colnames(mesechymal_I), mesechymal_I$Pcmtd1)
+
+mesechymal_II <- readxl::read_excel('./GSE217846_RAW/data/signature genes/NIHMS1831177-supplement-11.xlsx', sheet = 'Mesenchymal II')
+mesechymal_II <- c(colnames(mesechymal_II), mesechymal_II$Tcea1)
+
+basal[1:5]
+length(basal)
+
+classical[1:5]
+length(classical)
+
+mesechymal_I[1:5]
+length(mesechymal_I)
+
+mesechymal_II[1:5]
+length(mesechymal_II)
+
+```
+
+```{r}
+# gene signature scoring
+signatures <- list(Classical = classical,
+                   Mesenchymal_I=mesechymal_I,
+                   Mesenchymal_II=mesechymal_II,
+                   Basal=basal)
+
+
+tumor <- AddModuleScore_UCell(tumor, features=signatures, name=NULL, maxRank = 1550)
+
+```
+
+```{r}
+# control how many genes are present in the data set
+length(intersect(classical, rownames(tumor)))/length(classical)
+length(intersect(mesechymal_I, rownames(tumor)))/length(mesechymal_I)
+length(intersect(mesechymal_II, rownames(tumor)))/length(mesechymal_II)
+length(intersect(basal, rownames(tumor)))/length(basal)
+```
+
+```{r}
+a <- FeaturePlot(tumor, reduction = "umap", features = 'Classical', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Classical), max(tumor@meta.data$Classical)), direction = 1)
+b <- FeaturePlot(tumor, reduction = "umap", features = 'Basal', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Basal), max(tumor@meta.data$Basal)), direction = 1)
+c <- FeaturePlot(tumor, reduction = "umap", features = 'Mesenchymal_I', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Mesenchymal_I), max(tumor@meta.data$Mesenchymal_I)), direction = 1)
+d <- FeaturePlot(tumor, reduction = "umap", features = 'Mesenchymal_II', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Mesenchymal_II), max(tumor@meta.data$Mesenchymal_II)), direction = 1)
+
+e <- FeaturePlot(tumor, reduction = "umap", features = c("Gata6"), order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Gata6", ]), max(GetAssayData(tumor, layer = "data")["Gata6", ])), direction = 1)
+f <- FeaturePlot(tumor, reduction = "umap", features = c("Lgals4"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Lgals4", ]), max(GetAssayData(tumor, layer = "data")["Lgals4", ])), direction = 1)
+g <- FeaturePlot(tumor, reduction = "umap", features = c("Hmga2"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Hmga2", ]), max(GetAssayData(tumor, layer = "data")["Hmga2", ])), direction = 1)
+h <- FeaturePlot(tumor, reduction = "umap", features = c("Vim"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Vim", ]), max(GetAssayData(tumor, layer = "data")["Vim", ])), direction = 1)
+
+library(ggpubr)
+ggarrange(a,f,e,b,g, g, c, d,h, ncol = 3, nrow = 3, common.legend = F)
+
+```
+
+
+
+
+```{r}
+library(wesanderson)
+cols <- wes_palette("GrandBudapest1", n = 4)
+VlnPlot(tumor, features = c("Classical", "Mesenchymal_I", "Mesenchymal_II", "Basal"), group.by = 'orig.ident', ncol=4, cols=cols[-1], pt.size = 0)
+p5 <- VlnPlot(tumor, features = c("Classical"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p6 <- VlnPlot(tumor, features = c("Basal"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p7 <- VlnPlot(tumor, features = c("Mesenchymal_I"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+p8 <- VlnPlot(tumor, features = c("Mesenchymal_II"), group.by = 'orig.ident', cols=cols[-1], pt.size = 0)
+
+library(ggpubr)
+ggarrange(p1,p2,p3,p4,p5, p6, p7,p8, ncol = 4, nrow = 2, common.legend = T)
+```
+
+```{r}
+# tumor subtype markers
+cols <- wes_palette("GrandBudapest1", n = 4)
+VlnPlot(tumor, features = c("Gata6", "Lgals4", "Hmga2", "Vim"), group.by = 'orig.ident', ncol=4, cols=cols[-1], pt.size = 0)
+
+
+```
+
+
+```{r}
+# cluster
+tumor <- FindNeighbors(tumor, dims = 1:10)
+tumor <- FindClusters(tumor, resolution = 0.8)
+tumor <- RunUMAP(tumor, dims = 1:10)
+
+
+DimPlot(tumor, reduction='pca', label = TRUE)
+
+
+```
+
+```{r}
+DimPlot(tumor, label = TRUE, group.by = 'orig.ident')
+DimPlot(tumor, label = TRUE)
+```
+
+```{r}
+
+a <- FeaturePlot(tumor, reduction = "umap", features = 'Classical', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Classical), max(tumor@meta.data$Classical)), direction = 1)
+b <- FeaturePlot(tumor, reduction = "umap", features = 'Basal', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Basal), max(tumor@meta.data$Basal)), direction = 1)
+c <- FeaturePlot(tumor, reduction = "umap", features = 'Mesenchymal_I', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Mesenchymal_I), max(tumor@meta.data$Mesenchymal_I)), direction = 1)
+d <- FeaturePlot(tumor, reduction = "umap", features = 'Mesenchymal_II', order = T)+
+  scale_color_viridis_c(limits=c(min(tumor@meta.data$Mesenchymal_II), max(tumor@meta.data$Mesenchymal_II)), direction = 1)
+
+e <- FeaturePlot(tumor, reduction = "umap", features = c("Gata6"), order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Gata6", ]), max(GetAssayData(tumor, layer = "data")["Gata6", ])), direction = 1)
+f <- FeaturePlot(tumor, reduction = "umap", features = c("Lgals4"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Lgals4", ]), max(GetAssayData(tumor, layer = "data")["Lgals4", ])), direction = 1)
+g <- FeaturePlot(tumor, reduction = "umap", features = c("Hmga2"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Hmga2", ]), max(GetAssayData(tumor, layer = "data")["Hmga2", ])), direction = 1)
+h <- FeaturePlot(tumor, reduction = "umap", features = c("Vim"),order = T)+
+  scale_color_viridis_c(limits=c(min(GetAssayData(tumor, layer = "data")["Vim", ]), max(GetAssayData(tumor, layer = "data")["Vim", ])), direction = 1)
+
+library(ggpubr)
+ggarrange(a,d,b,c,e, f, g,h, ncol = 4, nrow = 2, common.legend = F)
+```
+
+
+
+```{r}
+sessionInfo()
+```

@@ -1,0 +1,314 @@
+---
+title: "Analysis of scRNA-seq data of human PDAC 1/2 by Kim et al. 2024"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    df_print: "kable"
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Dependencies
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(tidyverse)
+library(scDblFinder)
+
+
+set.seed(123)
+```
+
+## Import data GSE217846
+
+**Publication:** Integrative analysis of spatial and single-cell transcriptome data from human pancreatic cancer reveals an intermediate cancer cell population associated with poor prognosis
+
+(<https://pmc.ncbi.nlm.nih.gov/articles/PMC10832111/>)
+
+```{r}
+
+dirs <-  list.dirs(path = './input/', recursive = F, full.names = F)
+
+
+for (x in dirs){
+  
+ cts <- ReadMtx(mtx= paste0('./input/', x, '/matrix.mtx.gz'),
+                             features = paste0('./input/', x, '/features.tsv.gz'),
+                             cells=paste0('./input/', x, '/barcodes.tsv.gz'))
+  
+ assign(x, CreateSeuratObject(counts = cts, min.cells = 3, project = x))
+ 
+}
+
+
+# merge object
+
+seurat_object <- merge(GSM5831620_5_GEX_4, y=c(GSM5831621_5_GEX_5,GSM5831622_5_GEX_6, GSM5831623_5_GEX_9,GSM5831624_GEX_45_MM),
+      add.cell.ids=c(ls()[3:7]))
+
+```
+
+## Preprocessing
+
+```{r results='asis'}
+# create columns for metadata
+
+# identity
+unique(seurat_object@meta.data$orig.ident) # control identity
+
+# cell id
+seurat_object@meta.data$cell_id <- rownames(seurat_object@meta.data)
+
+# percent mt
+seurat_object[["percent.mt"]]<-PercentageFeatureSet(seurat_object, pattern="^MT-")
+
+plot1 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+```
+
+```{r}
+
+# parameters from the publication
+seurat_object <- subset(seurat_object, subset = percent.mt < 10 & nCount_RNA > 2000 & nFeature_RNA > 500 & nFeature_RNA < 7000)
+
+
+head(seurat_object)
+
+seurat_object
+
+
+```
+
+```{r}
+plot1 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+
+
+# double check filtering
+min(seurat_object@meta.data$nFeature_RNA)
+max(seurat_object@meta.data$nFeature_RNA)
+min(seurat_object@meta.data$nCount_RNA)
+max(seurat_object@meta.data$percent.mt)
+```
+
+## Control for doublets
+
+```{r}
+
+for (i in c("GSM5831620_5_GEX_4","GSM5831621_5_GEX_5","GSM5831622_5_GEX_6","GSM5831623_5_GEX_9","GSM5831624_GEX_45_MM")){
+	sub <- subset(seurat_object, subset = orig.ident == i)
+	eval(parse(text=paste("sceDblF_",i," <- scDblFinder(GetAssayData(sub, layer = 'counts'), dbr = 0.07)",sep="")))
+	eval(parse(text=paste("score.",i," <- sceDblF_",i,"@colData@listData[['scDblFinder.score']]",sep="")))
+	eval(parse(text=paste("names(score.",i,") <- rownames(sceDblF_",i,"@colData)",sep="")))
+}
+
+doublets.info <- rbind(sceDblF_GSM5831620_5_GEX_4@colData,sceDblF_GSM5831621_5_GEX_5@colData,sceDblF_GSM5831622_5_GEX_6@colData,
+                       sceDblF_GSM5831623_5_GEX_9@colData,sceDblF_GSM5831624_GEX_45_MM@colData)
+seurat_object$is.doublet <- doublets.info$scDblFinder.class
+
+seurat_object <- subset(seurat_object, subset = is.doublet == 'singlet')
+
+```
+
+## Seurat workflow
+
+```{r}
+
+# default parameters
+seurat_object<-NormalizeData(seurat_object)
+seurat_object<-FindVariableFeatures(seurat_object, selection.method = "vst", nfeatures=2000)
+
+
+all.genes<-rownames(seurat_object)
+seurat_object<-ScaleData(seurat_object, features=all.genes)
+seurat_object <- RunPCA(seurat_object, features = VariableFeatures(object = seurat_object))
+
+```
+
+```{r}
+
+
+seurat_object <- RunUMAP(seurat_object, reduction='pca', dims = 1:20)
+seurat_object <- FindNeighbors(seurat_object, reduction = 'pca', dims = 1:50)
+
+seurat_object <- FindClusters(seurat_object, resolution = c(0.4))
+
+
+
+DimPlot(seurat_object, reduction='pca', label = TRUE)
+
+
+```
+
+```{r}
+DimPlot(seurat_object, label = TRUE)
+
+
+```
+
+```{r}
+
+p1 <- DimPlot(seurat_object, reduction = 'umap')
+p2 <- DimPlot(seurat_object, reduction = 'umap',  group.by = c("orig.ident"))
+
+p1+p2
+
+```
+
+## Integrate samples
+
+```{r}
+seurat_object <- IntegrateLayers(object = seurat_object, method = CCAIntegration, assay = "RNA", orig.reduction = "pca", new.reduction = "integrated.cca",
+                                 scale.layer = "scale.data",verbose = FALSE)
+
+
+seurat_object <- RunUMAP(seurat_object, reduction='integrated.cca', dims = 1:50)
+seurat_object <- FindNeighbors(seurat_object, reduction = 'integrated.cca', dims = 1:50)
+seurat_object <- FindClusters(seurat_object, resolution = 0.3)
+```
+
+```{r}
+
+DimPlot(seurat_object, label = TRUE)
+
+
+```
+
+```{r}
+
+p1 <- DimPlot(seurat_object, reduction = 'umap', label = T)
+p2 <- DimPlot(seurat_object, reduction = 'umap',  group.by = c("orig.ident"))
+
+p1+p2
+
+
+```
+
+## Identify cells of interest
+
+```{r}
+# fibroblast/CAF markers/endothelial cells
+VlnPlot(seurat_object, features = toupper(c("Col1a1", "Col1a2", "Col3a1",
+                                    "Ngfr", "Pdgfra", "Acta2", "Cd74", "Plvap")))
+
+# tumor markers
+VlnPlot(seurat_object, features = toupper(c("Epcam",  "Krt8", "Krt7", "Krt19",  "Top2a", "Gata6", "Hmga2")))
+
+#acinar/ductal/ADM
+VlnPlot(seurat_object, features = toupper(c("Krt19", "Cftr",  "Cpb1", "Cpa1", "Cela2a", "Sox9", "Mcam", "Spp1", "Reg3a", "Crp", "Plvap")))
+
+
+```
+
+```{r}
+# fibroblasts/ CAF markers/ endothelial cells
+FeaturePlot(seurat_object, features = toupper(c("Col1a1", "Col1a2", "Col3a1",
+                                    "Ngfr", "Pdgfra", "Acta2", "Cd74", "Plvap")))
+
+#acinar/ductal/ADM
+FeaturePlot(seurat_object, features = toupper(c("Krt19", "Cftr",  "Cpb1", "Cpa1", "Cela2a", "Sox9", "Mcam", "Spp1", "Reg3a", "Crp", "Plvap")))
+
+# tumor
+FeaturePlot(seurat_object, features = toupper(c("Epcam",  "Krt8", "Krt7", "Krt19",  "Top2a", "Hmga2", "Gata6")))
+
+
+```
+
+```{r}
+
+# marker's from the paper
+Ep <- c("EPCAM","ZBED6", "VGLL1", "TRIM54", "PIFO", "MSMB", "KRT6A", "FXYD2", "CDK1")
+Fb <- c("COL1A1" , "VIT", "STRA6", "SFRP1", "MSLN", "LRRC15", "COL9A1", "CDK1")
+
+
+```
+
+```{r}
+
+VlnPlot(seurat_object, features = c(Fb, "PLVAP"))
+VlnPlot(seurat_object, features = Ep)
+
+FeaturePlot(seurat_object, features = c(Fb, "PLVAP"))
+FeaturePlot(seurat_object, features = Ep)
+
+
+```
+
+```{r}
+
+
+# rename identified clusters
+seurat_object <- RenameIdents(object = seurat_object, `1` = "Fibroblasts_1")
+seurat_object <- RenameIdents(object = seurat_object, `2` = "Fibroblasts_2")
+seurat_object <- RenameIdents(object = seurat_object, `4` = "Endothelial")
+seurat_object <- RenameIdents(object = seurat_object, `5` = "Stellate")
+seurat_object <- RenameIdents(object = seurat_object, `6` = "Fibroblasts_3")
+seurat_object <- RenameIdents(object = seurat_object, `7` = "Fibroblasts_4")
+seurat_object <- RenameIdents(object = seurat_object, `12` = "Fibroblasts_5")
+seurat_object <- RenameIdents(object = seurat_object, `13` = "Fibroblasts_6")
+
+seurat_object <- RenameIdents(object = seurat_object, `3` = "Epithelial_1")
+seurat_object <- RenameIdents(object = seurat_object, `0` = "Epithelial_2")
+seurat_object <- RenameIdents(object = seurat_object, `9` = "Epithelial_3")
+seurat_object <- RenameIdents(object = seurat_object, `8` = "Epithelial_4")
+seurat_object <- RenameIdents(object = seurat_object, `15` = "Epithelial_5")
+
+seurat_object <- RenameIdents(object = seurat_object, `10` = "Premalignant")
+
+
+DimPlot(seurat_object, reduction = "umap", label = T)
+```
+
+```{r}
+seurat_object@meta.data$CellType_cluster <- Idents(seurat_object)
+seurat_object@meta.data$CellType <- gsub('\\_.*','',seurat_object@meta.data$CellType_cluster)
+
+unique(seurat_object@meta.data$CellType_cluster)
+unique(seurat_object@meta.data$CellType)
+
+seurat_object
+head(seurat_object)
+
+```
+
+```{r}
+# save for easier import
+saveRDS(seurat_object, file = "./output/GSE194247_preprocessed.rds")
+```
+
+```{r}
+seurat_object <- readRDS("./output/GSE194247_preprocessed.rds")
+
+head(seurat_object)
+
+```
+
+## Fibroblast subset
+
+```{r}
+
+# subset fibroblasts
+Idents(seurat_object) <- "CellType"
+
+# join layers
+seurat_object <- JoinLayers(seurat_object)
+fibroblasts <- subset(seurat_object, idents = c("Fibroblasts"))
+
+```
+
+```{r}
+# save for easier import
+saveRDS(fibroblasts, file = "./output/GSE194247_fibroblasts.rds")
+```
+
+
+```{r}
+sessionInfo()
+```
