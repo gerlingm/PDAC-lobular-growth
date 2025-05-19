@@ -1,0 +1,14 @@
+﻿Mouse;Image;Mouse_type;Gal4;GATA6;HMGA2;Dominant compartment of image
+436-3B;Adipose C;KPC;2;2;3;Adipose
+436-3B;Adipose B;KPC;2;2;2;Adipose
+436-3B;Adipose A;KPC;3;3;3;Adipose
+436-5;Lobule A;KPC;3;4;3;Lobular
+436-5;Stroma A;KPC;2;2;4;Stroma
+436-7;Lobule A;KPC;2;3;4;Lobular
+605-4;Lobule A;KPC;3;4;2;Lobular
+605-4;Lobule B;KPC;3;4;3;Lobular
+605-4;Lobule C;KPC;4;3;2;Lobular
+605-4;Lobule E;KPC;3;4;2;Lobular
+436-1;Lobule B;KPC;;;;exclude  - no tumor only precuresors
+;;;;;;
+;;;;;;

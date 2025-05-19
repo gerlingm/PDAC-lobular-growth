@@ -1,0 +1,863 @@
+---
+title: "Intratumoral heterogeneity in murine injection model"
+author: "Sara Söderqvist and Annika Viljamaa"
+date: "2025-03-11"
+output: html_document
+---
+
+## Load required packages
+
+```{r packages needed}
+library(dplyr)
+library(rstatix)
+library(ggplot2)
+library(ggpubr)
+library(RColorBrewer)
+library(pheatmap)
+library(stats)
+library(ggfortify)
+library(factoextra)
+library(grid)
+library(ComplexHeatmap)
+library(tidyverse)
+library(ggthemes)
+library(reshape2)
+library(corrplot)
+```
+This script explores how the markers Galectin-4, HMGA2 and GATA6 are enriched in tumor cells in different tissue locations in an injection model of murine PDAC.
+
+Transparancy note:
+An issue discovered after the previous script for this injection model was made public in GitHub, used for teh preprint, is that cells that were completely negative for quantified marker (at that time, only HMGA2) were not included in the wilcoxon testing also displayed in the boxplot. This is adjusted in the current script.
+
+We aimed here to rather use the markers as a panel that can be used to call an overall subtype in the ROIs, than single markers on their own.
+
+## Import the data
+
+```{r read in, results='asis'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") # adjust the working directory
+
+HMGA2.data_ori <- read.table('read in_in vivo_injection model.tsv',
+                                  sep = '\t', header = T)
+dim(HMGA2.data_ori) #27 860 observations (=Cells) in total
+
+knitr::kable(head(HMGA2.data_ori))
+```
+## Data modification
+
+```{r hmga2 subset, results='asis'}
+# Subset the data to only relevant information
+og.data <- HMGA2.data_ori %>%
+  select(Image, Classification, Parent)%>%
+  data.frame()
+
+HMGA2.posdata <- og.data[og.data$Classification =="HMGA2: Positive", ]
+HMGA2.negdata <- og.data[og.data$Classification =="HMGA2: Negative", ]
+HMGA2.data <- rbind(HMGA2.posdata, HMGA2.negdata) # these are now all cells wither positive or negative for HMGA2, n = 11 233 cells.
+
+colnames(HMGA2.data) <- c('Image', 'HMGA2_status', 'Parent')
+HMGA2.data$Image_id <- gsub("\\..*","",HMGA2.data$Image)
+
+HMGA2.data$Mouse_id <- gsub("HA_","",HMGA2.data$Image)
+HMGA2.data$Mouse_id <- gsub("H_","",HMGA2.data$Mouse_id) # addition after name changing..
+HMGA2.data$Mouse_id <- gsub("_.*","",HMGA2.data$Mouse_id)
+unique(HMGA2.data$Mouse_id) # only case number left
+
+HMGA2.data$HMGA2_status <- gsub("HMGA2: ","",HMGA2.data$HMGA2_status)
+unique(HMGA2.data$HMGA2_status) # only status information left
+
+#create a new column to have plain info on the ROI (stroma/acinar aka lobular)
+HMGA2.data$invasion_type <- gsub("_i.*","",HMGA2.data$Parent)
+HMGA2.data$invasion_type <- gsub("Annotation \\(","",HMGA2.data$invasion_type)
+
+unique(HMGA2.data$invasion_type)
+
+# convertion & new columns format
+knitr::kable(head(HMGA2.data))
+
+```
+
+## Details
+### Summary/ROI
+
+```{r hmga2 summary, results='asis'}
+HMGA2_summary <- HMGA2.data %>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(Detections = n())
+
+HMGA2_pos <- HMGA2.data %>%
+  filter(HMGA2_status == 'Positive')%>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(HMGA2pos = n())
+
+HMGA2_Rsummary <- merge(x = HMGA2_summary, y = HMGA2_pos, id = c('Mouse_id', 'Parent'), all = TRUE)
+# if NA occurs here in the HMGA2pos column, it means that that ROIs had 0 positive tumor cells there, add that:
+HMGA2_Rsummary[is.na(HMGA2_Rsummary)] <- 0
+
+HMGA2_Rsummary <- HMGA2_Rsummary%>%
+  mutate(HMGApos_percent = HMGA2pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(HMGA2_Rsummary)
+```
+
+### Summary/mouse_id
+
+```{r hmga2 fractions, results='asis'}
+ROIs <- HMGA2_Rsummary %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(ROIs = n())
+
+HMGA2_Msummary <- HMGA2.data %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(Detections = n())
+
+HMGA2_pos <- HMGA2.data %>%
+  filter(HMGA2_status == 'Positive')%>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(HMGA2pos = n())
+
+HMGA2_Msummary <- merge(x = HMGA2_Msummary, y = HMGA2_pos, id = c('Mouse_id'))
+HMGA2_Msummary <- merge(x = HMGA2_Msummary, y = ROIs, id = c('Mouse_id', 'invasion_type'))
+HMGA2_Msummary <- HMGA2_Msummary%>%
+  mutate(HMGApos_percent = HMGA2pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(HMGA2_Msummary)
+```
+
+## Statistical testing for HMGA2 only
+
+```{r hmga2 stat test}
+
+# Wilcox test (non-paired)
+res.wil <-  HMGA2_Rsummary %>%
+  wilcox_test(HMGApos_percent~invasion_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil <- res.wil %>% add_xy_position(x = 'invasion_type')
+res.wil
+
+```
+## Boxplot of HMGA2
+
+```{r hmga2 boxplot, warning=FALSE}
+# plot
+box_HMGA2 <- HMGA2_Rsummary%>%
+  ggplot(aes(x = invasion_type, y = HMGApos_percent))+
+  geom_boxplot(width = 0.32, outlier.shape = NA)+
+  geom_jitter(aes(color = Mouse_id), alpha = 1, position=position_jitter(0.15), size = 2.8, seed = 1.5)+
+  scale_color_brewer(palette = 'Dark2')+
+          labs(x = '', y = 'HMGA2 positive cells (%)')+
+  theme_bw()+
+  theme(legend.position = "right", axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.ticks = element_blank())+
+    stat_pvalue_manual(res.wil, label = 'p.adj.signif',
+                     y.position = 90)+
+  ylim(0,100) 
+box_HMGA2
+```
+
+```{r manual counting for control hmga2}
+hmga2_split <- split(HMGA2_Rsummary, f = HMGA2_Rsummary$Mouse_id)
+
+lapply(hmga2_split, function (a) {
+  b <- split(a, f = a$Image_id)
+  lapply(b, function(c) {
+    unique(c$Parent)
+  })
+}
+)
+
+```
+# Gal4 quantification 
+
+Compared to the HMGA2 quantification, two ROIs could not be identified. Level differences in the sections rendered no tumor in these two regions.
+
+## Data modification
+
+```{r gal4 data, results='asis'}
+# Subset the data to only relevant information
+
+Gal4.posdata <- og.data[og.data$Classification =="Gal4: Positive", ]
+Gal4.negdata <- og.data[og.data$Classification =="Gal4: Negative", ]
+Gal4.data <- rbind(Gal4.posdata, Gal4.negdata) # these are now all cells that are either Gal4+ or Gal4-, n = 8 485 cells.
+dim(Gal4.data)
+
+colnames(Gal4.data) <- c('Image', 'Gal4_status', 'Parent')
+Gal4.data$Image_id <- gsub("\\..*","",Gal4.data$Image)
+
+Gal4.data$Mouse_id <- gsub("GV_","",Gal4.data$Image)
+Gal4.data$Mouse_id <- gsub("_.*","",Gal4.data$Mouse_id)
+unique(Gal4.data$Mouse_id) # only case number left
+
+Gal4.data$Gal4_status <- gsub("Gal4: ","",Gal4.data$Gal4_status)
+unique(Gal4.data$Gal4_status) # only status information left
+
+#create a new column to have plain info on the ROI (stroma/acinar)
+Gal4.data$invasion_type <- gsub("_i.*","",Gal4.data$Parent)
+Gal4.data$invasion_type <- gsub("Annotation \\(","",Gal4.data$invasion_type)
+unique(Gal4.data$invasion_type)
+
+# convertion & new columns look as they should
+knitr::kable(head(Gal4.data))
+
+```
+
+## Details
+### Summary/ROI
+
+```{r gal4 summary, results='asis'}
+Gal4_summary <- Gal4.data %>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(Detections = n())
+
+Gal4_pos <- Gal4.data %>%
+  filter(Gal4_status == 'Positive')%>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(Gal4pos = n())
+
+Gal4_Rsummary <- merge(x = Gal4_summary, y = Gal4_pos, id = c('Mouse_id', 'Parent'), all = TRUE)
+# if NA occurs here in the Gal4pos column, it means that that ROIs had 0 positive tumor cells there, add that:
+Gal4_Rsummary[is.na(Gal4_Rsummary)] <- 0
+
+Gal4_Rsummary <- Gal4_Rsummary%>%
+  mutate(Gal4pos_percent = Gal4pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(Gal4_Rsummary)
+```
+
+### Summary/mouse_id
+
+```{r gal4 fractions, results='asis'}
+
+ROIs <- Gal4_Rsummary %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(ROIs = n())
+
+Gal4_Msummary <- Gal4.data %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(Detections = n())
+
+Gal4_pos <- Gal4.data %>%
+  filter(Gal4_status == 'Positive')%>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(Gal4pos = n())
+
+Gal4_Msummary <- merge(x = Gal4_Msummary, y = Gal4_pos, id = c('Mouse_id'))
+Gal4_Msummary <- merge(x = Gal4_Msummary, y = ROIs, id = c('Mouse_id', 'invasion_type'))
+Gal4_Msummary <- Gal4_Msummary%>%
+  mutate(Gal4pos_percent = Gal4pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(Gal4_Msummary)
+```
+
+## Statistical testing
+
+```{r gal4 stat test}
+
+# Wilcox test (non-paired)
+res.wilG <-  Gal4_Rsummary%>%
+  wilcox_test(Gal4pos_percent~invasion_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wilG <- res.wilG %>% add_xy_position(x = 'invasion_type')
+res.wilG
+
+```
+
+## Boxplot of Galectin-4
+
+```{r gal4 boxplot, warning=FALSE}
+# plot
+box_Gal4 <- Gal4_Rsummary%>%
+  ggplot(aes(x = invasion_type, y = Gal4pos_percent))+
+  geom_boxplot(width = 0.32, outlier.shape = NA)+
+  geom_jitter(aes(color = Mouse_id), alpha = 1, position=position_jitter(0.15), size = 2.8, seed = 1.5)+
+  scale_color_brewer(palette = 'Dark2')+
+          labs(x = '', y = 'Gal4 positive cells (%)')+
+  theme_bw()+
+  theme(legend.position = "right", axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.ticks = element_blank())+
+    stat_pvalue_manual(res.wilG, label = 'p.adj.signif',
+                     y.position = 90)+
+  ylim(0,100) 
+box_Gal4
+```
+
+
+```{r manual counting for control gal4}
+gal4_split <- split(Gal4_Rsummary, f = Gal4_Rsummary$Mouse_id)
+
+lapply(gal4_split, function (a) {
+  b <- split(a, f = a$Image_id)
+  lapply(b, function(c) {
+    unique(c$Parent)
+  })
+}
+)
+
+```
+
+# Results of the GATA6 quantification 
+
+Compared to the HMGA2 quantification, two ROIs could not be identified. Level differences in the sections rendered no tumor in these two regions, which is the same situation as the Gal4 quantification above.
+
+## Data modification
+
+```{r gata6 data, results='asis'}
+# Subset the data to only relevant information
+
+GATA6.posdata <- og.data[og.data$Classification =="GATA6: Positive", ]
+GATA6.negdata <- og.data[og.data$Classification =="GATA6: Negative", ]
+GATA6.data <- rbind(GATA6.posdata, GATA6.negdata) # these are now all cells that are either GATA6+ or GATA6- cells, n = 8 141 cells.
+dim(GATA6.data)
+
+colnames(GATA6.data) <- c('Image', 'GATA6_status', 'Parent')
+GATA6.data$Image_id <- gsub("\\..*","",GATA6.data$Image)
+
+GATA6.data$Mouse_id <- gsub("HG_","",GATA6.data$Image)
+GATA6.data$Mouse_id <- gsub("_.*","",GATA6.data$Mouse_id)
+unique(GATA6.data$Mouse_id) # only case number left
+
+GATA6.data$GATA6_status <- gsub("GATA6: ","",GATA6.data$GATA6_status)
+unique(GATA6.data$GATA6_status) # only status information left
+
+#create a new column to have plain info on the ROI (stroma/acinar)
+GATA6.data$invasion_type <- gsub("_i.*","",GATA6.data$Parent)
+GATA6.data$invasion_type <- gsub("Annotation \\(","",GATA6.data$invasion_type)
+unique(GATA6.data$invasion_type)
+
+# convertion & new columns look as they should
+knitr::kable(head(GATA6.data))
+
+```
+
+## Details
+### Summary/ROI
+
+```{r gata6 summary, results='asis'}
+GATA6_summary <- GATA6.data %>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(Detections = n())
+
+GATA6_pos <- GATA6.data %>%
+  filter(GATA6_status == 'Positive')%>%
+  select(Image_id, Mouse_id, invasion_type, Parent)%>%
+  group_by(Image_id, Mouse_id, invasion_type, Parent)%>%
+  dplyr::summarise(GATA6pos = n())
+
+GATA6_Rsummary <- merge(x = GATA6_summary, y = GATA6_pos, id = c('Mouse_id', 'Parent'), all = TRUE)
+GATA6_Rsummary[is.na(GATA6_Rsummary)] <- 0
+
+GATA6_Rsummary <- GATA6_Rsummary%>%
+  mutate(GATA6pos_percent = GATA6pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(GATA6_Rsummary)
+```
+
+### Summary/mouse_id
+
+```{r gata6 fractions, results='asis'}
+
+ROIs <- GATA6_Rsummary %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(ROIs = n())
+
+GATA6_Msummary <- GATA6.data %>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(Detections = n())
+
+GATA6_pos <- GATA6.data %>%
+  filter(GATA6_status == 'Positive')%>%
+  select(Mouse_id, invasion_type)%>%
+  group_by(Mouse_id, invasion_type)%>%
+  dplyr::summarise(GATA6pos = n())
+
+GATA6_Msummary <- merge(x = GATA6_Msummary, y = GATA6_pos, id = c('Mouse_id'))
+GATA6_Msummary <- merge(x = GATA6_Msummary, y = ROIs, id = c('Mouse_id', 'invasion_type'))
+GATA6_Msummary <- GATA6_Msummary%>%
+  mutate(GATA6pos_percent = GATA6pos/Detections*100)%>%
+  data.frame()
+
+knitr::kable(GATA6_Msummary)
+```
+
+## Statistical testing
+
+```{r gata6 stat testing}
+
+# Wilcox test (non-paired)
+res.wilGATA6 <-  GATA6_Rsummary%>%
+  wilcox_test(GATA6pos_percent~invasion_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wilGATA6 <- res.wilGATA6 %>% add_xy_position(x = 'invasion_type')
+res.wilGATA6
+
+```
+
+## Boxplot of GATA6
+
+```{r gata6 boxplot, warning=FALSE}
+# plot
+box_GATA6 <- GATA6_Rsummary %>%
+  ggplot(aes(x = invasion_type, y = GATA6pos_percent))+
+  geom_boxplot(width = 0.32, outlier.shape = NA)+
+  geom_jitter(aes(color = Mouse_id), alpha = 1, position=position_jitter(0.15), size = 2.8, seed = 1.5)+
+  scale_color_brewer(palette = 'Dark2')+
+          labs(x = '', y = 'GATA6 positive cells (%)')+
+  theme_bw()+
+  theme(legend.position = "right", axis.text.x = element_text(angle = 45, vjust = 1, hjust=1),
+        axis.ticks = element_blank())+
+    stat_pvalue_manual(res.wilGATA6, label = 'p.adj.signif',
+                     y.position = 90)+
+  ylim(0,100) 
+box_GATA6
+```
+
+Merging marker expression depending on the ROI identity
+
+```{r dataset to use gal4 and hmga2 together roi dependent}
+#HMGA2
+HMGA2_m <- HMGA2_Rsummary
+
+HMGA2_m$ROI_ID <- gsub(".*_invasion_","",HMGA2_m$Parent)
+HMGA2_m$ROI_ID <- gsub("\\)","",HMGA2_m$ROI_ID)
+unique(HMGA2_m$ROI_ID)
+
+HMGA2_m$Image <- HMGA2_m$Image_id
+HMGA2_m$Image <- gsub(".*_.*_", "", HMGA2_m$Image)
+
+HMGA2_m$Group <- factor(nrow(HMGA2_m))
+HMGA2_m$Group <- paste(HMGA2_m$Mouse_id, HMGA2_m$invasion_type, HMGA2_m$Image, HMGA2_m$ROI_ID, sep = "_")
+
+#Gal4
+Gal4_m <- Gal4_Rsummary
+
+Gal4_m$ROI_ID <- gsub(".*_invasion_","",Gal4_m$Parent)
+Gal4_m$ROI_ID <- gsub("\\)","",Gal4_m$ROI_ID)
+unique(Gal4_m$ROI_ID)
+
+Gal4_m$Image <- Gal4_m$Image_id
+Gal4_m$Image <- gsub(".*_.*_", "", Gal4_m$Image)
+
+Gal4_m$Group <- factor(nrow(Gal4_m))
+Gal4_m$Group <- paste(Gal4_m$Mouse_id, Gal4_m$invasion_type, Gal4_m$Image, Gal4_m$ROI_ID, sep = "_")
+
+#align the rois that were set on the images LobuleC in Gal4 quant, but LobuleB in HMGA2 quant: 
+#28_stromal_LobuleB_1_A = 28_stromal_LobuleC_1_A  and #28_stromal_LobuleB_2_A = 28_stromal_LobuleC_2_A
+#the group column of the gal4 dataset will be adjusted to that.
+
+Gal4_m <- Gal4_m %>% mutate(Group = ifelse(grepl("28_stromal_LobuleC_1_A", .$Group), '28_stromal_LobuleB_1_A', .$Group))
+Gal4_m <- Gal4_m %>% mutate(Group = ifelse(grepl("28_stromal_LobuleC_2_A", .$Group), '28_stromal_LobuleB_2_A', .$Group))
+
+Gal4_m <- Gal4_m[, -c(1, 4:6, 8, 9)]
+HMGA2_m <- HMGA2_m[, -c(1, 4:6, 8, 9)]
+
+mHMGA2_Gal4 <- merge(x = Gal4_m, y = HMGA2_m, id = c('Mouse_id', 'invasion_type', 'Group'), all = TRUE)
+
+
+```
+
+```{r heatmap matrix}
+
+mheatmat <- mHMGA2_Gal4
+rownames(mheatmat) <- mheatmat$Group
+meta_mheatmap <- mheatmat #for metadata
+meta_mheatmap <- meta_mheatmap[, -c(3:5)]
+meta_mheatmap <- meta_mheatmap[-c(27, 28),]
+
+meta_mheatmap$Mouse_id <- paste("m", meta_mheatmap$Mouse_id, sep = "")
+mheatmat <- mheatmat[, -c(1:3)]
+mheatmat <- mheatmat[-c(27, 28), ]
+
+meta_colors <- list(Mouse_id=c(m27="#fbb4ae", m28="#b3cde3", m29="#ccebc5", m30="#decbe4"), 
+                    invasion_type=c(acinar = "#66c2a5", stromal = "#fc8d62"))
+
+```
+
+```{r draw heatmap}
+pheatmap(mheatmat, fontsize_col = 12, annotation_row = meta_mheatmap, annotation_colors = meta_colors, show_colnames = TRUE, show_rownames = FALSE, main = "Heatmap of four mice of the injection model, values = % positive cells per region of interest", cluster_cols = FALSE, cluster_rows = TRUE)
+
+```
+
+```{r data matrix for PCA plot}
+pcamat <- mHMGA2_Gal4[, -3]
+pcamat <- pcamat[-c(27, 28), ]
+
+```
+
+
+```{r plot pca}
+PCA_all <- autoplot(prcomp(pcamat[3:4]), data = pcamat, colour = 'invasion_type', shape = 'invasion_type', size = 5, label = TRUE, repel = TRUE, label.repel = TRUE, main = "PCA plot of injection model, n = 4 mice. 1  dot = 1 ROI's dimension reduction of two stains") 
+PCA_all
+
+PCA_all_nolabel <- autoplot(prcomp(pcamat[3:4]), data = pcamat, colour = 'invasion_type', shape = 'invasion_type', size = 5, label = FALSE, repel = TRUE, main = "PCA plot of injection model, n = 4 mice. 1 dot = 1 ROI's dimension reduction of two stains") 
+PCA_all_nolabel
+
+PCA_all_id <- autoplot(prcomp(pcamat[3:4]), data = pcamat, colour = 'Mouse_id', size = 5, label = FALSE, repel = TRUE, main = "PCA plot of injection model, n = 4 mice, color on mouse ID. 1 dot = 1 ROI's dimension reduction of two stains") 
+PCA_all_id
+
+PCA_all_loadings <- autoplot(prcomp(pcamat[3:4]), loadings = TRUE, loadings.label = TRUE, loadings.label.repel = TRUE, loadings.label.size  = 5, data = pcamat, colour = 'invasion_type', shape = 'invasion_type', size = 3, label = FALSE, repel = TRUE, main = "PCA plot of injection model, n = 4 mice with loadings. 1 dot = 1 ROI's dimension reduction of two stains") 
+
+PCA_all_loadings
+summary(prcomp(pcamat[3:4]))
+fviz_screeplot(prcomp(pcamat[3:4]), addlabels = TRUE, main = "Proportion of variance / Eigenvalues of the PC:s, injection model, n = 4 mice")
+
+# Add in the fviz_contrib
+fviz_contrib(prcomp(pcamat[3:4]), choice = "var", axes = 1, title = "Ratio of stains contributing to PC1, injection model, n = 4 mice")
+fviz_contrib(prcomp(pcamat[3:4]), choice = "var", axes = 2, title = "Ratio of stains contributing to PC2, injection model, n = 4 mice")
+```
+
+
+```{r correlation plot}
+
+mall_cor <- mHMGA2_Gal4
+rownames(mall_cor) <- mall_cor$Group
+mall_cor <- mall_cor[, -c(1:3)]
+mall_cor <- mall_cor[ -c(27:28),]
+
+
+cor_all <- cor(mall_cor)
+testRes_all= cor.mtest(mall_cor, conf.level = 0.95)
+
+cor_p_all<- testRes_all$p
+cor_p_all
+
+col_fun<- circlize::colorRamp2(c(-1, 0, 1), c("#008837", "#f7f7f7", "#7b3294"))
+
+cell_fun = function(j, i, x, y, w, h, fill){
+  if(as.numeric(x) <= 1 - as.numeric(y) + 1e-6) {
+    grid.rect(x, y, w, h, gp = gpar(fill = fill, col = fill))
+  }
+  
+  if (cor_p_all[i, j]  < 0.01 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_all[i, j]),"**"), x, y, gp = gpar(fontsize = 10))
+  } else if (cor_p_all[i, j]  <= 0.05 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_all[i, j]),"*"), x, y, gp = gpar(fontsize = 10))
+  }
+}
+
+correlation_all <- ComplexHeatmap::Heatmap(cor_all,
+                                          rect_gp = gpar(type = "none"),
+                                          column_dend_side = "bottom",
+                                          column_title = "Correlation of stains of the injection model. Unmatched ROIs are excluded",
+                                          column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                                          name = "Spearman's rank correlation coefficient", col = col_fun,
+                                          cell_fun = cell_fun,
+                                          cluster_rows = TRUE, cluster_columns = TRUE,
+                                          row_names_side = "left")
+
+lgd_list = list(
+  Legend( labels = c("<0.01", "<0.05"), title = "p-value",
+          graphics = list(
+            function(x, y, w, h) grid.text("**", x = x, y = y,
+                                           gp = gpar(fill = "black")),
+            function(x, y, w, h) grid.text("*", x = x, y = y,
+                                           gp = gpar(fill = "black")))
+  ))
+
+correlation_all
+
+```
+
+```{r another type of correlation plot}
+ggplot(mHMGA2_Gal4, aes(x = Gal4pos_percent, y = HMGApos_percent, colour = Mouse_id)) +
+  geom_point()
+
+ggplot(mHMGA2_Gal4, aes(x = Gal4pos_percent, y = HMGApos_percent, colour = invasion_type)) +
+  geom_point() +
+  geom_smooth(method = "loess") +
+  facet_grid(invasion_type ~ .) +
+  labs(title = "Line: loess smoothing and Spearman correlation coefficient")  +
+  stat_cor(p.accuracy = 0.005, r.accuracy = 0.01, method = "spearman") +
+  theme_clean()
+
+ggplot(mHMGA2_Gal4, aes(x = Gal4pos_percent, y = HMGApos_percent)) +
+  geom_point() +
+  geom_smooth(method = "loess")+
+  stat_cor(p.accuracy = 0.005, r.accuracy = 0.01, method = "spearman") +
+  labs(title = "Line: Loess smoothing and Spearman correlation coefficient") +
+  theme_clean()
+
+cor(mHMGA2_Gal4$Gal4pos_percent, mHMGA2_Gal4$HMGApos_percent, use = "pairwise.complete.obs")
+
+# lm fit
+ggplot(mHMGA2_Gal4, aes(x = Gal4pos_percent, y = HMGApos_percent, colour = invasion_type)) +
+  geom_point() +
+  geom_smooth(method = "lm") +
+  facet_grid(invasion_type ~ .) +
+  labs(title = "Line: lm and Spearman correlation coefficient")  +
+  stat_cor(p.accuracy = 0.005, r.accuracy = 0.01, method = "spearman") +
+  theme_clean()
+
+ggplot(mHMGA2_Gal4, aes(x = Gal4pos_percent, y = HMGApos_percent)) +
+  geom_point() +
+  geom_smooth(method = "lm")+
+  stat_cor(p.accuracy = 0.005, r.accuracy = 0.01, method = "spearman") +
+  labs(title = "Line: lm and Spearman correlation coefficient") +
+  theme_clean()
+
+
+
+```
+
+```{r basic data metrics}
+sm_HMGA2_GATA6 <- split(mHMGA2_Gal4, f = mHMGA2_Gal4$invasion_type)
+
+
+Gal4mean <- lapply(sm_HMGA2_GATA6, function (a) {
+ mean(a$Gal4pos_percent, na.rm = TRUE)
+}
+)
+
+HMGA2mean <- lapply(sm_HMGA2_GATA6, function (a) {
+ mean(a$HMGApos_percent, na.rm = TRUE)
+}
+)
+Gal4mean
+HMGA2mean 
+
+Gal4median <- lapply(sm_HMGA2_GATA6, function (a) {
+ median(a$Gal4pos_percent, na.rm = TRUE)
+}
+)
+HMGA2median <- lapply(sm_HMGA2_GATA6, function (a) {
+ median(a$HMGApos_percent, na.rm = TRUE)
+}
+)
+Gal4median
+HMGA2median 
+
+```
+
+Boxplots, paired on the roi id
+
+```{r paired boxplots}
+order_HGal_melt_og <- mHMGA2_Gal4
+colnames(order_HGal_melt_og) [4] <- "Gal4"
+colnames(order_HGal_melt_og) [5] <- "HMGA2"
+
+#Two rois could not be matched overlappingly, exclude those:
+order_HGal_melt_og <- order_HGal_melt_og[-c(27, 28),]
+order_HGal_melt <- melt(order_HGal_melt_og, id.vars = c("Mouse_id", "invasion_type", "Group"), value.name = "Fraction", variable.name = "Marker")
+order_HGal <- order_HGal_melt[order(order_HGal_melt[,3] ),] # Ordering by the third column 'Group' = specific ROI ID
+head(order_HGal)
+
+#stat tests. Comparison: are HMGA2 and Gal4 differentially expressed in (the same) ROI?
+wilcox_pair<- order_HGal %>%
+  wilcox_test(Fraction ~ Marker, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+wilcox_pair <- wilcox_pair %>% add_xy_position()
+wilcox_pair
+
+# Comparison: are HMGA2 and Gal4 differentially expressed in (the same) ROI, separated on the tissue location?
+wilcox_pair_g <- order_HGal %>%
+  group_by(invasion_type) %>%
+  wilcox_test(Fraction ~ Marker, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+wilcox_pair_g <- wilcox_pair_g %>% add_xy_position()
+wilcox_pair_g [11] <- 110
+wilcox_pair_g
+
+# Boxplot
+boxes_HGal <- ggplot(order_HGal, aes(x = Marker, y = Fraction)) +
+  geom_boxplot(aes(color = Marker, fill = Marker), alpha = 0.4) +
+  geom_line(aes(group = Group), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Marker, color = Marker)) +
+  xlab(NULL) + ylab("Fraction of positive cells/ROI") +
+  stat_summary(fun.data = function(x) data.frame(y = 95, label = paste("Mean =",round(mean(x), digits = 1))), geom="text") +
+  labs(title = "Differential expression of HMGA2 and Gal4 in lobules and stroma separately", subtitle = "1 data point = value from 1 ROI") +
+  theme_clean() +
+  scale_color_manual(values = c("#984ea3", "#4daf4a")) +
+  scale_fill_manual(values = c("#984ea3", "#4daf4a")) 
+
+boxes_HGal_sign <- boxes_HGal + stat_pvalue_manual(label = "p.adj.signif",
+                                                    wilcox_pair, tip.length = 0.01)
+boxes_HGal_sign
+
+boxes_HGal_g <- ggplot(order_HGal, aes(x = Marker, y = Fraction)) +
+  geom_boxplot(aes(color = Marker, fill = Marker), alpha = 0.4) +
+  geom_line(aes(group = Group), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Marker, color = Marker)) +
+  facet_wrap(invasion_type ~.) +
+  xlab(NULL) + ylab("Fraction of positive cells/ROI") +
+  stat_summary(fun.data = function(x) data.frame(y = 95, label = paste("Mean =",round(mean(x), digits = 1))), geom="text") +
+  labs(title = "Differential expression of HMGA2 and Gal4 in lobules and stroma", subtitle = "1 data point = value from 1 ROI") +
+  scale_color_manual(values = c("#984ea3", "#4daf4a")) +
+  scale_fill_manual(values = c("#984ea3", "#4daf4a")) +
+  theme_few()
+
+boxes_HGal_g_sign <- boxes_HGal_g + stat_pvalue_manual(label = "p.adj.signif",
+                                                    wilcox_pair_g, tip.length = 0.01)
+boxes_HGal_g_sign
+```
+
+```{r distributions to decide cutoffs}
+
+distrib_Gal4 <-ggplot(order_HGal_melt_og, aes(x=fct_reorder(Group, Gal4), y=Gal4, fill = invasion_type)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of Gal4 expression in all ROIs") +
+  theme_clean() +
+  labs(x = "Each case + ROI combination", y = "% Gal4+ tumor cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = c("dodgerblue1", "dodgerblue4")) +
+  geom_hline(yintercept = 30,linetype = "longdash") 
+
+distrib_Gal4
+
+distrib_HMGA2 <-ggplot(order_HGal_melt_og, aes(x=fct_reorder(Group, HMGA2), y=HMGA2, fill = invasion_type)) +
+  geom_col(width = 0.7) +
+  labs(title = "Distribution of HMGA2 expression in all ROIs") +
+  theme_clean() +
+  labs(x = "Each case + ROI combination", y = "% HMGA2+ tumor cells") +
+  theme(axis.text.x=element_blank(), axis.ticks.x=element_blank()) +
+  scale_fill_manual(values = c("tomato1", "tomato4"))+
+  geom_hline(yintercept = 65,linetype = "longdash") +
+  geom_hline(yintercept = 20,linetype = "longdash")
+distrib_HMGA2
+```
+#Cutoffs to work with
+For HMGA2:
+High = >50%
+Medium: 20-50%
+Low: <20%
+
+For Gal4:
+High: =>30%
+Low: <30%
+
+Assign an overall subtype for each ROI, depending on the expression pattern och Galectin-4 and HMGA2
+
+```{r assign ROIs to be either classical, basal or hybrid}
+subtypes <- order_HGal_melt_og 
+subtypes$Subtype <- factor(nrow(subtypes))
+subtypes$Weight <- factor(nrow(subtypes))
+subtypes$Subtype_group <- factor(nrow(subtypes))
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 < 20 & Gal4 < 30, 'Hybrid', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 < 20 & Gal4 < 30, '1', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 < 20 & Gal4 < 30, 'Weak_hybrid', .$Subtype_group))
+
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 < 20 & Gal4 > 30, 'Classical', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 < 20 & Gal4 > 30, '2', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 < 20 & Gal4 > 30, 'Strong_classical', .$Subtype_group))
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 < 30, 'Basal', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 < 30, '1', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 < 30, 'Weak_basal', .$Subtype_group))
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 > 30, 'Classical', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 > 30, '1', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 < 50 & HMGA2 > 20 & Gal4 > 30, 'Weak_classical', .$Subtype_group))
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 > 50 & Gal4 > 30, 'Hybrid', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 > 50 & Gal4 > 30, '2', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 > 50 & Gal4 > 30, 'Strong_hybrid', .$Subtype_group))
+
+subtypes <- subtypes %>% mutate(Subtype = ifelse(HMGA2 > 50 & Gal4 < 30, 'Basal', .$Subtype))
+subtypes <- subtypes %>% mutate(Weight = ifelse(HMGA2 > 50 & Gal4 < 30, '2', .$Weight))
+subtypes <- subtypes %>% mutate(Subtype_group = ifelse(HMGA2 > 50 & Gal4 < 30, 'Strong_basal', .$Subtype_group))
+unique(subtypes$Subtype_group)
+# Interestingly, no regions are "strong hybrids", possibly indicating that an intermediate state when switching occurs constitutes lower % positive for the respective subtype markers.
+```
+
+```{r heatmap with subtype metadata}
+#new metadata matrix with the new subtype info
+meta_mheatmap2 <- subtypes
+rownames(meta_mheatmap2) <- meta_mheatmap2$Group
+
+meta_mheatmap2$Mouse_id <- paste("m", meta_mheatmap2$Mouse_id, sep = "")
+meta_mheatmap2 <- meta_mheatmap2[, -c(3:5, 7)]
+
+#add colors for subtype metadata
+meta_colors2 <- list(Mouse_id=c(m27="#fbb4ae", m28="#b3cde3", m29="#ccebc5", m30="#decbe4"), 
+                    invasion_type=c(acinar = "#66c2a5", stromal = "#fc8d62"),
+                    Subtype = c(Classical = "#2b83ba", Basal = "#d7191c", Hybrid = "#ffffbf"),
+                    Subtype_group = c(Strong_classical="#3288bd", Weak_classical = "#abdda4",Weak_hybrid="#ffffbf", Strong_basal="#d53e4f", Weak_basal="#fdae61" ))
+
+
+heatmap_inj <- pheatmap(mheatmat, fontsize_col = 12, annotation_row = meta_mheatmap2, annotation_colors = meta_colors2, show_colnames = TRUE, show_rownames = FALSE, main = "Heatmap of four mice of the injection model, values = % positive cells per region of interest", cluster_cols = FALSE, cluster_rows = TRUE)
+heatmap_inj
+```
+
+# Contingency table, Χ^2 test and Fishers exact test
+Variable 1 = Subtype (classical, basal, hybrid) in columns
+Variable 2 = Tissue location (lobular or stromal) in rows
+
+H0 no difference between lobular and stromal ROIs in which subtype they are (Row and column variables are independent)
+-> degrees of freedom = (3-1)*(2-1) = 2
+
+
+```{r arrange data to a contingency table}
+#dcast 'subtypes' data frame considering the columns invasion_type and Subtype
+
+subtypes_subset <- subtypes[, c(2, 6)]
+
+ct <- dcast(subtypes_subset, invasion_type ~ Subtype, fun.aggregate = length)
+rownames(ct) <- ct$invasion_type
+ct <- ct[, -1]
+ct
+ct_t <- as.table(as.matrix(ct))
+
+ct_balloon <- ggballoonplot(ct, fill = "value", size.range = c(2, 20)) +
+  scale_fill_gradient(high = "#252525", low = "#d9d9d9") +
+  theme_minimal()
+ct_balloon
+
+```
+```{r chi square test of independence}
+chi_ct <- chisq.test(ct_t)
+chi_ct
+
+#Expected counts - to be compared with the ct_t print above which are the observed counts
+chi_ct$expected
+#Pearson residuals: the contributions of each individual cell to the Chi^2 statistic
+chi_ct$residuals
+#Pearson residuals visualised
+corrplot(chi_ct$residuals, is.cor = FALSE)
+
+#degrees of freedom. If na: Monte Carlo simuation is used instead.
+chi_ct$parameter 
+
+
+
+```
+
+With frequencies below 5, a Fishers test may be more appropriate:
+
+```{r fishers exact test}
+fish_ct <- fisher.test(ct_t)
+fish_ct
+
+# alternative, from rstatix - they show the same :
+fisher_test(ct_t, detailed = TRUE)
+```
+
+# Used libraries with version info
+
+```{r session info}
+sessionInfo()
+```
+
