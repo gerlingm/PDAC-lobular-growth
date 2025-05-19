@@ -1,0 +1,480 @@
+---
+title: "KC and KPC semiquantitative"
+author: "Sara Söderqvist"
+date: "2025-03-18"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+This script is exploring whether the markers HMGA2, GATA6 and Galectin-4 are differentially expressed in:
+ - PanINs KC vs tumor in KPC mice
+ - Subanalysis for KC mice: High grade vs low-grade PanIN
+ - Subanalysis for KPC mice: tumor in the overall tissue locations (adipose vs) stroma vs lobules. 
+
+One section from each mouse was stained for Galectin-4_Vimentin, and one for HMGA2_GATA6 with immunofluorescence, counterstained with DAPI. 
+
+Quantification was performed in a semiquantitative manner by CFM and SSÖ. 
+Scores were assigned per image by opening them in Qupath setting an as strict LUT setting as possible in order to display positive vs negative cells for the respective markers. Consequently, scorings were done considering the positive marker distribution, rather than the marker intensity, and compiled manually in an excel-sheet, separate for KC and KPC.
+
+n = 4 KC mice (named: 45, 46, 49 and 56)
+n = 4 KPC mice (named: 436-3B, 436-5, 436-7 and 605-4)
+
+A 5-grade score for the semiquantitative analysis in excel was applied as following:
+
+```{r load required libraries}
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(RColorBrewer)
+library(reshape2)
+
+library(rstatix)
+library(ggpubr)
+
+
+```
+
+
+```{r semiquantitive scorings legend}
+
+semiq <- factor(c('++++', '+++', '++', '+', '-'))
+numeric_semiq <- (c(4, 3, 2, 1, 0))
+explanation <- c("all or almost all cells are positive",
+            "more than half of the cells are positive",
+            "less than half of the cells are positive",
+            "few, scarce cells are positive",
+            "all cells are negative")
+
+semiq_legend <- data.frame(semiq, numeric_semiq, explanation)
+semiq_legend
+
+```
+
+For images from KC mice, the scoring was applied considering *only* PanINs, separated for high - and -low grade.
+
+For images from KPC mice, the scoring was applied considering *only* the tumor cells. An assignment of the compartment that most tumor cells were present in was also added. 
+For the KC mice, since they were PanINs, the dominant compartment is in general implied to be lobular.
+
+
+```{r read in , results='asis'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") # adjust the working directory
+
+KC_og <- read.csv('read in_in vivo_semiq_KC.csv',
+                                  sep = ';', header = TRUE)
+
+KPC_og <- read.csv('read in_in vivo_semiq_KPC.csv',
+                                  sep = ';', header = TRUE)
+# remove residuals from excel export
+KC <- KC_og[, -10]
+KPC <- KPC_og[-c(11:13),]
+
+KC <- KC %>% mutate_at(c('Gal4_L', 'GATA6_L', 'HMGA2_L', 'Gal4_H', 'GATA6_H', 'HMGA2_H'), as.numeric)
+str(KC)
+knitr::kable(head(KPC))
+knitr::kable(head(KC))
+```
+
+```{r means per KPC mouse}
+KPC_s <- split(KPC, f = KPC$Mouse)
+KPC_meancalc <- lapply(KPC_s, function (a) {
+  a$GATA6_mean <- round(mean(a$GATA6))
+  a$HMGA2_mean <- round(mean(a$HMGA2))
+  a$Gal4_mean <- round(mean(a$Gal4)) 
+  a
+})
+#KPC_meancalc
+
+KPC_mean_b <- bind_rows(KPC_meancalc)
+KPC_mean_a <- KPC_mean_b[, -c(2, 4:7)]
+KPC_mean <- unique(KPC_mean_a)
+KPC_mean # this contains the mean for each KPC mouse.
+```
+
+```{r means per KC mouse}
+KC_s <- split(KC, f = KC$Mouse)
+
+KC_meancalc <- lapply(KC_s, function (a) {
+  a$GATA6_mean <- round((mean(a$GATA6_L, na.rm = TRUE) + mean(a$GATA6_H, na.rm = TRUE))/2) # mean of the means for both High grade and low grade PanINs
+  a$HMGA2_mean <- round((mean(a$HMGA2_L, na.rm = TRUE) + mean(a$HMGA2_H, na.rm = TRUE))/2)
+  a$Gal4_mean <- round((mean(a$Gal4_L, na.rm = TRUE) + mean(a$Gal4_H, na.rm = TRUE))/2)
+  a
+})
+#KC_meancalc
+
+KC_mean_b <- bind_rows(KC_meancalc)
+
+KC_mean_a <- KC_mean_b[, -c(2, 4:9)]
+KC_mean <- unique(KC_mean_a)
+KC_mean # this contains the mean for each KC mouse.
+```
+Bars showing relative frequencies
+
+```{r bars for semiq }
+KC_mean$Mouse <- as.factor(KC_mean$Mouse)
+KPC_mean$Mouse <- as.factor(KPC_mean$Mouse)
+KC_KPCmeans <- bind_rows(KC_mean, KPC_mean)
+KC_KPCmeans <- KC_KPCmeans %>% mutate_at(c('GATA6_mean', 'HMGA2_mean', 'Gal4_mean'), as.factor)
+
+mKC_KPCmeans <- melt(KC_KPCmeans, id.vars = c("Mouse", "Mouse_type"), value.name = "Mean_value", variable.name = "Marker")
+
+mKC_KPCmeans$semiq <- factor(nrow(mKC_KPCmeans))
+mKC_KPCmeans <- mKC_KPCmeans %>% mutate(semiq = ifelse(grepl('1', .$Mean_value), '+', .$semiq))
+mKC_KPCmeans <- mKC_KPCmeans %>% mutate(semiq = ifelse(grepl('2', .$Mean_value), '++', .$semiq))
+mKC_KPCmeans <- mKC_KPCmeans %>% mutate(semiq = ifelse(grepl('3', .$Mean_value), '+++', .$semiq))
+mKC_KPCmeans <- mKC_KPCmeans %>% mutate(semiq = ifelse(grepl('4', .$Mean_value), '++++', .$semiq))
+
+bars_meanspermouse <- mKC_KPCmeans %>% ggplot(aes(x = Mouse_type, fill = Mean_value)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression KC and KPC mice", subtitle = "Means of all images per mouse, KC: all PanINs, KPC: invasive tumor", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds")  
+bars_meanspermouse
+
+bars_meanspermouse_semiq <- mKC_KPCmeans %>% ggplot(aes(x = Mouse_type, fill = semiq)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression KC and KPC mice", subtitle = "Means of all images per mouse. KC: all PanINs, KPC: invasive tumor", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds")
+bars_meanspermouse_semiq
+
+```
+
+Focusing on Gal4 and HMGA2
+
+```{r exclude GATA6}
+mKC_KPCmeans_GH <- mKC_KPCmeans[mKC_KPCmeans$Marker != "GATA6_mean", ]
+mKC_KPCmeans_GH$Marker <- factor(mKC_KPCmeans_GH$Marker, levels = c("HMGA2_mean", "Gal4_mean"))
+levels(mKC_KPCmeans_GH$Marker)
+unique((mKC_KPCmeans_GH$Marker))
+
+```
+
+```{r wilcox test with stacked barchart HMGA2 and Gal4 in green}
+
+#Ensure numeric for statistical test
+mKC_KPCmeans_GH$Mean_value <- as.numeric(mKC_KPCmeans_GH$Mean_value)
+
+# Wilcox test (non-paired) for stacked barchart. Comparison: is there more of the respective markers in either of the two mouse models?
+res.wil_KCKPC_GH_bar <-  mKC_KPCmeans_GH %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ Mouse_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_KCKPC_GH_bar <- res.wil_KCKPC_GH_bar %>% add_xy_position(x = 'Mouse_type')
+res.wil_KCKPC_GH_bar [11] <- 1.2 #Making the plotting more compact
+res.wil_KCKPC_GH_bar
+
+#here change the Mean_value to factor to enable making a stacked barplot
+mKC_KPCmeans_GH$Mean_value <- as.factor(mKC_KPCmeans_GH$Mean_value)
+
+bars_meanspermouse_sign <- mKC_KPCmeans_GH %>% ggplot() +
+  geom_bar(aes(x = Mouse_type, fill = Mean_value), position = "fill") +
+labs(title = "Degree of expression KC and KPC mice", subtitle = "Means of all images per mouse, KC: all PanINs, KPC: invasive tumor", x = "Marker") +
+ facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Greens")  +
+  stat_pvalue_manual(res.wil_KCKPC_GH_bar, label = 'p.adj.signif')
+bars_meanspermouse_sign
+```
+
+# Focusing on the PanINs of KC mice: separating high and low grade
+
+```{r means per KC mouse PanIN}
+KC_panincalc <- lapply(KC_s, function (a) {
+  a$mean_GATA6_Low <- round((mean(a$GATA6_L, na.rm = TRUE)))
+  a$mean_GATA6_High <- round((mean(a$GATA6_H, na.rm = TRUE)))
+  a$mean_HMGA2_Low <- round((mean(a$HMGA2_L, na.rm = TRUE)))
+  a$mean_HMGA2_High <- round((mean(a$HMGA2_H, na.rm = TRUE)))
+  a$mean_Gal4_Low <- round((mean(a$Gal4_L, na.rm = TRUE)))
+  a$mean_Gal4_High <- round((mean(a$Gal4_H, na.rm = TRUE)))
+  a
+})
+#KC_panincalc
+
+KC_meanpanin_b <- bind_rows(KC_panincalc)
+
+KC_meanpanin_a <- KC_meanpanin_b[, -c(2, 4:9)]
+KC_meanpanin <- unique(KC_meanpanin_a)
+KC_meanpanin # this contains the mean for each KC mouse separated for High - and low grade PanIN.
+
+```
+Bars of relative frequences for PanINs, separated on high - and lowgrade PanIN.
+```{r PanIN barplots}
+KC_meanpanin$Mouse <- as.factor(KC_meanpanin$Mouse)
+KC_meanpanin$Mouse_type <- as.factor(KC_meanpanin$Mouse_type)
+KC_meanpanin <- KC_meanpanin %>% mutate_at(c('mean_GATA6_Low', 'mean_GATA6_High', 'mean_HMGA2_Low', 'mean_HMGA2_High', 'mean_Gal4_Low', 'mean_Gal4_High'), as.factor)
+
+mKC_meanpanin <- melt(KC_meanpanin, id.vars = c("Mouse", "Mouse_type"), value.name = "Mean_value", variable.name = "Marker")
+
+#factor: PanIN differentiation
+mKC_meanpanin$PanIN_grade <- factor(nrow(mKC_meanpanin))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(PanIN_grade = ifelse(grepl('Low', .$Marker), 'Low_grade', .$PanIN_grade))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(PanIN_grade = ifelse(grepl('High', .$Marker), 'High_grade', .$PanIN_grade))
+
+#Now simplify the marker names
+mKC_meanpanin$Marker <- as.character(mKC_meanpanin$Marker) # will otherwise return factor levels if 'no' in ifelse statement.
+mKC_meanpanin <- mKC_meanpanin %>% mutate(Marker = ifelse(grepl('Gal4', .$Marker), 'Gal4', .$Marker))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(Marker = ifelse(grepl('GATA6', .$Marker), 'GATA6', .$Marker))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(Marker = ifelse(grepl('HMGA2', .$Marker), 'HMGA2', .$Marker))
+mKC_meanpanin$Marker <- as.factor(mKC_meanpanin$Marker) #change back to factor
+
+mKC_meanpanin$semiq <- factor(nrow(mKC_meanpanin))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(semiq = ifelse(grepl('0', .$Mean_value), '-', .$semiq))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(semiq = ifelse(grepl('1', .$Mean_value), '+', .$semiq))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(semiq = ifelse(grepl('2', .$Mean_value), '++', .$semiq))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(semiq = ifelse(grepl('3', .$Mean_value), '+++', .$semiq))
+mKC_meanpanin <- mKC_meanpanin %>% mutate(semiq = ifelse(grepl('4', .$Mean_value), '++++', .$semiq))
+
+bars_meansperPanIN <- mKC_meanpanin %>% ggplot(aes(x = PanIN_grade, fill = Mean_value)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression in PanINs from KC mice", subtitle = "Means of all images per mouse", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds") 
+bars_meansperPanIN
+
+bars_meansperPanIN_semiq <- mKC_meanpanin %>% ggplot(aes(x = PanIN_grade, fill = semiq)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression in PanINs from KC mice", subtitle = "Means of all images per mouse", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds")
+bars_meansperPanIN_semiq
+```
+
+
+
+# Focusing on the KPC mice overall image compartments: Lobules and stroma
+
+```{r KPC mice all rois}
+
+KPC_mean_c <- KPC_mean_b[, -c(8:10)]
+KPC_mean_c # this contains the score for each image from the KPC mice
+colnames(KPC_mean_c) [7] <- "Compartment"
+
+KPC_mean_c <- KPC_mean_c %>% mutate_at(c('GATA6', 'HMGA2', 'Gal4'), as.factor)
+
+mKPC_mean_c <- melt(KPC_mean_c, id.vars = c("Mouse", "Image", "Mouse_type", "Compartment"), value.name = "Semiq_score", variable.name = "Marker")
+
+mKPC_mean_c$semiq <- factor(nrow(mKPC_mean_c))
+mKPC_mean_c <- mKPC_mean_c %>% mutate(semiq = ifelse(grepl('1', .$Semiq_score), '+', .$semiq))
+mKPC_mean_c <- mKPC_mean_c %>% mutate(semiq = ifelse(grepl('2', .$Semiq_score), '++', .$semiq))
+mKPC_mean_c <- mKPC_mean_c %>% mutate(semiq = ifelse(grepl('3', .$Semiq_score), '+++', .$semiq))
+mKPC_mean_c <- mKPC_mean_c %>% mutate(semiq = ifelse(grepl('4', .$Semiq_score), '++++', .$semiq))
+
+bars_KPCcompartment <- mKPC_mean_c %>% ggplot(aes(x = Compartment, fill = Semiq_score)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression of KPC mice", subtitle = "All ROIs, no averaging", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds") 
+bars_KPCcompartment
+
+bars_KPCcompartment_semiq <- mKPC_mean_c %>% ggplot(aes(x = Compartment, fill = semiq)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression KPC mice", subtitle = "All ROIs, no averaging", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds")
+bars_KPCcompartment_semiq
+
+```
+
+Only 1 ROI was stromal. Pool this with the adipose:
+
+
+```{r KPC mice all ROIs poolign stromal and adipose.}
+
+mKPC_mean_cs <- mKPC_mean_c
+mKPC_mean_cs$Compartments_v2 <- factor(nrow(mKPC_mean_cs))
+
+mKPC_mean_cs <- mKPC_mean_cs %>% mutate(Compartments_v2 = ifelse(grepl('Adipose', .$Compartment), 'Stroma',  .$Compartments_v2))
+mKPC_mean_cs <- mKPC_mean_cs %>% mutate(Compartments_v2 = ifelse(grepl('Stroma', .$Compartment), 'Stroma',  .$Compartments_v2))
+mKPC_mean_cs <- mKPC_mean_cs %>% mutate(Compartments_v2 = ifelse(grepl('Lobular', .$Compartment), 'Lobule',  .$Compartments_v2))
+  
+bars_KPCcompartment2 <- mKPC_mean_cs %>% ggplot(aes(x = Compartments_v2, fill = Semiq_score)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression of KPC mice, pooling stromal and adipose", subtitle = "All ROIs, no averaging", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds") 
+bars_KPCcompartment2
+
+bars_KPCcompartment2_semiq <- mKPC_mean_cs %>% ggplot(aes(x = Compartments_v2, fill = semiq)) +
+  geom_bar(position = "fill") +
+  labs(title = "Degree of expression KPC mice, pooling stromal and adipose", subtitle = "All ROIs, no averaging", x = "Marker") +
+  facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Reds")
+bars_KPCcompartment2_semiq
+```
+
+```{r barplot with statistical testing numeric KC vs KPC}
+
+mKC_KPCmeans$Mean_value <- as.numeric(mKC_KPCmeans$Mean_value)
+
+# Wilcox test (non-paired)
+res.wil_KCKPC <-  mKC_KPCmeans %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ Mouse_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_KCKPC <- res.wil_KCKPC %>% add_xy_position(x = 'Mouse_type')
+res.wil_KCKPC
+
+boxKCKPC <- mKC_KPCmeans %>%
+  ggplot(aes(x = Mouse_type, y = Mean_value))+
+  geom_boxplot(outlier.shape = NA, aes(fill = Mouse_type, alpha = 0.8))+
+  geom_jitter(aes(color = Mouse_type), alpha = 1, position=position_jitter(0.1), size = 3)+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+  labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+  stat_pvalue_manual(res.wil_KCKPC, label = 'p.adj.signif')
+boxKCKPC
+```
+
+```{r barplot with statistical testing numeric PanINs}
+
+mKC_meanpanin$Mean_value <- as.numeric(mKC_meanpanin$Mean_value)
+
+res.wil_panin <-  mKC_meanpanin %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ PanIN_grade)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_panin <- res.wil_panin %>% add_xy_position(x = 'PanIN_grade')
+res.wil_panin
+
+box_panin <- mKC_meanpanin %>%
+  ggplot(aes(x = PanIN_grade, y = Mean_value))+
+  geom_boxplot(outlier.shape = NA, aes(fill = PanIN_grade, alpha = 0.8))+
+  geom_jitter(aes(color = PanIN_grade), alpha = 1, position=position_jitter(0.1), size = 3)+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+          labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+    stat_pvalue_manual(res.wil_panin, label = 'p.adj.signif')
+box_panin
+```
+
+```{r box, geom stat and stacked barchart with statistical testing numeric KC vs KPC only Gal4 and HMGA2}
+
+mKC_KPCmeans_GH <- mKC_KPCmeans[mKC_KPCmeans$Marker != "GATA6_mean", ]
+mKC_KPCmeans_GH$Marker <- factor(mKC_KPCmeans_GH$Marker, levels = c("HMGA2_mean", "Gal4_mean"))
+levels(mKC_KPCmeans_GH$Marker)
+unique((mKC_KPCmeans_GH$Marker))
+
+# Wilcox test (non-paired)
+res.wil_KCKPC_GH <-  mKC_KPCmeans_GH %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ Mouse_type)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_KCKPC_GH <- res.wil_KCKPC_GH %>% add_xy_position(x = 'Mouse_type')
+res.wil_KCKPC_GH
+
+boxKCKPC_GH <- mKC_KPCmeans_GH %>%
+  ggplot(aes(x = Mouse_type, y = Mean_value))+
+  geom_boxplot(outlier.shape = NA, aes(fill = Mouse_type, alpha = 0.8))+
+  geom_jitter(aes(color = Mouse_type), alpha = 1, position = position_jitter(0.1), size = 3)+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+  labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+  stat_pvalue_manual(res.wil_KCKPC_GH, label = 'p.adj.signif')
+boxKCKPC_GH
+
+pointKCKPC_GH <- mKC_KPCmeans_GH %>%
+  ggplot(aes(x = Mouse_type, y = Mean_value))+
+  geom_count(aes(fill = Mouse_type, color = Mouse_type))+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+  labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+  stat_pvalue_manual(res.wil_KCKPC_GH, label = 'p.adj.signif') +
+  scale_size(range = c(2, 10))
+pointKCKPC_GH
+```
+
+```{r barplot with statistical testing numeric PanINs only HMGA2 and Gal4}
+
+mKC_meanpanin_GH <- mKC_meanpanin[mKC_meanpanin$Marker != "GATA6", ]
+mKC_meanpanin_GH$Marker <- factor(mKC_meanpanin_GH$Marker, levels = c("HMGA2", "Gal4"))
+levels(mKC_meanpanin_GH$Marker)
+unique(mKC_meanpanin_GH$Marker)
+
+#wilcox test, unpaired
+res.wil_panin_GH <-  mKC_meanpanin_GH %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ PanIN_grade)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_panin_GH <- res.wil_panin_GH %>% add_xy_position(x = 'PanIN_grade')
+res.wil_panin_GH
+
+box_panin_GH <- mKC_meanpanin_GH %>%
+  ggplot(aes(x = PanIN_grade, y = Mean_value))+
+  geom_boxplot(outlier.shape = NA, aes(fill = PanIN_grade, alpha = 0.8))+
+  geom_jitter(aes(color = PanIN_grade), alpha = 1, position=position_jitter(0.1), size = 3)+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+  labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+  stat_pvalue_manual(res.wil_panin_GH, label = 'p.adj.signif')
+box_panin_GH
+
+point_panin_GH <- mKC_meanpanin_GH %>%
+  ggplot(aes(x = PanIN_grade, y = Mean_value))+
+  geom_count(aes(fill = PanIN_grade, color = PanIN_grade))+
+  scale_color_brewer(palette = 'Accent')+
+  scale_fill_brewer(palette = 'Accent')+
+  labs(x = '', y = 'Semiquantitative score (0-4)')+
+  theme_clean()+
+  facet_grid(Marker ~ .) +
+  stat_pvalue_manual(res.wil_panin_GH, label = 'p.adj.signif') +
+  scale_size(range = c(2, 10))
+point_panin_GH
+
+```
+
+KC PanINS - Gal4 and HMGA2 only, high grade vs low grade with significance indicators
+
+
+```{r KC PanINs focusing on only Gal4 and GATA6 with sign ind}
+#Ensure numeric for statistical test
+mKC_meanpanin_GH$Mean_value <- as.numeric(mKC_meanpanin_GH$Mean_value)
+
+# Wilcox test (non-paired) for stacked barchart. Comparison: is there more of the respective markers in either of the two PanIN differentiation grades?
+res.wil_KCPanINs_GH_bar <-  mKC_meanpanin_GH %>%
+  group_by(Marker) %>%
+  wilcox_test(Mean_value ~ PanIN_grade)%>%
+  adjust_pvalue(method = 'BH')%>%
+  add_significance()
+res.wil_KCPanINs_GH_bar <- res.wil_KCPanINs_GH_bar %>% add_xy_position(x = 'PanIN_grade')
+res.wil_KCPanINs_GH_bar [11] <- 1.2 #Making the plotting more compact
+res.wil_KCPanINs_GH_bar
+
+#here change the Mean_value to factor to enable making a stacked barplot
+mKC_meanpanin_GH$Mean_value <- as.factor(mKC_meanpanin_GH$Mean_value)
+
+bars_meanspermouse_sign_KC <- mKC_meanpanin_GH %>% ggplot() +
+  geom_bar(aes(x = PanIN_grade, fill = Mean_value), position = "fill") +
+labs(title = "Degree of expression of PanINs in KC mice", subtitle = "all PanINs, Means of all images per mouse", x = "Marker") +
+ facet_grid(. ~ Marker) +
+  theme_igray() +
+  scale_fill_brewer(palette = "Greens")  +
+  stat_pvalue_manual(res.wil_KCPanINs_GH_bar, label = 'p.adj.signif')
+bars_meanspermouse_sign_KC
+
+```
+
