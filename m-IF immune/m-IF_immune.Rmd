@@ -1,0 +1,276 @@
+---
+title: "m-IF_immune panel"
+author: "Sara Söderqvist"
+date: "2024-10-17"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+This script explores whether two macrophage types, defined below by their marker expression, are differentially expressed between lobule and stroma.
+
+In brief, larger annotations of lobules and stroma were created in qupath (ROIs, regions of interest). Each ROI was in the vincinity of tumor. Within, cell detection was performed, and a clean-up to enrich for immune cells only was applied. The clean-up consisted of: ________________ removal of PanCK+ cells, removal of cells with very elongated nucleus (these would be more likely to be stromal cells and not immune cells).
+
+In this pipeline, CD68 will be used as pan-macrophage marker, (nb, a pan-monocyte marker). Cells double positive for CD163 and CD68 are called M2 type of macrophage. CD163- CD69+ cells will be called M1 macrophages.
+
+```{r required libraries}
+library(rstatix)
+library(dplyr)
+library(reshape2)
+library(ggplot2)
+library(tidyr)
+library(ggpubr)
+library(ggthemes)
+
+```
+
+
+```{r Read in qupath export file}
+
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") #Adjust working directory
+immunepanel_cleaned = read.csv("read in_m-IF_immune.csv")
+
+immunepanel_cleaned <- immunepanel_cleaned[, -c(3, 4, 7)]
+
+```
+
+
+```{r grouping columns and data format cleaned }
+
+#Create individual columns displaying whether cells are positive for a given stain. This information is extracted from the column "Classification", as determined by the qupath classifier.
+immunepanel_cleaned$CD68_pos <- factor(nrow(immunepanel_cleaned))
+immunepanel_cleaned$CD163_pos <- factor(nrow(immunepanel_cleaned))
+immunepanel_cleaned$CD56_pos <- factor(nrow(immunepanel_cleaned))
+immunepanel_cleaned$NKp46_pos <- factor(nrow(immunepanel_cleaned))
+immunepanel_cleaned$CD3_pos <- factor(nrow(immunepanel_cleaned))
+
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD68_pos = ifelse(grepl('CD68_pos:', immunepanel_cleaned$Classification), '1', .$CD68_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD68_pos = ifelse(grepl('CD68_neg:', immunepanel_cleaned$Classification), '0', .$CD68_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD163_pos = ifelse(grepl(': CD163_pos', immunepanel_cleaned$Classification), '1', .$CD163_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD163_pos = ifelse(grepl(': CD163_neg', immunepanel_cleaned$Classification), '0', .$CD163_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD56_pos = ifelse(grepl('CD56_pos: ', immunepanel_cleaned$Classification), '1', .$CD56_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD56_pos = ifelse(grepl('CD56_neg: ', immunepanel_cleaned$Classification), '0', .$CD56_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(NKp46_pos = ifelse(grepl(' NKp46_pos: ', immunepanel_cleaned$Classification), '1', .$NKp46_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(NKp46_pos = ifelse(grepl(' NKp46_neg: ', immunepanel_cleaned$Classification), '0', .$NKp46_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD3_pos = ifelse(grepl('CD3_pos', immunepanel_cleaned$Classification), '1', .$CD3_pos))
+immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD3_pos = ifelse(grepl('CD3_neg', immunepanel_cleaned$Classification), '0', .$CD3_pos)) # 176 422 cells, same as the original read in file.
+# 1 row = 1 cell.
+
+```
+
+```{r cleanup including melt}
+
+# the goal is to show what immune cells, specifically macrophages, exist in lobules and in stroma.
+# Format the data to enable calculation of fractions of positive cells, depending on the ROI identity:
+
+immunepanel_cleaned_cell <- immunepanel_cleaned[, -c(3, 5, 6)]
+
+immune_cleaned_cell <- melt(immunepanel_cleaned_cell, id = c("Image", "Object.ID", "Parent"))
+colnames(immune_cleaned_cell) [4] <- "Stain"
+colnames(immune_cleaned_cell) [5] <- "Cell_pos"
+
+immune_cleaned_cell <- separate(data = immune_cleaned_cell, col = "Image", into="Image", sep=c("_"), remove=TRUE)
+immune_cleaned_cell$Group <- character(nrow(immune_cleaned_cell))
+immune_cleaned_cell$Group <- paste(immune_cleaned_cell$Image, immune_cleaned_cell$Parent, immune_cleaned_cell$Stain, sep = "_")
+```
+
+```{r calculate fractions of cells in each ROI}
+s_immune_cleaned_cell <- split(immune_cleaned_cell, f = immune_cleaned_cell$Group)
+
+# Fraction calculation. Note that this does not take into account wheather individual cells are double positive etc. for other markers.
+tot_det_immune_cleaned_cell <- lapply(X = s_immune_cleaned_cell, FUN = function (x) {
+  x$sum_detections_ROI <- nrow(x)
+  x
+})
+
+fun_immunecells_cleaned_frac <- function (z) {
+  nr_pos<- z %>% filter(Cell_pos == "1") # get nr positive cells for each stain
+  pos_fr <- nrow(nr_pos)/nrow(z) #calculate the fraction out of all the cells in that specific ROI
+  z$pos_fraction <- pos_fr # put the calculated fraction in a column; "pos_fr"
+  z
+} 
+
+immunecells_cleaned_calc_fr <- lapply (X = tot_det_immune_cleaned_cell, FUN = fun_immunecells_cleaned_frac)
+
+immunecells_calc_frsub_cleaned <- bind_rows(immunecells_cleaned_calc_fr) #882 110 rows 
+immunecells_calc_frsub_cleaned <- immunecells_calc_frsub_cleaned[, -c(2, 5)]
+
+immunecells_calc_frsub_cleaned_roi <- unique(immunecells_calc_frsub_cleaned) # 370 rows
+
+# Clearer grouping column; the compartment identity of the ROI (lobular or stromal)
+immunecells_calc_frsub_cleaned_roi$Compartment <- factor(nrow(immunecells_calc_frsub_cleaned_roi))
+immunecells_calc_frsub_cleaned_roi <- immunecells_calc_frsub_cleaned_roi %>% mutate(Compartment = ifelse(grepl('Lobule', immunecells_calc_frsub_cleaned_roi$Parent), 'Lobule', .$Compartment))
+immunecells_calc_frsub_cleaned_roi <- immunecells_calc_frsub_cleaned_roi %>% mutate(Compartment = ifelse(grepl('Stroma', immunecells_calc_frsub_cleaned_roi$Parent), 'Stroma', .$Compartment))
+```
+
+```{r plot single positives}
+
+boxes_pan_immune_cleaned_sp<- ggboxplot(immunecells_calc_frsub_cleaned_roi, x = "Stain", y = "pos_fraction", 
+                        color = "Compartment", fill = "Compartment", alpha=0.6) +
+  scale_color_brewer(palette= "Set2", type = "qual") +
+  scale_fill_brewer(palette= "Set2", type = "qual") +
+  labs(title = "Fractions of cells with positive immune cells' markers in lobular and stromal ROIs", subtitle = "General single markers' expression") +
+  xlab(NULL) + ylab("Average positive cells per ROI") +
+  theme_clean()
+  
+wilcox_pan_immune_cleaned <- immunecells_calc_frsub_cleaned_roi %>%
+  group_by(Stain) %>%
+  wilcox_test(pos_fraction ~ Compartment) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+wilcox_pan_immune_cleaned <- wilcox_pan_immune_cleaned %>% add_xy_position(x = "Stain")
+wilcox_pan_immune_cleaned
+
+
+boxes_pan_immune_sp_cleaned_sign <- boxes_pan_immune_cleaned_sp + stat_pvalue_manual(label = "p.adj.signif",
+                                                    wilcox_pan_immune_cleaned, tip.length = 0.02)
+boxes_pan_immune_sp_cleaned_sign
+```
+
+
+Focused research question: are M1 and M2 macrophages (Mø) and their ratio differentially expressed between lobule and stroma?
+
+1) How many of each Mø subtype are there, the total counts?
+```{r subset: the macrophage markers CD68 and CD163}
+# Recall subtypes:
+# M2 mø = CD68+CD163+
+# M1 mø = CD68+CD163-
+
+
+#1) remove all cells that are positive for CD3 ( they are T cells)
+#immunepanel_cleaned derived
+
+non_CD3 <- dplyr::filter(immunepanel_cleaned, paste(CD3_pos) == '0')
+
+# 2) keep all cells that are positive for either CD163 or CD68
+mo <- non_CD3 %>%
+  filter(CD163_pos == 1 | CD68_pos == 1)
+
+mo$mo_subtype <- factor(nrow(mo))
+mo <- mo %>% mutate(mo_subtype = ifelse(grepl('1', mo$CD68_pos) & grepl('1', mo$CD163_pos), 'CD68+_CD163+', .$mo_subtype))
+mo <- mo %>% mutate(mo_subtype = ifelse(grepl('1', mo$CD68_pos) & grepl('0', mo$CD163_pos), 'CD68+_CD163-',.$mo_subtype))
+mo <- mo %>% mutate(mo_subtype = ifelse(grepl('0', mo$CD68_pos) & grepl('1', mo$CD163_pos), 'CD68-_CD163+',.$mo_subtype))
+
+mo$Compartment <- factor(nrow(mo))
+mo <- mo %>% mutate(Compartment = ifelse(grepl('Lobule', mo$Parent), 'Lobule', .$Compartment))
+mo <- mo %>% mutate(Compartment = ifelse(grepl('Stroma', mo$Parent), 'Stroma', .$Compartment))
+
+```
+
+
+```{r plot total counts of macrophage types}
+bar_mo <- ggplot(mo, aes(x = mo_subtype, color = Compartment, fill = Compartment, alpha = 0.9)) +
+  geom_bar(stat = "count", position = position_dodge2(width = 0.5, preserve = "single")) +
+    scale_color_brewer(palette= "Set2", type = "qual") +
+  scale_fill_brewer(palette= "Set2", type = "qual") +
+  labs(title = "Total count of macrophage types") +
+  theme_clean()
+bar_mo
+
+```
+
+
+```{r melt and create histograms of mo subset}
+
+mo_cell <- mo[, -c(3, 7:11)]
+
+melt_mo_cell <- melt(mo_cell, id = c("Image", "Object.ID", "Parent", "mo_subtype", "Compartment"))
+colnames(melt_mo_cell) [6] <- "Stain" 
+colnames(melt_mo_cell) [7] <- "Intensity"
+
+melt_mo_cell <- separate(data = melt_mo_cell, col = "Image", into="Image", sep=c("_"), remove=TRUE)
+melt_mo_cell$Group <- character(nrow(melt_mo_cell))
+melt_mo_cell$Group <- paste(melt_mo_cell$Image, melt_mo_cell$Parent, melt_mo_cell$Stain, sep = "_")
+
+# histogram of mo:s intensity of the two stains of interest
+
+hist_mo <- gghistogram(melt_mo_cell, x = "Intensity", color = "mo_subtype", alpha = 0.4, bins = 200, size = 0.1) +
+  facet_grid(mo_subtype~Stain) +
+  theme_clean()
+hist_mo
+
+```
+
+```{r calculate fractions of macrophage subtypes per ROI mo}
+s_mo <- split(melt_mo_cell, f = melt_mo_cell$Group)
+
+tot_det_s_mo <- lapply(X = s_mo, FUN = function (x) {
+  x$sum_detections_ROI <- nrow(x)
+  x
+})
+
+# new functions to calculate mo subtype fractions in each ROI:
+fun_immunecells_frac_mo <- function (z) {
+  nr_M2<- z %>% filter(mo_subtype == "CD68+_CD163+") # get nr of M2 mo:s in the ROI
+  M2pos_fr <- nrow(nr_M2)/nrow(z) #calculate the fraction of M2 mo:s out of all the cells in this specific ROI
+  z$M2pos_fraction <- M2pos_fr # put M2 fraction in a column
+  
+  nr_M1<- z %>% filter(mo_subtype == "CD68+_CD163-") # get nr of M1 mo:s in the ROI
+  M1pos_fr <- nrow(nr_M1)/nrow(z) #calculate the fraction of M1 mo:s out of all the cells in this specific ROI
+  z$M1pos_fraction <- M1pos_fr # put M1 fraction in a column
+  
+  nr_CD163<- z %>% filter(mo_subtype == "CD68-_CD163+") # get nr of M1 mo:s in the ROI
+  CD163pos_fr <- nrow(nr_CD163)/nrow(z) #calculate the fraction of M1 mo:s out of all the cells in this specific ROI
+  z$CD163pos_fr <- CD163pos_fr # put cell id fraction in a column
+  
+  z
+} 
+
+immunecells_calc_fr_mo <- lapply (X = tot_det_s_mo, FUN = fun_immunecells_frac_mo)
+
+immunecells_calc_frsub_mo <- bind_rows(immunecells_calc_fr_mo) #77 576 rows . 1 row for each cell.
+
+
+immunecells_calc_frsub_mo <- immunecells_calc_frsub_mo[, -c(2, 4, 6:8)] #remove cell-specific row information: "group", enabling unique-ing to the ROIs in next command
+immunecells_calc_frsub_roi_mo <- unique(immunecells_calc_frsub_mo) # 74 rows. 1 row for each ROI.
+
+#melt it down
+
+melt_mofractions <- melt(immunecells_calc_frsub_roi_mo, id = c("Image", "Parent", "Compartment", "sum_detections_ROI"), variable.name = "Immune_subtype", value.name = "Pos_fraction") # 222 rows = 74*3. 3 cell types per ROI.
+head(melt_mofractions)
+
+
+```
+
+```{r boxplot mo subtype per compartment}
+
+boxes_mo<- ggboxplot(melt_mofractions, x = "Immune_subtype", y = "Pos_fraction", 
+                        color = "Compartment", fill = "Compartment", alpha=0.6) +
+  scale_color_brewer(palette= "Set2", type = "qual") +
+  scale_fill_brewer(palette= "Set2", type = "qual") +
+  labs(title = "Fractions of macrophages and CD163 single+ in lobular and stromal ROIs", subtitle = "Only ROIs that have tumor in the immediate vicinity, only cells with positivity for either CD163 or CD68") +
+  xlab(NULL) + ylab("Average positive cells per ROI") +
+  theme_clean()
+
+wilcox_mo <- melt_mofractions %>%
+  group_by(Immune_subtype) %>%
+  wilcox_test(Pos_fraction ~ Compartment) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+t_test_mo <- melt_mofractions %>%
+  group_by(Immune_subtype) %>%
+  t_test(Pos_fraction ~ Compartment) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+t_test_mo
+
+wilcox_mo <- wilcox_mo %>% add_xy_position(x = "Immune_subtype")
+wilcox_mo
+
+
+boxes_mo_sign <- boxes_mo + stat_pvalue_manual(label = "p.adj.signif",
+                                                    wilcox_mo, tip.length = 0.01)
+boxes_mo_sign
+
+
+```
+
+
+
+
