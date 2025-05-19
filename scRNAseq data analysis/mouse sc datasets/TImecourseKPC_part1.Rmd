@@ -1,0 +1,328 @@
+---
+title: "Analysis of scRNA-seq data of orthotopic timecourse KPC mice (GSE217846) part 1/2"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+publication: [IL-1β+ macrophages fuel pathogenic inflammation in pancreatic cancer] (https://www-nature-com.proxy.kib.ki.se/articles/s41586-023-06685-2#Sec1)
+
+
+Published code on [GitHub:] (https://github.com/ostunilab/PDAC_Nature_2023/tree/main/scRNAseq/Mouse/Timecourse_KPC)
+
+
+## import libraries
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(tidyverse)
+library(scDblFinder)
+
+
+set.seed(123)
+```
+
+### import data
+
+```{r}
+
+dirs <-  list.dirs(path = './GSE217846_RAW/data/samples/', recursive = F, full.names = F)
+
+
+for (x in dirs){
+  
+ cts <- ReadMtx(mtx= paste0('./GSE217846_RAW/data/samples/', x, '/matrix.mtx.gz'),
+                             features = paste0('./GSE217846_RAW/data/samples/', x, '/features.tsv.gz'),
+                             cells=paste0('./GSE217846_RAW/data/samples/', x, '/barcodes.tsv.gz'))
+  
+ assign(x, CreateSeuratObject(counts = cts, min.cells = 3, project = x))
+ 
+}
+
+
+# merge object
+
+seurat_object <- merge(Healthy, y=c(Tumor_d10,Tumor_d20, Tumor_d30),
+      add.cell.ids=c("Healthy","Tumor_d10", "Tumor_d20", "Tumor_d30"))
+
+```
+
+
+
+### preprocessing
+
+```{r}
+# create columns for metadata
+
+# identity
+unique(seurat_object@meta.data$orig.ident) # control identity
+
+# cell id
+seurat_object@meta.data$cell_id <- rownames(seurat_object@meta.data)
+
+# percent mt
+seurat_object[["percent.mt"]]<-PercentageFeatureSet(seurat_object, pattern="^mt-")
+
+plot1 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+
+
+
+seurat_object <- subset(seurat_object, subset = percent.mt < 25 & nCount_RNA > 1000 & nFeature_RNA > 200)
+
+
+head(seurat_object)
+
+seurat_object
+
+
+```
+
+
+```{r}
+plot1 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "percent.mt")
+plot2 <- FeatureScatter(seurat_object, feature1 = "nCount_RNA", feature2 = "nFeature_RNA")
+plot1 + plot2
+
+
+# double check filtering
+min(seurat_object@meta.data$nFeature_RNA)
+min(seurat_object@meta.data$nCount_RNA)
+max(seurat_object@meta.data$percent.mt)
+```
+
+
+### control for doublets
+
+```{r}
+
+for (i in c('Healthy','Tumor_d10','Tumor_d20','Tumor_d30')){
+	sub <- subset(seurat_object, subset = orig.ident == i)
+	eval(parse(text=paste("sceDblF_",i," <- scDblFinder(GetAssayData(sub, layer = 'counts'), dbr = 0.07)",sep="")))
+	eval(parse(text=paste("score.",i," <- sceDblF_",i,"@colData@listData[['scDblFinder.score']]",sep="")))
+	eval(parse(text=paste("names(score.",i,") <- rownames(sceDblF_",i,"@colData)",sep="")))
+}
+
+doublets.info <- rbind(sceDblF_Tumor_d10@colData,sceDblF_Tumor_d20@colData,sceDblF_Healthy@colData,sceDblF_Tumor_d30@colData)
+seurat_object$is.doublet <- doublets.info$scDblFinder.class
+
+seurat_object <- subset(seurat_object, subset = is.doublet == 'singlet')
+
+```
+
+### seurat standard workflow
+
+
+```{r}
+
+# default parameters
+seurat_object<-NormalizeData(seurat_object)
+seurat_object<-FindVariableFeatures(seurat_object, selection.method = "vst", nfeatures=2000)
+
+
+all.genes<-rownames(seurat_object)
+seurat_object<-ScaleData(seurat_object, features=all.genes)
+seurat_object <- RunPCA(seurat_object, features = VariableFeatures(object = seurat_object))
+ElbowPlot(seurat_object)
+```
+
+
+```{r}
+
+seurat_object <- RunUMAP(seurat_object, reduction='pca', dims = 1:20)
+seurat_object <- FindNeighbors(seurat_object, reduction = 'pca', dims = 1:20)
+
+seurat_object <- FindClusters(seurat_object, resolution = c(0.4))
+DimPlot(seurat_object, reduction='pca', label = TRUE)
+
+```
+
+```{r}
+DimPlot(seurat_object, label = TRUE)
+
+```
+
+```{r}
+Idents(seurat_object) <- 'RNA_snn_res.0.4'
+p1 <- DimPlot(seurat_object, reduction = 'umap')
+p2 <- DimPlot(seurat_object, reduction = 'umap',  group.by = c("orig.ident"))
+
+p1+p2
+
+```
+
+
+#### integrate samples
+
+```{r}
+# after preprocessing (standard seurat workflow)
+seurat_object <- IntegrateLayers(object = seurat_object, method = CCAIntegration, assay = "RNA", orig.reduction = "pca", new.reduction = "integrated.cca",
+                                 scale.layer = "scale.data",verbose = FALSE)
+
+# follow up with dimensional reduction (again)
+seurat_object <- RunUMAP(seurat_object, reduction='integrated.cca', dims = 1:20)
+seurat_object <- FindNeighbors(seurat_object, reduction = 'integrated.cca', dims = 1:20)
+seurat_object <- FindClusters(seurat_object, resolution = c(0.6))
+```
+
+```{r}
+
+DimPlot(seurat_object, label = TRUE)
+
+```
+
+```{r}
+p1 <- DimPlot(seurat_object, reduction = 'umap', label = T)
+p2 <- DimPlot(seurat_object, reduction = 'umap',  group.by = c("orig.ident"))
+
+p1+p2
+
+
+```
+
+## identify cells of interest
+
+```{r}
+# fibroblast + CAF markers
+VlnPlot(seurat_object, features = c("Col1a1", "Col1a2", "Col3a1",
+                                    "Ngfr", "Pdgfra", "Acta2", "Cd74"))
+
+FeaturePlot(seurat_object, features = c("Col1a1", "Col1a2", "Col3a1",
+                                    "Ngfr", "Pdgfra", "Acta2", "Cd74", "Plvap"))
+
+```
+
+```{r}
+# macrophage markers
+VlnPlot(seurat_object, features = c("C1qa", "Lyz2",
+                                    "C1qb", "Mafb",
+                                    "C1qc", "Apoe",
+                                    "Csf1r", "Mrc1"))
+
+FeaturePlot(seurat_object, features = c("C1qa", "Lyz2",
+                                    "C1qb", "Mafb",
+                                    "C1qc", "Apoe",
+                                    "Csf1r", "Mrc1"))
+
+```
+
+```{r}
+# other immune cells
+
+# monocytes
+VlnPlot(seurat_object, features = c("Ccr2",  "Ly6c2"))
+FeaturePlot(seurat_object, features = c("Ccr2",  "Ly6c2"))
+
+# cDCs
+VlnPlot(seurat_object, features = c("Flt3",  "Ccr7"))
+FeaturePlot(seurat_object, features = c("Flt3",  "Ccr7"))
+
+# neutrophils
+VlnPlot(seurat_object, features = c("Cxcr2", "Csf3r"))
+FeaturePlot(seurat_object, features = c("Cxcr2",  "Mpo", "Csf3r", "Elane"))
+
+# pDCs
+VlnPlot(seurat_object, features = c("Siglech",  "Ccr9"))
+FeaturePlot(seurat_object, features = c("Siglech",  "Ccr9"))
+
+# B cells
+VlnPlot(seurat_object, features = c("Cd79b",  "Jchain", "Mzb1"))
+FeaturePlot(seurat_object, features = c("Cd79b",  "Jchain", "Mzb1"))
+
+# NK cells
+VlnPlot(seurat_object, features = c("Gzma",  "Prf1"))
+FeaturePlot(seurat_object, features = c("Gzma",  "Prf1"))
+
+# T cells
+VlnPlot(seurat_object, features = c("Lef1",  "Il2rb", "Cd3e", "Gzmb", "Cd8a", "Xcl1"))
+FeaturePlot(seurat_object, features = c("Lef1",  "Il2rb", "Cd3e", "Gzmb", "Cd8a", "Xcl1"))
+
+```
+
+
+```{r}
+# tumor markers
+VlnPlot(seurat_object, features = c("Epcam",  "Krt8", "Krt7", "Krt19",  "Top2a", "Gata6", "Hmga2"))
+FeaturePlot(seurat_object, features = c("Epcam",  "Krt8", "Krt7", "Krt19",  "Top2a", "Hmga2", "Gata6"))
+
+```
+
+
+
+```{r}
+# acinar, ductal and ADM
+VlnPlot(seurat_object, features = c("Krt19", "Cftr",  "Cpb1", "Cpa1", "Cela2a", "Sox9", "Spp1", "Reg3a", "Crp"))
+FeaturePlot(seurat_object, features = c("Krt19", "Cftr",  "Cpb1", "Cpa1", "Cela2a", "Sox9", "Spp1", "Reg3a", "Crp"))
+
+```
+
+
+```{r}
+# endothelial cells
+VlnPlot(seurat_object, features = c("Plvap",  "Cdh5"))
+FeaturePlot(seurat_object, features = c("Plvap",  "Cdh5"))
+
+```
+
+
+## subset to fibroblasts, tumor, acinar and epithelial cells
+
+
+```{r}
+
+# rename identified clusters
+seurat_object <- RenameIdents(object = seurat_object, `10` = "Fibroblasts_1")
+seurat_object <- RenameIdents(object = seurat_object, `14` = "Fibroblasts_2")
+seurat_object <- RenameIdents(object = seurat_object, `20` = "Fibroblasts_3")
+
+seurat_object <- RenameIdents(object = seurat_object, `1` = "Macrophages_1") # includes monocytes
+seurat_object <- RenameIdents(object = seurat_object, `2` = "Macrophages_2")
+seurat_object <- RenameIdents(object = seurat_object, `16` = "Macrophages_3")
+
+seurat_object <- RenameIdents(object = seurat_object, `15` = "Ductal/ADM cells")
+
+seurat_object <- RenameIdents(object = seurat_object, `13` = "Acinar cells")
+
+seurat_object <- RenameIdents(object = seurat_object, `0` = "Tumor cells_1")
+seurat_object <- RenameIdents(object = seurat_object, `4` = "Tumor cells_2")
+seurat_object <- RenameIdents(object = seurat_object, `8` = "Tumor cells_3")
+seurat_object <- RenameIdents(object = seurat_object, `9` = "Tumor cells_4")
+
+seurat_object <- RenameIdents(object = seurat_object, `11` = "cDCs")
+seurat_object <- RenameIdents(object = seurat_object, `21` = "pDCs")
+
+seurat_object <- RenameIdents(object = seurat_object, `5` = "Neutrophils_1")
+seurat_object <- RenameIdents(object = seurat_object, `18` = "Neutrophils_2")
+seurat_object <- RenameIdents(object = seurat_object, `22` = "Neutrophils_3")
+
+seurat_object <- RenameIdents(object = seurat_object, `3` = "Bcells_1")
+seurat_object <- RenameIdents(object = seurat_object, `19` = "Bcells_2")
+
+seurat_object <- RenameIdents(object = seurat_object, `6` = "NKcells")
+
+seurat_object <- RenameIdents(object = seurat_object, `7` = "Tcells")
+
+seurat_object <- RenameIdents(object = seurat_object, `12` = "Endothel")
+
+DimPlot(seurat_object, reduction = "umap", label = T) 
+```
+
+
+```{r}
+# save for easier import
+saveRDS(seurat_object, file = "./GSE217846_RAW/data/timecourseKPC_preprocessed.rds")
+
+
+```
+
+
+```{r}
+sessionInfo()
+```
+

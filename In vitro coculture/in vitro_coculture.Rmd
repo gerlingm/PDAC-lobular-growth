@@ -1,0 +1,1087 @@
+---
+title: "In vitro_acinar KPCT_HMGA2 and GATA6"
+author: "Sara Söderqvist"
+date: "2025-01-30"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This script explores whether two nuclear markers, HMGA2 and GATA6, are differentially expressed in KPC-T cells right next  to acinar cells versus KPC-T cells distant from acinar cells, where no contact between the two cell types is possible.
+
+In brief, murine acinar cells were isolated from wild-type C56Bl6/J mice and placed in cell culture in Waymouths' medium. KPC-T cells were added to the acinar cells and the two cell types were allowed to coculture for a couple of days. Next, the cocultures were fixated and stained with GATA6 and HMGA2, with Hoechst as nuclear counterstain.
+
+Images were acquired with Hoescht, HMGA2, tdTomato (endogenous for the KPC-T cells) and GATA6 signals. The image analysis in qupath consisted of the steps:
+1. Annotation of all areas with KPC-T cells
+2. Annotation of all acinar cells nearest to KPC-T cells (here called the "Interface"). In other words, this is the point where acinar cells and KPC-T cells meet.
+3. Cell detection within the KPC-T area
+4. Distance measure for all KPC-T cell objects to the Interface-annotation
+5. Data export, with information for all individual KPC-T cells: the intensity of Hoechst, GATA6 and HMGA2, what well it came from, and the distance [µm] to the nearest point of acinar cells (nearest interface).
+
+Of note, two filterings of the data are done in this code:
+ - Two isolations were performed. However, the second isolation was later excluded from analysis since it was less successful. For example, the first isolation contained more acinar cells. 
+  - During imaging, we noticed that cells present in the middle of the culture wells had different expression profiles from the cells at the edges of the wells. The imaging settings were optimised to images first taken, which were in the middle of the wells. In general, the cells at the edges of the wells had a higher intensity (of everything), and often oversaturated. We conclude this likely stems from surface tension forming during incubation with antibodies in the wells rendered a higher coverage to the cells at the edges. Images from the middle of the wells are here called "Inner", and images from the edges are called "outer", and images from the "Outer" of wells are excluded.
+  
+  
+```{r load required libraries}
+library(dplyr)
+library(tidyr)
+library(reshape2)
+library(ggthemes)
+library(ggplot2)
+library(rstatix)
+library(ggpubr)
+library(forcats)
+```
+
+
+```{r read in}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in")
+
+coculture_og <- read.csv("read in_in vitro.csv")
+coculture <- coculture_og
+```
+
+```{r cleanup}
+# In Qupath, where the image analysis was performed, some images had channel names with "..C2" (for HMGA2), "..C3" (for tdTomato) or "..C4" (for GATA6), and some did not have these suffixes. So same channel info ended up in different column for different cells. These are joined to one column here, the respective value in the proper channel column.
+
+coculture_2 <- coculture %>%
+   mutate(across(Nucleus..Hmga2.mean, ~ ifelse(is.na(.x), Nucleus..Hmga2..C2..mean, .x)))
+coculture_3 <- coculture_2 %>%
+   mutate(across(Nucleus..GATA6.mean, ~ ifelse(is.na(.x), Nucleus..GATA6..C4..mean, .x)))
+coculture_4 <- coculture_3 %>%
+   mutate(across(Cell..tdTomato.mean, ~ ifelse(is.na(.x), Cell..tdTomato..C3..mean, .x)))
+
+na_test <- coculture_4[is.na(coculture_4$Cell..tdTomato.mean), ]
+#na_test
+
+#information in the column "Image":
+#If it contains "control" = the cell comes from a well without acinar cells. 
+#If it contains "intersec" or "interface" = the cell comes from a well with acinar cells, and from a field with an interfeace where KPC-T and acinar cells meet
+
+coculture <- coculture_4[, -c(9:11)]
+summary(is.na(coculture)) # There should only be True in Distance.. column. (from the "control" wells, which don't contain any acinar cells.) - ok
+```
+
+Normalising the nuclear HMGA2 and GATA6 expression to the to Hoechst signal for the individual cells:
+```{r calculate fractions of each cells expression normalised to the dapi expression}
+coculture$HMGA2_fraction <-(coculture$Nucleus..Hmga2.mean/coculture$Nucleus..Hoechst.mean)
+coculture$GATA6_fraction <-(coculture$Nucleus..GATA6.mean/coculture$Nucleus..Hoechst.mean)
+```
+
+```{r data cleanup continued}
+coculture_cleanup <- separate(data = coculture, col = "Image", into="Image", sep=c(".nd2"), remove=TRUE)
+coculture_cleanup$Setup <- (factor(nrow(coculture_cleanup)))
+
+# Grouping of the KPCT cells based on if they are close to any acinar cells, or not in physical contact or near any acinar cell. The distance to the nearest acinar cell annotation is recorded in the "Distance.to.annotation.with.Interface.µm" column. The cutoff chosen for "near acinar cell annotation" is 20 µm.
+
+coculture_cleanup$Setup <- "Above 20 µm"
+coculture_cleanup <- coculture_cleanup %>% mutate(Setup = ifelse(coculture_cleanup$Distance.to.annotation.with.Interface.µm < 20, 'Within_20', .$Setup))
+
+coculture_cleanup <- coculture_cleanup %>% mutate(Setup = ifelse(grepl('Control', coculture_cleanup$Parent), 'Ctrl_KPCT', .$Setup)) #Cells in this group are KPCT cultured in Waymouths medium only. They are included in some parts of the analysis, but not part of the primary research question included in the final plots for the manuscript.
+
+#Some controls
+na_test <- coculture_cleanup[is.na(coculture_cleanup$Setup), ]
+is_not_na <- coculture_cleanup[!is.na(coculture_cleanup$Setup), ]
+#na_test
+#is_not_na
+#unique(na_test$Image) 
+coculture <- coculture_cleanup
+```
+
+Subgrouping based on the experimental setup, as mentioned above:
+Filter cells from images of the "inner" parts of the wells - this is the most accurate images. Images taken from the "outer" parts of the wells had a much stronger signal, moreover, these types of images were only captured from the second isolation. 
+
+
+```{r splitting dataset depenting on if the image was taken at the outer or middle part of the well}
+coculture$Position <- (factor(nrow(coculture)))
+coculture$Position <- "Inner"
+coculture <- coculture %>% mutate(Position = ifelse(grepl('outer', coculture$Image), 'Outer', .$Position))
+
+s_pos_coculture <- split(coculture, f = coculture$Position)
+in_cocultures <- s_pos_coculture$Inner
+```
+
+Distribution of marker intensities stratified on the distance to acinar invasion front
+
+```{r distributions based on distance to the distance to the acinar-tumor interface}
+#subset: only cells from "interface" images
+interface_KPCT <- subset(coculture, Setup != "Ctrl_KPCT")
+colnames(interface_KPCT) [8] <- "Distance_interface"
+interface_KPCT <- interface_KPCT[, -c(3:7, 11, 12)]
+
+melt_iKPCT <- melt(interface_KPCT, id = c("Image", "Object.ID", "Distance_interface"))
+
+colnames(melt_iKPCT) [4] <- "Stain" 
+colnames(melt_iKPCT) [5] <- "Cell_pos"
+
+distrib_KPCTinterface <-ggplot(melt_iKPCT, aes(x=Distance_interface, y=Cell_pos, fill = Stain)) +
+  geom_col(width = 0.7, position = "dodge", aes(alpha = 0.6)) +
+  labs(title = "Distance to the acinar interface for each KPCT cell and its expression of HMGA2 and GATA6") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Distance to acinar interface [µm]", y = "Marker expression normalised to Hoechst") 
+
+distrib_KPCTinterface
+# see what is going on at the x = 0, where many cells seem to be (un-stack)
+distrib_KPCTinterface_at30 <-ggplot(melt_iKPCT, aes(x=Distance_interface, y=Cell_pos, fill = Stain)) +
+  geom_col(width = 0.7, position = "dodge", aes(alpha = 0.6)) +
+  labs(title = "Marker expression first 30 µm") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Distance to acinar interface [µm]", y = "Marker expression normalised to Hoechst") +
+  xlim(0, 30)
+
+distrib_KPCTinterface_at30
+
+distrib_KPCTinterface_at100 <-ggplot(melt_iKPCT, aes(x=Distance_interface, y=Cell_pos, fill = Stain)) +
+  geom_col(width = 0.7, position = "dodge", aes(alpha = 0.6)) +
+  labs(title = "Marker expression first 100 µm") +
+  theme_clean() +
+  facet_grid(Stain ~ .) +
+  labs(x = "Distance to acinar interface [µm]", y = "Marker expression normalised to Hoechst") +
+  xlim(0, 100)
+
+distrib_KPCTinterface_at100
+```
+Display nr of cells in each group
+
+```{r counts per group}
+s_in_cocultures <- split(in_cocultures, f = in_cocultures$Setup)
+lapply(s_in_cocultures, nrow)
+```
+
+```{r compare GATA6 and HMGA2 expression across the experimental groups including only the inner images }
+## Anova test
+
+## Only Inner HMGA2
+in_anova.test_hmga2 <- in_cocultures %>%
+  anova_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+in_anova.test_hmga2
+
+# tukeys as post-hoc
+
+in_tukey_hmga2 <- in_cocultures %>% tukey_hsd(HMGA2_fraction~Setup) %>% add_xy_position()
+in_tukey_hmga2
+
+in_boxes_hmga2 <- ggboxplot(in_cocultures, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.7, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers")
+
+in_boxes_hmga2_sign <- in_boxes_hmga2 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_tukey_hmga2, tip.length = 0.02)
+in_boxes_hmga2_sign
+
+## Only inner GATA6
+in_anova.test_gata6 <- in_cocultures %>%
+  anova_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+in_anova.test_gata6
+
+# tukeys as post-hoc
+in_tukey_gata6 <- in_cocultures %>% tukey_hsd(GATA6_fraction~Setup) %>% add_xy_position()
+in_tukey_gata6
+
+in_boxes_gata6 <- ggboxplot(in_cocultures, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.5, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+   ylim(0, 0.7) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers")
+
+in_boxes_gata6_sign <- in_boxes_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_tukey_gata6, tip.length = 0.02)
+in_boxes_gata6_sign
+
+```
+
+
+Additional test, using the absolute intensity values, i.e., not normalised to the Hoechst signal
+
+```{r only inner and the absolute values}
+## Only Inner HMGA2
+in_abs_anova.test_hmga2 <- in_cocultures %>%
+  anova_test(Nucleus..Hmga2.mean ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+in_abs_anova.test_hmga2
+
+# tukeys as post-hoc
+
+in_abs_tukey_hmga2 <- in_cocultures %>% tukey_hsd(Nucleus..Hmga2.mean~Setup) %>% add_xy_position()
+in_abs_tukey_hmga2
+
+in_abs_boxes_hmga2 <- ggboxplot(in_cocultures, x = "Setup", y = "Nucleus..Hmga2.mean", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("Absolute HMGA2 expression") +
+  stat_summary(fun.data = function(x) data.frame(y = 800, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  ylim(0, 900) +
+  labs(title = "Absolute HMGA2 expression - Inner images. Not displaying outliers")
+
+in_abs_boxes_hmga2_sign <- in_abs_boxes_hmga2 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_abs_tukey_hmga2, tip.length = 0.02)
+in_abs_boxes_hmga2_sign
+
+## Only inner GATA6
+in_abs_anova.test_gata6 <- in_cocultures %>%
+  anova_test(Nucleus..GATA6.mean ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+in_abs_anova.test_gata6
+
+# tukeys as post-hoc
+in_abs_tukey_gata6 <- in_cocultures %>% tukey_hsd(Nucleus..GATA6.mean~Setup) %>% add_xy_position()
+in_abs_tukey_gata6
+
+in_abs_boxes_gata6 <- ggboxplot(in_cocultures, x = "Setup", y = "Nucleus..GATA6.mean", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("Absolute GATA6 expression") +
+  stat_summary(fun.data = function(x) data.frame(y = 400, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "Absolute GATA6 expression - Inner images. Not displaying outliers") +
+  ylim(0, 600)
+
+in_abs_boxes_gata6_sign <- in_abs_boxes_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_abs_tukey_gata6, tip.length = 0.02)
+in_abs_boxes_gata6_sign
+```
+
+Excluding the "Ctrl_KPCT" group, since it is not the most relevant for this question (they are non-coculture)
+Now the statistical test is a wilcoxon, since there are only two groups.
+
+```{r plots of inner images excluted kpct not in wells in co-culture }
+coculture_co <- subset(in_cocultures, Setup != "Ctrl_KPCT") 
+unique(coculture_co$Setup)
+coculture_co <- droplevels(coculture_co)
+unique(coculture_co$Setup)
+
+# Histograms of the groups' distributions 
+gghistogram(coculture_co, x = "GATA6_fraction", color = "Setup", fill = "Setup", bins = 2000, palette = "Set1", title = "GATA6 histogram")
+gghistogram(coculture_co, x = "HMGA2_fraction", color = "Setup", fill = "Setup", bins = 2000, palette = "Set1", title = "HMGA2 histogram")
+
+## Only Inner HMGA2
+in_wilcox_hmga2 <- coculture_co %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_hmga2 <- in_wilcox_hmga2 %>% add_xy_position()
+in_wilcox_hmga2 [1, 10] <- 1.9
+in_wilcox_hmga2
+
+in_co_boxes_hmga2 <- ggboxplot(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers") +
+    scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_hmga2_sign <- in_co_boxes_hmga2 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_wilcox_hmga2, tip.length = 0.01)
+in_co_boxes_hmga2_sign
+
+#As violin
+in_co_violin_hmga2 <- ggviolin(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers") +
+    scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_violin_hmga2_sign <- in_co_violin_hmga2 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_wilcox_hmga2, tip.length = 0.01)
+in_co_violin_hmga2_sign
+
+## Only Inner GATA6
+in_wilcox_gata6 <- coculture_co %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_gata6 <- in_wilcox_gata6 %>% add_xy_position()
+in_wilcox_gata6 [1, 10] <- 1.5
+in_wilcox_gata6
+
+in_co_boxes_gata6 <- ggboxplot(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_gata6_sign <- in_co_boxes_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_wilcox_gata6, tip.length = 0.01)
+in_co_boxes_gata6_sign
+
+#As violin
+in_co_violin_gata6 <- ggviolin(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_violin_gata6_sign <- in_co_violin_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    in_wilcox_gata6, tip.length = 0.01)
+in_co_violin_gata6_sign
+```
+
+```{r counts per group 2}
+s_in_co_cocultures <- split(coculture_co, f = coculture_co$Setup)
+lapply(s_in_co_cocultures, nrow) 
+# View how many wells that cells came from
+# unique(s_in_co_cocultures[["Within_20"]]$Image)
+```
+
+Looking at distributions in individual wells and isolations:
+
+```{r well based exploration}
+coculture_co$Well_ID <- factor(nrow(coculture_co))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate well 1', .$Image), 'iso1_well1', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate well 2', .$Image), 'iso1_well2', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate well 3', .$Image), 'iso1_well3', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate well 4', .$Image), 'iso1_well4', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate well 5', .$Image), 'iso1_well5', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate 2_well 1', .$Image), 'iso2_well1', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate 2_well 2', .$Image), 'iso2_well2', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate 2_well 3', .$Image), 'iso2_well3', .$Well_ID))
+coculture_co <- coculture_co %>%
+  mutate(Well_ID = ifelse(grepl('bckg_coculture plate 2_well 4', .$Image), 'iso2_well4', .$Well_ID))
+
+
+gghistogram(coculture_co, x = "GATA6_fraction", color = "Well_ID", fill = "Well_ID", facet.by = "Setup", bins = 2000, palette = "Set1", title = "GATA6 histogram colored on well ID")
+gghistogram(coculture_co, x = "HMGA2_fraction", color = "Well_ID", fill = "Well_ID", facet.by = "Setup", bins = 2000, palette = "Set1", title = "HMGA2 histogram colored on well ID")
+
+
+ggdotplot(coculture_co, y = "GATA6_fraction", x = "Setup", color = "Well_ID", fill = "Well_ID", binwidth = 0.1, palette = "Set1", title = "GATA6 dotplot colored on well ID", label.rectangle = TRUE)
+ggdotplot(coculture_co, y = "HMGA2_fraction", x = "Setup", color = "Well_ID", fill = "Well_ID", binwidth = 0.1, palette = "Set1", title = "HMGA2 dotplot colored on well ID", label.rectangle = TRUE)
+```
+
+```{r grouped boxplots}
+## Only Inner GATA6, grouped by the well
+in_wilcox_gata6_g <- coculture_co %>%
+  group_by(Well_ID) %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_gata6_g <- in_wilcox_gata6_g %>% add_xy_position()
+in_wilcox_gata6_g[c(1:9), 11] <- 1.5
+in_wilcox_gata6_g
+
+in_co_boxes_gata6_g <- ggboxplot(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_gata6_g_sign <- in_co_boxes_gata6_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_gata6_g, tip.length = 0.01)
+in_co_boxes_gata6_g_sign
+
+## Only Inner HMGA2, grouped by the well
+in_wilcox_HMGA2_g <- coculture_co %>%
+  group_by(Well_ID) %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_HMGA2_g <- in_wilcox_HMGA2_g %>% add_xy_position()
+in_wilcox_HMGA2_g[c(1:9), 11] <- 3
+in_wilcox_HMGA2_g
+
+in_co_boxes_HMGA2_g <- ggboxplot(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 2.5, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 5) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_HMGA2_g_sign <- in_co_boxes_HMGA2_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_g, tip.length = 0.01)
+in_co_boxes_HMGA2_g_sign
+```
+Plots with medians instead of means displayed:
+
+```{r grouped per well analysis as violin plot with medians}
+in_co_vioin_gata6_g <- ggviolin(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_vioin_gata6_g_sign <- in_co_vioin_gata6_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_gata6_g, tip.length = 0.01)
+in_co_vioin_gata6_g_sign
+
+in_co_violin_HMGA2_g <- ggviolin(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 2.5, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 5) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_violin_HMGA2_g_sign <- in_co_violin_HMGA2_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_g, tip.length = 0.01)
+in_co_violin_HMGA2_g_sign
+```
+
+```{r grouped per well analysis as violin plot with means}
+in_co_vioin_gata6_g <- ggviolin(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_vioin_gata6_g_sign <- in_co_vioin_gata6_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_gata6_g, tip.length = 0.01)
+in_co_vioin_gata6_g_sign
+
+in_co_violin_HMGA2_g <- ggviolin(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 2.5, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 5) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_violin_HMGA2_g_sign <- in_co_violin_HMGA2_g + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_g, tip.length = 0.01)
+in_co_violin_HMGA2_g_sign
+```
+Plots grouped on the isolation rounds
+
+```{r isolation based exploration}
+coculture_co$Isolation <- factor(nrow(coculture_co))
+coculture_co <- coculture_co %>%
+  mutate(Isolation = ifelse(grepl('iso1', .$Well_ID), 'iso_1', .$Isolation))
+coculture_co <- coculture_co %>%
+  mutate(Isolation = ifelse(grepl('iso2', .$Well_ID), 'iso_2', .$Isolation))
+unique(coculture_co$Isolation)
+
+gghistogram(coculture_co, x = "GATA6_fraction", color = "Isolation", fill = "Isolation", facet.by = "Setup", bins = 2000, palette = "Set1", title = "GATA6 histogram colored on Isolation")
+gghistogram(coculture_co, x = "HMGA2_fraction", color = "Isolation", fill = "Isolation", facet.by = "Setup", bins = 2000, palette = "Set1", title = "HMGA2 histogram colored on Isolation")
+
+
+ggdotplot(coculture_co, y = "GATA6_fraction", x = "Setup", color = "Isolation", fill = "Isolation", binwidth = 0.1, palette = "Set1", title = "GATA6 dotplot colored on Isolation", label.rectangle = TRUE)
+ggdotplot(coculture_co, y = "HMGA2_fraction", x = "Setup", color = "Isolation", fill = "Isolation", binwidth = 0.1, palette = "Set1", title = "HMGA2 dotplot colored on Isolation", label.rectangle = TRUE)
+```
+
+```{r boxplots grouped per isolation}
+## Only Inner GATA6, grouped by the Isolation
+in_wilcox_gata6_iso <- coculture_co %>%
+  group_by(Isolation) %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_gata6_iso <- in_wilcox_gata6_iso %>% add_xy_position()
+in_wilcox_gata6_iso[c(1:2), 11] <- 2
+in_wilcox_gata6_iso
+
+in_co_boxes_gata6_iso <- ggboxplot(coculture_co, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Isolation") +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.9, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 2.5) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_gata6_iso_sign <- in_co_boxes_gata6_iso + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_gata6_iso, tip.length = 0.01)
+in_co_boxes_gata6_iso_sign
+
+## Only Inner HMGA2, grouped by the Isolation
+in_wilcox_HMGA2_iso <- coculture_co %>%
+  group_by(Isolation) %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_HMGA2_iso <- in_wilcox_HMGA2_iso %>% add_xy_position()
+in_wilcox_HMGA2_iso[c(1:2), 11] <- 4
+in_wilcox_HMGA2_iso
+
+in_co_boxes_HMGA2_iso <- ggboxplot(coculture_co, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Isolation") +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 2.5, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 5) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "unadjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_HMGA2_iso_sign <- in_co_boxes_HMGA2_iso + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_iso, tip.length = 0.01)
+in_co_boxes_HMGA2_iso_sign
+```
+
+Using a mean value from each well to create boxplots:
+
+1) get means from every well (per: Marker (HMGA2 and GATA6), Setup (= within or above 20 µm), well_ID) to a well-based data frame
+2) run test and make boxplot with these as the new groups
+
+```{r make well dependent dataframe}
+HMGA2og <- coculture_co[, c(2, 9, 11, 13, 14)]
+GATA6og <- coculture_co[, c(2, 10, 11, 13, 14)]
+## HMGA2
+#Calculate means of each well
+
+s_HMGA2og <- split(HMGA2og, f = HMGA2og$Well_ID)
+
+means_HMGA2og <- lapply(X = s_HMGA2og, FUN = function (x) {
+  split_df <- split(x, f = x$Setup)
+ # head(split_df)
+  lapply(X = split_df, FUN = function (a) {
+    h_mean <- median(a$HMGA2_fraction)
+    h_mean
+  })
+}) #This function now prints out all means for each well_ID and Setup.
+#means_HMGA2og
+#Example for one of the wells:
+means_HMGA2og$iso1_well1
+means_HMGA2bound <- bind_rows(means_HMGA2og, .id = "Well_ID")
+
+means_HMGA2bm <- melt(means_HMGA2bound, id.vars = "Well_ID", value.name = "HMGA2_mean", variable.name = "Setup")
+
+means_HMGA2bm <- means_HMGA2bm[order(means_HMGA2bm[,1] ),] # Order to enable a paired test
+
+## GATA6
+s_GATA6og <- split(GATA6og, f = GATA6og$Well_ID)
+
+means_GATA6og <- lapply(X = s_GATA6og, FUN = function (x) {
+  split_df <- split(x, f = x$Setup)
+ # head(split_df)
+  lapply(X = split_df, FUN = function (a) {
+    h_mean <- median(a$GATA6_fraction)
+    h_mean
+  })
+}) #This function now prints out all means for each well_ID and Setup.
+#means_GATA6og
+#Example for one of the wells:
+means_GATA6og$iso1_well1
+means_GATA6bound <- bind_rows(means_GATA6og, .id = "Well_ID")
+
+means_GATA6bm <- melt(means_GATA6bound, id.vars = "Well_ID", value.name = "GATA6_mean", variable.name = "Setup")
+
+means_GATA6bm <- means_GATA6bm[order(means_GATA6bm[,1] ),] # Order to enable a paired test
+```
+
+```{r boxplots of means per well}
+## Only Inner HMGA2, means from all cells per wells
+in_wilcox_HMGA2_mw <- means_HMGA2bm %>%
+  wilcox_test(HMGA2_mean ~ Setup, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_HMGA2_mw <- in_wilcox_HMGA2_mw %>% add_xy_position()
+in_wilcox_HMGA2_mw
+
+in_co_boxes_HMGA2_mw <- ggboxplot(means_HMGA2bm, x = "Setup", y = "HMGA2_mean", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 2.3, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 3) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "Paired wilcox. Labels show unadjusted p values. 1 data point =  means from all cells from 1 well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_HMGA2_mw_sign <- in_co_boxes_HMGA2_mw + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_mw, tip.length = 0.01)
+in_co_boxes_HMGA2_mw_sign
+
+## GATA6
+
+## Only Inner GATA6, means from all cells per wells
+in_wilcox_GATA6_mw <- means_GATA6bm %>%
+  wilcox_test(GATA6_mean ~ Setup, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_GATA6_mw <- in_wilcox_GATA6_mw %>% add_xy_position()
+in_wilcox_GATA6_mw
+
+in_co_boxes_GATA6_mw <- ggboxplot(means_GATA6bm, x = "Setup", y = "GATA6_mean", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.3, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 1.5) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "Paired wilcox. Labels show unadjusted p values. 1 data point =  means from all cells from 1 well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_GATA6_mw_sign <- in_co_boxes_GATA6_mw + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_GATA6_mw, tip.length = 0.01)
+in_co_boxes_GATA6_mw_sign
+
+# Version2: displaying pairing datapoints from the same wells, now with the ggplot adds and not ggpubr
+
+in_co_boxes_HMGA2_miv2 <- ggplot(means_HMGA2bm, aes(x = Setup, y = HMGA2_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.8, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  means from all cells from 1 well. p values are unadjusted.") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+in_co_boxes_HMGA2_mi_signv2 <- in_co_boxes_HMGA2_miv2 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_mw, tip.length = 0.01)
+in_co_boxes_HMGA2_mi_signv2
+
+## GATA6
+## Only Inner GATA6, means from all cells per isolation
+in_co_boxes_GATA6_miv2 <- ggplot(means_GATA6bm, aes(x = Setup, y = GATA6_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.7, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  means from all cells from 1 well. p-values are unadjusted") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5")) 
+
+in_co_boxes_GATA6_mi_signv2 <- in_co_boxes_GATA6_miv2 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_GATA6_mw, tip.length = 0.01)
+in_co_boxes_GATA6_mi_signv2
+```
+Per isolation round (= mouse). OBS, only two, statistical testing is not meaningful.
+
+```{r isolation based replicates dataframe}
+## HMGA2
+# Calculate means of each well
+
+s_HMGA2og_iso <- split(HMGA2og, f = HMGA2og$Isolation)
+
+means_HMGA2og_iso <- lapply(X = s_HMGA2og_iso, FUN = function (x) {
+  split_df <- split(x, f = x$Setup)
+ # head(split_df)
+  lapply(X = split_df, FUN = function (a) {
+    h_mean <- mean(a$HMGA2_fraction)
+    h_mean
+  })
+}) #This function now prints out all means for each Isolation and Setup.
+#means_HMGA2og
+#Example for one of the wells:
+means_HMGA2og_iso$iso_1
+means_HMGA2bound_iso <- bind_rows(means_HMGA2og_iso, .id = "Isolation")
+
+means_HMGA2bm_iso <- melt(means_HMGA2bound_iso, id.vars = "Isolation", value.name = "HMGA2_mean", variable.name = "Setup")
+
+means_HMGA2bm_iso <- means_HMGA2bm_iso[order(means_HMGA2bm_iso[,1] ),] # Order to enable a paired test
+
+## GATA6
+s_GATA6og_iso <- split(GATA6og, f = GATA6og$Isolation)
+
+means_GATA6og_iso <- lapply(X = s_GATA6og_iso, FUN = function (x) {
+  split_df <- split(x, f = x$Setup)
+ # head(split_df)
+  lapply(X = split_df, FUN = function (a) {
+    h_mean <- mean(a$GATA6_fraction)
+    h_mean
+  })
+}) #This function now prints out all means for each Isolation and Setup.
+#means_GATA6og
+#Example for one of the wells:
+means_GATA6og_iso$iso_1
+means_GATA6bound_iso <- bind_rows(means_GATA6og_iso, .id = "Isolation")
+
+means_GATA6bm_iso <- melt(means_GATA6bound_iso, id.vars = "Isolation", value.name = "GATA6_mean", variable.name = "Setup")
+
+means_GATA6bm_iso <- means_GATA6bm_iso[order(means_GATA6bm_iso[,1] ),] # Order to enable a paired test
+```
+
+```{r boxplots means per isolation}
+in_co_boxes_HMGA2_mi <- ggplot(means_HMGA2bm_iso, aes(x = Setup, y = HMGA2_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Isolation), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.8, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  means from all cells from 1 isolation") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+in_co_boxes_HMGA2_mi
+
+## GATA6
+## Only Inner GATA6, means from all cells per isolation
+in_co_boxes_GATA6_mi <- ggplot(means_GATA6bm_iso, aes(x = Setup, y = GATA6_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Isolation), colour = "grey") +
+  geom_point(size = 1.5, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.7, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  means from all cells from 1 isolation") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5")) 
+
+in_co_boxes_GATA6_mi
+```
+
+```{r number of cells in each well}
+lapply(s_GATA6og, nrow)
+bind_rows(lapply(s_GATA6og, nrow))
+```
+
+```{r continuing with only the technically better first isolation}
+iso1 <- coculture_co[coculture_co$Isolation == "iso_1", ]
+
+## Only Inner GATA6, grouped by the well, only from the first isolation
+iso1_wilcox_gata6_g <- iso1 %>%
+  group_by(Well_ID) %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1_wilcox_gata6_g <- iso1_wilcox_gata6_g %>% add_xy_position()
+iso1_wilcox_gata6_g[c(1:5), 11] <- 0.8
+iso1_wilcox_gata6_g
+
+
+iso1_gata6 <- ggboxplot(iso1, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 1) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+iso1_gata6_sign <- iso1_gata6 + stat_pvalue_manual(label = "p.adj",
+                                                    iso1_wilcox_gata6_g, tip.length = 0.01)
+iso1_gata6_sign
+
+## Only Inner HMGA2, grouped by the well, only from the first isolation
+iso1_wilcox_hmga2_g <- iso1 %>%
+  group_by(Well_ID) %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1_wilcox_hmga2_g <- iso1_wilcox_hmga2_g %>% add_xy_position()
+iso1_wilcox_hmga2_g[c(1:5), 11] <- 2
+iso1_wilcox_hmga2_g
+
+
+iso1_HMGA2_g <- ggboxplot(iso1, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.7, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2.3) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values per well") +
+  scale_color_manual(values = c("#FC8D62", "#66C2A5")) +
+  scale_fill_manual(values = c("#FC8D62", "#66C2A5"))
+
+iso1_HMGA2_g_sign <- iso1_HMGA2_g + stat_pvalue_manual(label = "p.adj",
+                                                    iso1_wilcox_hmga2_g, tip.length = 0.01)
+iso1_HMGA2_g_sign
+```
+
+```{r only iso1 well1}
+iso1well1 <- iso1[iso1$Well_ID == "iso1_well1", ]
+iso1well2_5 <- iso1[iso1$Well_ID != "iso1_well1", ]
+
+# For the main figure
+## Only Inner GATA6,  only well1, only from the first isolation
+iso1well1_wilcox_gata6_g <- iso1well1 %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1well1_wilcox_gata6_g <- iso1well1_wilcox_gata6_g %>% add_xy_position()
+iso1well1_wilcox_gata6_g[1, 10] <- 0.8
+iso1well1_wilcox_gata6_g
+
+iso1well1$Setup <- factor(iso1well1$Setup, levels = c("Within_20", "Above 20 µm"))  #want the innermost distance group to be closest to y-axis
+iso1well1_gata6 <- ggboxplot(iso1well1, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Distance group") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 1.1) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p value of well 1") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+iso1well1_gata6_sign <- iso1well1_gata6 + stat_pvalue_manual(label = "p.adj",
+                                                    iso1well1_wilcox_gata6_g, tip.length = 0.01)
+iso1well1_gata6_sign
+
+#As violin
+violin_iso1well1_gata6 <- ggviolin(iso1well1, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Distance group") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.6, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 1.9) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p value of well 1") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+violin_iso1well1_gata6_sign <- violin_iso1well1_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    iso1well1_wilcox_gata6_g, tip.length = 0.01)
+violin_iso1well1_gata6_sign
+
+## Only Inner HMGA2, only well1, only from the first isolation
+iso1well1_wilcox_hmga2_g <- iso1well1 %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1well1_wilcox_hmga2_g <- iso1well1_wilcox_hmga2_g %>% add_xy_position()
+iso1well1_wilcox_hmga2_g[1, 10] <- 1.8
+iso1well1_wilcox_hmga2_g
+
+
+iso1well1_HMGA2_g <- ggboxplot(iso1well1, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Distance group") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 1.9) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p value of well 1") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+iso1well1_HMGA2_g_sign <- iso1well1_HMGA2_g + stat_pvalue_manual(label = "p.adj",
+                                                    iso1well1_wilcox_hmga2_g, tip.length = 0.01)
+iso1well1_HMGA2_g_sign
+
+# As violin
+violin_iso1well1_HMGA2_g <- ggviolin(iso1well1, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA) +
+  xlab("Distance group") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 1.9) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p value of well 1") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+violin_iso1well1_HMGA2_g_sign <- violin_iso1well1_HMGA2_g + stat_pvalue_manual(label = "p.adj.signif",
+                                                    iso1well1_wilcox_hmga2_g, tip.length = 0.01)
+violin_iso1well1_HMGA2_g_sign
+
+## Only Inner GATA6, wells 2-5, only from the first isolation
+iso1well25_wilcox_gata6_g <- iso1well2_5 %>%
+  group_by(Well_ID) %>%
+  wilcox_test(GATA6_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1well25_wilcox_gata6_g <- iso1well25_wilcox_gata6_g %>% add_xy_position()
+iso1well25_wilcox_gata6_g[1:4, 11] <- 1
+iso1well25_wilcox_gata6_g
+
+iso1well2_5$Setup <- factor(iso1well2_5$Setup, levels = c("Within_20", "Above 20 µm"))
+
+iso1well25_gata6 <- ggboxplot(iso1well2_5, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Distance group") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2.3) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values of wells 2-5") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+iso1well25_gata6_sign <- iso1well25_gata6 + stat_pvalue_manual(label = "p.adj",
+                                                    iso1well25_wilcox_gata6_g, tip.length = 0.01)
+iso1well25_gata6_sign
+
+#As violin
+violin_iso1well25_gata6 <- ggviolin(iso1well2_5, x = "Setup", y = "GATA6_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Distance group") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.6, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 1.2) +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values of wells 2-5") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+violin_iso1well25_gata6_sign <- violin_iso1well25_gata6 + stat_pvalue_manual(label = "p.adj.signif",
+                                                    iso1well25_wilcox_gata6_g, tip.length = 0.01)
+violin_iso1well25_gata6_sign
+
+## Only Inner HMGA2, only well1, only from the first isolation
+iso1well25_wilcox_hmga2_g <- iso1well2_5 %>%
+  group_by(Well_ID) %>%
+  wilcox_test(HMGA2_fraction ~ Setup) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+iso1well25_wilcox_hmga2_g <- iso1well25_wilcox_hmga2_g %>% add_xy_position()
+iso1well25_wilcox_hmga2_g[1:4, 11] <- 2
+iso1well25_wilcox_hmga2_g
+
+iso1well25_HMGA2_g <- ggboxplot(iso1well2_5, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Distance group") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+ ylim(0, 2.3) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values of wells 2-5") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+iso1well25_HMGA2_g_sign <- iso1well25_HMGA2_g + stat_pvalue_manual(label = "p.adj",
+                                                    iso1well25_wilcox_hmga2_g, tip.length = 0.01)
+iso1well25_HMGA2_g_sign
+
+#as violin
+violin_iso1well25_HMGA2_g <- ggviolin(iso1well2_5, x = "Setup", y = "HMGA2_fraction", 
+          color = "Setup", fill = "Setup", alpha = 0.4, outlier.shape = NA, facet.by = "Well_ID") +
+  xlab("Distance group") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 1.6, label = paste("Median =",round(median(x), digits = 4))), geom="text") +
+ ylim(0, 2.3) +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images. Not displaying outliers", subtitle = "adjusted p values of wells 2-5") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62"))
+
+violin_iso1well25_HMGA2_g_sign <- violin_iso1well25_HMGA2_g + stat_pvalue_manual(label = "p.adj.signif",
+                                                    iso1well25_wilcox_hmga2_g, tip.length = 0.01)
+violin_iso1well25_HMGA2_g_sign
+```
+
+```{r alternative for plotting of well1 paired per well ID}
+means_GATA6bm$isolation <- factor(nrow(means_GATA6bm))
+means_GATA6bm <- means_GATA6bm %>% mutate(isolation = ifelse(grepl('iso1', means_GATA6bm$Well_ID), 'iso1', .$isolation))
+means_GATA6bm <- means_GATA6bm %>% mutate(isolation = ifelse(grepl('iso2', means_GATA6bm$Well_ID), 'iso2', .$isolation))
+
+means_gata6bm_iso1 <- means_GATA6bm[means_GATA6bm$isolation == "iso1", ]
+means_gata6bm_iso1[, -4]
+
+means_HMGA2bm$isolation <- factor(nrow(means_HMGA2bm))
+means_HMGA2bm <- means_HMGA2bm %>% mutate(isolation = ifelse(grepl('iso1', means_HMGA2bm$Well_ID), 'iso1', .$isolation))
+means_HMGA2bm <- means_HMGA2bm %>% mutate(isolation = ifelse(grepl('iso2', means_HMGA2bm$Well_ID), 'iso2', .$isolation))
+
+means_HMGA2bm_iso1 <- means_HMGA2bm[means_HMGA2bm$isolation == "iso1", ]
+means_HMGA2bm_iso1[, -4]
+
+## Only Inner GATA6, means from all cells per wells, from isolation 1
+in_wilcox_GATA6_mw_iso1 <- means_gata6bm_iso1 %>%
+  wilcox_test(GATA6_mean ~ Setup, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_GATA6_mw_iso1 <- in_wilcox_GATA6_mw_iso1 %>% add_xy_position()
+in_wilcox_GATA6_mw_iso1
+
+## Only Inner HMGA2, means from all cells per wells from isolation 1
+in_wilcox_HMGA2_mw_iso1 <- means_HMGA2bm_iso1 %>%
+  wilcox_test(HMGA2_mean ~ Setup, paired = TRUE) %>%
+  adjust_pvalue(method = "BH") %>%
+  add_significance("p.adj")
+
+in_wilcox_HMGA2_mw_iso1 <- in_wilcox_HMGA2_mw_iso1 %>% add_xy_position()
+in_wilcox_HMGA2_mw_iso1
+
+means_HMGA2bm_iso1$Setup <- factor(means_HMGA2bm_iso1$Setup, levels = c("Within_20", "Above 20 µm"))  #want the innermost distance group to be closest to y-axis
+
+# Displaying pairing datapoints from the same wells, now with the ggplot adds and not ggpubr
+in_co_boxes_HMGA2_miv2_iso1 <- ggplot(means_HMGA2bm_iso1, aes(x = Setup, y = HMGA2_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 2, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.65, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  mean from all cells per well from isolation 1. p values are unadjusted.") +  
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62")) +
+  theme_clean()
+
+in_co_boxes_HMGA2_mi_signv2_iso1 <- in_co_boxes_HMGA2_miv2_iso1 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_mw_iso1, tip.length = 0.01)
+in_co_boxes_HMGA2_mi_signv2_iso1
+
+# As violin plot
+in_co_violin_HMGA2_miv2_iso1 <- ggplot(means_HMGA2bm_iso1, aes(x = Setup, y = HMGA2_mean)) +
+  geom_violin(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 2, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("HMGA2 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.65, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "HMGA2 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  mean from all cells per well from isolation 1. p values are unadjusted.") +  
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62")) +
+  theme_clean()
+
+in_co_violin_HMGA2_mi_signv2_iso1 <- in_co_violin_HMGA2_miv2_iso1 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_HMGA2_mw_iso1, tip.length = 0.01)
+in_co_violin_HMGA2_mi_signv2_iso1
+
+## GATA6
+## Only Inner GATA6, means from all cells per isolation
+
+means_gata6bm_iso1$Setup <- factor(means_gata6bm_iso1$Setup, levels = c("Within_20", "Above 20 µm"))  #want the innermost distance group to be closest to y-axis
+
+in_co_boxes_GATA6_miv2_iso1 <- ggplot(means_gata6bm_iso1, aes(x = Setup, y = GATA6_mean)) +
+  geom_boxplot(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 2, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.23, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  mean from all cells per well from isolation 1. p-values are unadjusted") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62")) +
+  theme_clean()
+
+in_co_boxes_GATA6_mi_signv2_iso1 <- in_co_boxes_GATA6_miv2_iso1 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_GATA6_mw_iso1, tip.length = 0.01)
+in_co_boxes_GATA6_mi_signv2_iso1
+
+# as violin plot
+in_co_violin_GATA6_miv2_iso1 <- ggplot(means_gata6bm_iso1, aes(x = Setup, y = GATA6_mean)) +
+  geom_violin(aes(color = Setup, fill = Setup), alpha = 0.4) +
+  geom_line(aes(group = Well_ID), colour = "grey") +
+  geom_point(size = 2, aes(fill = Setup, color = Setup)) +
+  xlab("Culture condition") + ylab("GATA6 expression normalised to Hoechst signal") +
+  stat_summary(fun.data = function(x) data.frame(y = 0.23, label = paste("Mean =",round(mean(x), digits = 4))), geom="text") +
+  labs(title = "GATA6 expression normalised to Hoechst signal - Inner images", subtitle = "1 data point =  mean from all cells per well from isolation 1. p-values are unadjusted") +
+  scale_color_manual(values = c("#66C2A5", "#FC8D62")) +
+  scale_fill_manual(values = c("#66C2A5", "#FC8D62")) +
+  theme_clean()
+
+in_co_violin_GATA6_mi_signv2_iso1 <- in_co_violin_GATA6_miv2_iso1 + stat_pvalue_manual(label = "p",
+                                                    in_wilcox_GATA6_mw_iso1, tip.length = 0.01)
+in_co_violin_GATA6_mi_signv2_iso1
+```
+
+
+```{r distrib iso 1 means}
+gghistogram(means_gata6bm_iso1, x = "GATA6_mean", bins = 5, color = "Setup", fill = "Setup", palette = "Set1", title = "GATA6 median per well histogram")
+gghistogram(means_HMGA2bm_iso1, x = "HMGA2_mean", bins = 5, color = "Setup", fill = "Setup", palette = "Set1", title = "HMGA2 median per well histogram")
+```

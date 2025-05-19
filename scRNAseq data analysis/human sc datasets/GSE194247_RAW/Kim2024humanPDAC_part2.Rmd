@@ -1,0 +1,154 @@
+---
+title: "AAnalysis of scRNA-seq data of human PDAC 2/2 by Kim et al. 2024"
+author: "Annika Viljamaa"
+date: "`r Sys.Date()`"
+output: 
+  html_document:
+    df_print: "kable"
+    toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## dependencies
+
+```{r}
+library(Seurat)
+library(dplyr)
+library(tidyverse)
+
+set.seed(123)
+```
+
+
+```{r}
+fibroblasts <- readRDS("./output/GSE194247_fibroblasts.rds")
+
+fibroblasts
+```
+
+```{r}
+head(fibroblasts) 
+```
+
+
+```{r}
+p1 <- DimPlot(fibroblasts, reduction = 'umap', group.by = 'CellType_cluster')
+p2 <- DimPlot(fibroblasts, reduction = 'umap', group.by = 'orig.ident')
+
+p1+p2
+```
+
+## DEGs
+### NGFR+ fibroblasts vs. the all rest of fibroblasts
+
+```{r}
+
+#Ngfr+ cells
+Ngfr_fibroblasts <- WhichCells(subset(x = fibroblasts, subset = NGFR > 0))
+
+fibroblasts@meta.data$Ngfr_status <- ifelse(fibroblasts@meta.data$cell_id%in%Ngfr_fibroblasts, 'NGFR+', 'NGFR-')
+
+# sanity check
+nrow(fibroblasts@meta.data[fibroblasts@meta.data$Ngfr_status=='NGFR+',])
+nrow(fibroblasts@meta.data[fibroblasts@meta.data$Ngfr_status=='NGFR-',])  
+
+fibroblasts
+
+```
+
+```{r}
+Idents(fibroblasts) <- 'Ngfr_status'
+
+options(future.globals.maxSize = 8000 * 1024^2)
+Ngfr.markers_all <- FindAllMarkers(fibroblasts, only.pos = FALSE)
+
+Ngfr.markers <- FindMarkers(fibroblasts, ident.1 = "NGFR+", ident.2 = "NGFR-", verbose = FALSE)
+head(Ngfr.markers, n = 20)
+
+Ngfr.markers
+
+```
+
+
+```{r}
+
+library(clusterProfiler)
+library(AnnotationDbi)
+library(org.Hs.eg.db)
+
+gene_ls <- rownames(Ngfr.markers[Ngfr.markers$avg_log2FC>1 & Ngfr.markers$p_val_adj<0.01,])
+GO_results <- enrichGO(gene=gene_ls, OrgDb = "org.Hs.eg.db", keyType = 'SYMBOL', ont = "BP")         
+
+
+result_df <- as.data.frame(GO_results)
+result_df <- result_df[order(result_df$p.adjust, decreasing = F),]
+
+result_df
+```
+
+
+```{r}
+
+library(ggplot2)
+library(ggbreak)
+library(viridis)
+
+
+top15 <- result_df[1:30,]
+top15 <- top15[order(top15$p.adjust, decreasing = T),]
+
+# Create the lollipop plot
+ggplot(top15, aes(x = factor(Description, levels= unique(Description)), y = FoldEnrichment, color=p.adjust)) +
+  geom_segment(aes(xend = Description, yend = 0)) +
+  geom_point(aes(size = Count)) +
+  scale_color_viridis(option = "C", direction=1, begin=0.2, end = 1, limits=c(0,0.05)) +
+  coord_flip() +
+  labs(
+    x = "",
+    y = "FoldEnrichment",
+    title = "",
+    size = "Gene Count"
+  ) +
+  theme_minimal()
+```
+
+
+## CAF marker expression pattern of Ngfr+ fibroblasts
+
+```{r}
+
+CAFs <- c('NGFR', 'PDGFRA', 'ACTA2', 'CD74')
+
+# Identify cells expressing selected genes in each cluster
+fibroblast_genes <- FetchData(fibroblasts, vars = CAFs, layer = "scale.data")
+
+count_matrix <- t(fibroblast_genes)
+
+# Extract expressed genes as a list
+expressed_genes <- apply(count_matrix, 1, function(counts) {
+  genes_expressed <- colnames(count_matrix)[counts > 0]
+  genes_expressed
+})
+
+#subset list to only Ngfr+ cells
+Ngfr_cells <- expressed_genes$NGFR
+Ngfr_expressed <- lapply(expressed_genes, function(x) x[x %in% Ngfr_cells])
+
+# Venn diagram
+library(ggVennDiagram)
+venn <- Ngfr_expressed[c(-1)]
+venn_plot_data <- process_data(Venn(venn[-4]), shape_id = '301')
+v <- plot_venn(venn_plot_data)+#, label = 'percent', order.intersect.by = 'name')+
+  scale_fill_distiller(palette = "YlGnBu")+
+  theme_void()
+v
+
+# proportional venn
+library(BioVenn)
+draw.venn(venn$ACTA2, venn$PDGFRA, venn$CD74, title = '', nrtype="abs",
+          xtitle = 'ACTA2', ytitle = 'PDGFRA', ztitle = 'CD74')
+
+```
