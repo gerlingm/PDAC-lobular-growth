@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 This script explores whether two macrophage types, defined below by their marker expression, are differentially expressed between lobule and stroma.
 
-In brief, larger annotations of lobules and stroma were created in qupath (ROIs, regions of interest). Each ROI was in the vincinity of tumor. Within, cell detection was performed, and a clean-up to enrich for immune cells only was applied. The clean-up consisted of: ________________ removal of PanCK+ cells, removal of cells with very elongated nucleus (these would be more likely to be stromal cells and not immune cells).
+In brief, larger annotations of lobules and stroma were created in qupath (ROIs, regions of interest). Each ROI was in the vincinity of tumor. Within, cell detection was performed, and a clean-up to enrich for immune cells only was applied. The clean-up consisted of: removal of PanCK+ cells, removal of cells with very elongated nucleus (these would be more likely to be stromal cells and not immune cells).
 
 In this pipeline, CD68 will be used as pan-macrophage marker, (nb, a pan-monocyte marker). Cells double positive for CD163 and CD68 are called M2 type of macrophage. CD163- CD69+ cells will be called M1 macrophages.
 
@@ -24,22 +24,16 @@ library(ggplot2)
 library(tidyr)
 library(ggpubr)
 library(ggthemes)
-
 ```
 
-
 ```{r Read in qupath export file}
-
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") #Adjust working directory
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF immune") #Adjust working directory
 immunepanel_cleaned = read.csv("read in_m-IF_immune.csv")
 
 immunepanel_cleaned <- immunepanel_cleaned[, -c(3, 4, 7)]
-
 ```
 
-
 ```{r grouping columns and data format cleaned }
-
 #Create individual columns displaying whether cells are positive for a given stain. This information is extracted from the column "Classification", as determined by the qupath classifier.
 immunepanel_cleaned$CD68_pos <- factor(nrow(immunepanel_cleaned))
 immunepanel_cleaned$CD163_pos <- factor(nrow(immunepanel_cleaned))
@@ -58,11 +52,9 @@ immunepanel_cleaned <- immunepanel_cleaned %>% mutate(NKp46_pos = ifelse(grepl('
 immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD3_pos = ifelse(grepl('CD3_pos', immunepanel_cleaned$Classification), '1', .$CD3_pos))
 immunepanel_cleaned <- immunepanel_cleaned %>% mutate(CD3_pos = ifelse(grepl('CD3_neg', immunepanel_cleaned$Classification), '0', .$CD3_pos)) # 176 422 cells, same as the original read in file.
 # 1 row = 1 cell.
-
 ```
 
 ```{r cleanup including melt}
-
 # the goal is to show what immune cells, specifically macrophages, exist in lobules and in stroma.
 # Format the data to enable calculation of fractions of positive cells, depending on the ROI identity:
 
@@ -140,7 +132,6 @@ Focused research question: are M1 and M2 macrophages (Mø) and their ratio diffe
 # M2 mø = CD68+CD163+
 # M1 mø = CD68+CD163-
 
-
 #1) remove all cells that are positive for CD3 ( they are T cells)
 #immunepanel_cleaned derived
 
@@ -170,12 +161,10 @@ bar_mo <- ggplot(mo, aes(x = mo_subtype, color = Compartment, fill = Compartment
   labs(title = "Total count of macrophage types") +
   theme_clean()
 bar_mo
-
 ```
 
 
 ```{r melt and create histograms of mo subset}
-
 mo_cell <- mo[, -c(3, 7:11)]
 
 melt_mo_cell <- melt(mo_cell, id = c("Image", "Object.ID", "Parent", "mo_subtype", "Compartment"))
@@ -192,7 +181,6 @@ hist_mo <- gghistogram(melt_mo_cell, x = "Intensity", color = "mo_subtype", alph
   facet_grid(mo_subtype~Stain) +
   theme_clean()
 hist_mo
-
 ```
 
 ```{r calculate fractions of macrophage subtypes per ROI mo}
@@ -224,20 +212,15 @@ immunecells_calc_fr_mo <- lapply (X = tot_det_s_mo, FUN = fun_immunecells_frac_m
 
 immunecells_calc_frsub_mo <- bind_rows(immunecells_calc_fr_mo) #77 576 rows . 1 row for each cell.
 
-
 immunecells_calc_frsub_mo <- immunecells_calc_frsub_mo[, -c(2, 4, 6:8)] #remove cell-specific row information: "group", enabling unique-ing to the ROIs in next command
 immunecells_calc_frsub_roi_mo <- unique(immunecells_calc_frsub_mo) # 74 rows. 1 row for each ROI.
 
-#melt it down
-
+#melt
 melt_mofractions <- melt(immunecells_calc_frsub_roi_mo, id = c("Image", "Parent", "Compartment", "sum_detections_ROI"), variable.name = "Immune_subtype", value.name = "Pos_fraction") # 222 rows = 74*3. 3 cell types per ROI.
 head(melt_mofractions)
-
-
 ```
 
 ```{r boxplot mo subtype per compartment}
-
 boxes_mo<- ggboxplot(melt_mofractions, x = "Immune_subtype", y = "Pos_fraction", 
                         color = "Compartment", fill = "Compartment", alpha=0.6) +
   scale_color_brewer(palette= "Set2", type = "qual") +
@@ -263,14 +246,14 @@ t_test_mo
 wilcox_mo <- wilcox_mo %>% add_xy_position(x = "Immune_subtype")
 wilcox_mo
 
-
 boxes_mo_sign <- boxes_mo + stat_pvalue_manual(label = "p.adj.signif",
                                                     wilcox_mo, tip.length = 0.01)
 boxes_mo_sign
-
-
 ```
 
+```{r}
+sessionInfo()
+```
 
 
 

@@ -1,5 +1,5 @@
 ---
-title: "m-IF_Stroma layering_cleaned up"
+title: "m-IF_Stroma layering"
 author: "Sara Söderqvist"
 date: "2024-03-13"
 output: html_document
@@ -9,13 +9,33 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## CAF analysis  based on expression of m-IF markers.
-Most plots are separated on the stromalayer. Layer here refers to the how close the stroma cell (nucleus) was to the tumor cluster tumor. 
-Inner: within 15 µm to tumor
-Middle: 15-30 µm from tumor
-Outer: 30-45 µm from tumor.
+## Analysis of stromal cell's expression at varying distances from tumor based on expression of multiplex-immunofluorescence staining (m-IF).
 
-``` {r Data cleaunup_intensity cell, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+This script explores whether the stromal cells near tumor cells express different markers more frequently, depending on how close they were to the tumor cells.
+
+Most plots are separated on the "layer". Layer here refers to the how close the stroma cell (nucleus) was to the tumor cluster tumor, which were clearly visible distinguishable by p53-reactivity.
+
+* Inner: within 15 µm to tumor
+* Middle: 15-30 µm from tumor
+* Outer: 30-45 µm from tumor.
+
+Moreover, tumor cells were present in either lobules or regions which were stroma-transformed/desmoplastic.
+
+```{r read in required libraries}
+library(reshape2)
+library(dplyr)
+library(ggplot2)
+library(ggthemes)
+library(RColorBrewer)
+library(BiocGenerics)
+library(rstatix)
+library(wesanderson)
+library(ggpubr)
+library(tidyr)
+```
+
+
+``` {r Data cleaunup_intensity cell}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/Layers")
 
 path <- file.path(getwd())
@@ -25,8 +45,6 @@ v.filename <- list.files(path, pattern="'*.csv",
 
 ls_composite_intense = do.call(cbind, lapply(v.filename, 
                                 function(x) read.csv(x)))
-library(reshape2)
-library(dplyr)
 
 ls_composite_intense$Compartment <- factor(nrow(ls_composite_intense))
 ls_composite_intense$Compartment <- "Stroma"
@@ -54,27 +72,21 @@ ls_composite_intense$G_ROI <- gsub("lobe_", "", x = ls_composite_intense$G_ROI)
 ls_composite_intense$Group <- paste(ls_composite_intense$Image, ls_composite_intense$Compartment, ls_composite_intense$Layer, ls_composite_intense$G_ROI, sep="_")
 ls_composite_intense <- ls_composite_intense[, -c(3, 6:8, 14)]
 
-
 m_raw_intense <- melt(ls_composite_intense, id = c("Image", "Object.ID", "Class", "Parent", "Compartment", "Layer", "Group", "G_ROI"))
 
 colnames(m_raw_intense) [9] <- "Stain"
 colnames(m_raw_intense) [10] <- "mean_intensity"
 
-# Only the 3 stains stains of interest:
+# Only 3 stains stains of interest:
 ls_composite_intense_3 <- ls_composite_intense[, -c(6, 9)]
 m_raw_intense_3 <- melt(ls_composite_intense_3, id = c("Image", "Object.ID", "Class", "Parent", "Compartment", "Layer","Group", "G_ROI"))
 
 colnames(m_raw_intense_3) [9] <- "Stain"
 colnames(m_raw_intense_3) [10] <- "mean_intensity"
-
 ```
 
 
 ```{r composite intensity cell initial histograms}
-library(ggplot2)
-library(ggthemes)
-library(RColorBrewer)
-
 # Exploratory histograms for all five stains, to show distributions. (with NGFR having so many negative or low intensity cells, difficult to see the ASMA, PDGFRa, CD74. Below there will therefore also be summaries and plots where NGFR and and Vimentin are excluded.
 hist_intense_raw <- m_raw_intense %>%
   ggplot(aes(x=mean_intensity, fill=Stain, color = Stain)) +
@@ -151,9 +163,6 @@ levels(m_raw_intense_3$Parent)
 ```
 
 ```{r summary statistics}
-library(BiocGenerics)
-library(dplyr)
-
 summary_raw_intense <- m_raw_intense %>%
   group_by(Stain) %>%
    dplyr::summarise(
@@ -251,7 +260,7 @@ summary_raw_intense_CompLayer_3 <- m_raw_intense_3 %>%
 summary_raw_intense_CompLayer_3
 ```
 
-## Plots applied in the manuscript: single positivity per stain, applied from the QuPath classifier.
+## Plots applied in the manuscript: single positivity per stain, as applied from the QuPath classifier.
 
 ```{r sp dunn test with classifier, sp for each stain}
 sp_fraction <- ls_composite_intense[, -c(5:9, 14:34)]
@@ -279,7 +288,6 @@ melt_sp_fraction <- melt(sp_fraction, id = c("Image", "Object.ID", "Class", "Par
 colnames(melt_sp_fraction) [9] <- "Stain" 
 colnames(melt_sp_fraction) [10] <- "Cell_pos"
 
-library(tidyr)
 melt_sp_fraction <- separate(data = melt_sp_fraction, col = "Image", into="Image", sep=c("_"), remove=TRUE)
 melt_sp_fraction$Group <- paste(melt_sp_fraction$Group, melt_sp_fraction$Stain, sep = "")
 s_melt_sp_fraction <- split(melt_sp_fraction, f = melt_sp_fraction$Group)
@@ -301,7 +309,6 @@ spcell_calc_frsub <- bind_rows(sp_calc_fr) #55 830 rows
 
 spcell_calc_frsub <- spcell_calc_frsub[, -c(2, 3, 10, 11)] 
 spcell_calc_frsub <- unique(spcell_calc_frsub) # 1815 rows
-
 ```
 
 
@@ -317,7 +324,6 @@ summary_comp_sp <- spcell_calc_frsub %>%
   )
 summary_comp_sp
 
-library(rstatix)
 Kruskal_PKRstroma_slcomp_sp <- spcell_calc_frsub %>%
   group_by(Stain, Compartment) %>%
   kruskal_test(pos_fraction ~ Layer) 
@@ -334,8 +340,6 @@ Dunn_PKRstroma_comp_1_sp$xmax <- Dunn_PKRstroma_comp_1_sp$xmax-1
 Dunn_PKRstroma_comp_1_sp$xmin <- Dunn_PKRstroma_comp_1_sp$xmin-1
 #Dunn_PKRstroma_comp_1_sp
 
-library(wesanderson)
-library(ggpubr)
 Dunn_boxes_comp_sp <- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction", 
                         color = "Layer", fill = "Layer", alpha = 0.6) +
   stat_pvalue_manual(Dunn_PKRstroma_comp_1_sp, label = "p.adj.signif")+
@@ -383,13 +387,9 @@ Dunn_boxes_sp <- ggboxplot(spcell_calc_frsub, x = "Layer", y = "pos_fraction",
   labs(title = "Comparison: The stroma layers per stain, cell classifier", subtitle = "Q: does the prescence of sp stroma cells in both stroma and in lobes differ between inner, middle and outer layers?")
   
 Dunn_boxes_sp
-
-Suppl_Fig_14b <- Dunn_boxes_comp_sp
-
-Fig_4f <- Dunn_boxes_sp
-
 ```
-added after biorxiv submission. 2024 03 15
+
+added after biorxiv submission, 2024 03 15 and onwards
 
 ```{r lobule vs stroma expression comparison}
 # Question: is there a diff between lobular and stromal for each respective Stain and stroma layer? 
@@ -468,11 +468,10 @@ wilcox_boxes_slcomp_notlayer<- ggboxplot(spcell_calc_frsub, x = "Stain", y = "po
   labs(title = "Comparison: Differential expression in the 2 compartments per stain", subtitle = "Q: does the expression of sp [stain] differ between stroma and lobes?")
   
 wilcox_boxes_slcomp_notlayer
+```
 
-Suppl_Fig_14c <- wilcox_boxes_slcomp
-Fig_4g <- wilcox_boxes_slcomp_notlayer
-
-
+```{r}
+sessionInfo()
 ```
 
 

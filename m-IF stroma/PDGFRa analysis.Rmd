@@ -6,16 +6,26 @@ output: html_document
 ---
 
 ## PDGFRa analysis
-Analysis of the expression profile of stroma cells in stroma-transformed/desmoplastic compartment 
-We have shown that in lobules, NGFR+ stroma cells frequently co-express PDGFRa.
+This script explores the the expression profile of stroma cells in stroma-transformed/desmoplastic parts of PDAC.
+In this study, in a separate analysis, we have shown NGFR+ stromal cells present in the lobular microenvironment frequently co-express PDGFRalpha.
 
-To show that these are separated from the PDGFRa+ cells in stroma-transformed/desmoplastic compartment ( ~iCAF proxy), we show, in particular, that these stroma cells don't express NGFR frequently.
+To explore whether these stromal cells in the lobules have a different expression profile than the stromal cells which typically constitute the stroma-transformed, desmoplastic compartment in PDAC, where here show that these stroma/desmoplasia resident stromal cells don't express NGFR frequently.
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r Data read in_cell_PDGFRa, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+```{r load required libraries}
+library(dplyr)
+library(reshape2)
+library(tidyr)
+library(ggthemes)
+library(wesanderson)
+library(ggpubr)
+```
+
+
+``` {r Data read in_cell_PDGFRa}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/PDGFRa") #Adjust the working directory to read in the file from
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
@@ -29,7 +39,6 @@ StromaPDGFRa = do.call(cbind, lapply(v.filename,
 ```{r PDGFRa data clean up}
 StromaPDGFRa$Tumor <- factor(nrow(StromaPDGFRa))
 
-library(dplyr)
 StromaPDGFRa <- StromaPDGFRa %>% mutate(Tumor = ifelse(grepl(' Tumor: ', StromaPDGFRa$Class), 'Yes', .$Tumor))
 StromaPDGFRa <- StromaPDGFRa %>% mutate(Tumor = ifelse(grepl(' Not tumor: ', StromaPDGFRa$Class), 'No', .$Tumor))
 
@@ -61,15 +70,12 @@ s_PDGFRa_StromaPDGFRa <- split(nottumor_StromaPDGFRa, f = nottumor_StromaPDGFRa$
 PDGFRa_pos <- s_PDGFRa_StromaPDGFRa$Yes #30 945 cells
 ```
 
-
 ```{r count the single positives (dataset now includes only p53-PDGFRa+ cells) }
 # the goal is to show what pdgfra+ stroma cells, in desmoplasia, co-express, and the working hypothesis is that they are low for ngfr. 
 
 # first calculating the positive fractions ROI-wise.
 PDGFRa_cell <- PDGFRa_pos[, -c(3, 4, 6, 7, 12)] # removing name and class columns, and p53 and pdgra columns.
 
-library(reshape2)
-library(tidyr)
 # Melt the df and tidy up
 molten_stromaPDGFRa <- melt(PDGFRa_cell, id = c("Image", "Object.ID", "Parent"))
 colnames(molten_stromaPDGFRa) [4] <- "Stain" #colnames such as "variable" and "value" will interfere with other terms
@@ -100,14 +106,9 @@ PDGFRa_calc_frsub <- bind_rows(PDGFRa_calc_fr)
 
 PDGFRa_calc_frsub <- PDGFRa_calc_frsub[, -c(2, 5)] #123 780 rows (1 row = 1 cell)
 PDGFRa_calc_frsub <- unique(PDGFRa_calc_frsub) # 160 rows, means no data loss. 8 cases, 5 rois, 4 stains. (1 row = per case stain ROI)
-
 ```
 
-
 ```{r plot PDGFR+ co-expression }
-library(ggthemes)
-library(wesanderson)
-
 boxes_PDGFRa<- ggboxplot(PDGFRa_calc_frsub, x = "Stain", y = "pos_fraction", 
                         color = "Stain", fill = "Stain", alpha=0.6) +
   scale_fill_manual(values = wes_palette("GrandBudapest1", n = 4))+
@@ -115,10 +116,7 @@ boxes_PDGFRa<- ggboxplot(PDGFRa_calc_frsub, x = "Stain", y = "pos_fraction",
   labs(title = "PDGFRa+ cells expression of other stains") +
   xlab(NULL) + ylab("Average positive cells per ROI") +
   theme_clean()
-  
 boxes_PDGFRa
-
-Suppl_15c <- boxes_PDGFRa
 ```
 
 ```{r control nr of rois}
@@ -126,12 +124,9 @@ Suppl_15c <- boxes_PDGFRa
 PDGFRa_calc_frsub$Group_ImageParent <- paste(PDGFRa_calc_frsub$Image, PDGFRa_calc_frsub$Parent, sep = "_" )
 allunique_ROIs <- unique(PDGFRa_calc_frsub$Group_ImageParent)
 summary(allunique_ROIs) # 40 unique ROIs
-
 ```
 
-
-
-
-
-
+```{r}
+sessionInfo()
+```
 

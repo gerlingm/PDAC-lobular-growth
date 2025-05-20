@@ -26,7 +26,7 @@ library(wesanderson)
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-``` {r Data read in_cell_NGFR, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
+``` {r Data read in_cell_NGFR}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/NGFR") #adjust the working directory to read in the csv file
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
