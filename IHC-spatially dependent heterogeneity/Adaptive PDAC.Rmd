@@ -17,12 +17,34 @@ This is a study of compartment-dependent heterogeneity in pancreatic cancer. In 
 
 For each case, up to 9 regions of interest (ROIs) for "tumor in septa" (=stroma) and 9 ROIs representing "tumor in acinar (=lobular) invasion". The ROIs are overlapping across the different stains. All quantifications extracted are only including tumor cells. Data cleanup include removal of ev. annotations in the images that helped correct ROI setting.
 
+```{r read in required libraries}
+library(tidyr)
+library(dplyr)
+library(rstatix)
+library(reactable)
+library(ggthemes)
+library(ggpubr)
+library(data.table)
+library(reshape2)
+library(corrplot)
+library(patchwork)
+library(ggplot2)
+library(ComplexHeatmap)
+library(viridis) 
+library(RColorBrewer)
+library(ggVennDiagram)
+library(dichromat)
+library(survminer)
+library(BioVenn)
+library(Hmisc)
+library(stringr)
+library(forcats)
+library(ggridges)
+library(hrbrthemes)
+```
+
 ``` {r Data cleaunup, echo = FALSE, message = FALSE, results = "hide", warning = FALSE}
-
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/IHC-spatially dependent heterogeneity") # adjust the working directory
-
-library("tidyr")
-library("dplyr")
 
 path <- file.path(getwd())
 v.filename <- list.files(path, pattern="'*.csv", 
@@ -379,7 +401,7 @@ ac_s26 <- rbind(ac_s25,
 all_comb_imputated <- ac_s26
 str(all_comb_imputated)
 
-# Make various grouping columns
+# Make grouping columns of combinations of case ID, marker/stain, and compartment 
 all_comb_imputated$Group <- paste("PKR-", all_comb_imputated$PKR, " ", all_comb_imputated$Stain, " ", all_comb_imputated$Class, sep="")
 all_comb_imputated$Group_Case_Stain <- paste("PKR-", all_comb_imputated$PKR, " ", all_comb_imputated$Stain, sep="")
 all_comb_imputated$Group_Stain_Class <- paste(all_comb_imputated$Stain, all_comb_imputated$Class, sep=" ")
@@ -397,7 +419,6 @@ str(all_combined)
 #Control that there are no doublets
 n_occur <- data.frame(table(all_combined$Group))
 n_occur[n_occur$Freq > 1,] 
-
 ```
   
 ### The data and groupings:
@@ -423,7 +444,6 @@ exl_Muc5 <- all_combined_exl[all_combined_exl$Stain == "Muc5", c("PKR", "Stain",
 exl_HMGA2 <- all_combined_exl[all_combined_exl$Stain == "HMGA2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
 exl_CDX2 <- all_combined_exl[all_combined_exl$Stain == "CDX2", c("PKR", "Stain", "Class", "Num.Detections", "Tumor..Positive..", "Num.Tumor..Negative", "Num.Tumor..Positive", "Group", "Group_Case_Stain", "Group_Stain_Class", "Group_Case_Class", "Tissue_compartment")]
 
-library("rstatix")
 stat.test_CK17 <- exl_CK17 %>%
   group_by(PKR) %>%
   wilcox_test(
@@ -696,7 +716,6 @@ stat.test.CDX2_m <- full_join(stat.test.CDX2_m, tb_CDX2, by = "PKR")
 ## Tables of Wilcoxon-tests with median and mean, separated on each stain
 
 ```{r Write wilcoxon tables}
-library("reactable")
 reactable(stat.test.CK17_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
 reactable(stat.test.Muc5_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
 reactable(stat.test.CA125_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
@@ -705,7 +724,7 @@ reactable(stat.test.HMGA2_m, striped = T, bordered = T, defaultPageSize = 16, sh
 ```
 
 
-```{r Write wilcoxon tables}
+```{r Write wilcoxon tables 2}
 reactable(stat.test.CDX2_m, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
 reactable(all_combined, striped = T, bordered = T, defaultPageSize = 16, showPageInfo = FALSE, showPageSizeOptions = TRUE, filterable = T)
 
@@ -716,9 +735,6 @@ Separate for each stain, faceted on each case.
 Each dot = 1 ROI.
 
 ``` {r Boxplot CK17}
-
-library("ggthemes")
-library("ggpubr")
 boxes_ck17 <- ggboxplot(all_CK17, x = "Tissue_compartment", y = "Tumor..Positive..",
                         color = "Tissue_compartment", palette = "Set2",
                         add = "jitter",
@@ -991,14 +1007,12 @@ boxes_CDX2_sign + stat_pvalue_manual(label = "p.adj.signif",
 Correlation plot of the markers in IHC cohort, No imputation, enabled by using the data matrix all_combined_exl, and only using complete obervations.
 
 ```{r Cor datamatrix_updated, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
-library("data.table")
 matrix_A <- dcast(data = all_combined_exl, Group_Case_Class ~ Stain,
                   value.var = "Tumor..Positive..")
 #matrix_A[is.na(matrix_A)] <- 0
 rownames(matrix_A) = matrix_A$Group_Case_Class
 matrix_A <- matrix_A[, -1]
 
-library("corrplot")
 cor_A <- cor(matrix_A, use="complete.obs")
 testRes = cor.mtest(matrix_A, conf.level = 0.95)
 ```
@@ -1011,7 +1025,6 @@ head(testRes)
 
 ## Draw correlation matrix with complex heatmap package
 ```{r correlation complex heatmap, echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
-
 cor_p<- testRes$p
 cor_p[is.nan(cor_p)]<- 1
 cor_p
@@ -1033,9 +1046,6 @@ cell_fun = function(j, i, x, y, w, h, fill){
   }
 }
 
-library(patchwork)
-library(ggplot2)
-library(ComplexHeatmap)
 hp<- ComplexHeatmap::Heatmap(cor_A,
                              rect_gp = gpar(type = "none"),
                              column_dend_side = "bottom",
@@ -1176,8 +1186,6 @@ m_B <- m_B %>% mutate(Marker = ifelse(grepl('Muc5', rownames(m_B)), 'MUC5AC', .$
 m_B <- m_B %>% mutate(Marker_type = ifelse(grepl('CDX2', rownames(m_B)), 'Classical', .$Marker_type))
 m_B <- m_B %>% mutate(Marker = ifelse(grepl('CDX2', rownames(m_B)), 'CDX2', .$Marker))
 
-library("viridis") 
-library("RColorBrewer")
 col.pal <- RColorBrewer::brewer.pal(11, "RdYlBu")
 col.pal2 <- plasma(9)
 annot_colors_B <- list(Marker_type=c(Classical="#0066CC", Basal_like = "#FF9999"),
@@ -1568,18 +1576,20 @@ boxes_overall_paired_noplast
 
 # The simpson index
 
+The index ranges between 0-1, where 1 = high diversity and 0 = no diversity 
+
+Matrix with the distribution scores: 
+Distribution levels; below called "Intensity scores. This category represents the fraction of positive cells in each ROI:
+
+* 0-5%          0
+* 5-20 %        1
+* 20-40%        2
+* 40-60%        3
+* 60-80%        4
+* 80-95%        5
+* 95-100%       6
+
 ```{r Simpson matrix 1,  echo = FALSE, message = FALSE, results = "hide", warning = TRUE}
-##### The Simpson index #####
-## range 0-1, 1 = high diversity.
-## Matrix with the intensity scores: 
-##      "Intensity level"      
-# 0-5%      0
-# 5-20 %    1
-# 20-40%    2
-# 40-60%    3
-# 60-80%    4
-# 80-95%    5
-#95-100%    6
 
 sim_all_combined <- all_combined[, c(1, 2, 3, 5, 12)]
 #str(sim_all_combined)
@@ -1786,19 +1796,30 @@ simpsons_pval_4[is.na(simpsons_pval_4)] <- 'false'
 simpsons_venn <- simpsons_pval_4[, c(3, 4, 5)]
 simpsons_venn <- simpsons_venn  %>% mutate(across(starts_with("Event"), as.logical))
 
-library(ggVennDiagram)
-library(dichromat)
-Venn_simp_pval <- ggVennDiagram(lapply(simpsons_venn[, c(2, 3)], function (x)
-  which(x == 1)))
+Vennfunc <- lapply(simpsons_venn[, c(2, 3)], function (x)
+  which(x == 1))
 
-library(survminer) 
-Suppl_Fig_10b <- Venn_simp_pval +
+Venn_simp_pval <- ggVennDiagram(Vennfunc)
+
+Suppl_Fig_10b_old <- Venn_simp_pval +
   scale_fill_gradient(low = "#0072B2", high = "#CC79A7")
   scale_colour_gradient(low = "#0072B2", high = "#CC79A7")
   theme_cleantable()
-Suppl_Fig_10b #color changed
+Suppl_Fig_10b_old #color changed
 
 ```
+
+
+```{r venn diagrams with proportional circle size}
+# Venn, version where the size of Venn circles correspond to the numbers of cells in the respective group
+# colors now correspond to the group identity instead of nr of ROIs in each group.
+listed_z <- NULL
+
+propVenn <- draw.venn(list_x = Vennfunc$Event_simp_above, list_y = Vennfunc$Event_pval_below, list_z = listed_z, title = "Venn diagram of overlapping measures of heterogeneity", xtitle = "Simpsons above threshold", ytitle = "p−value sign", x_c = "#F1BB7B", y_c = "#FD6467",  nrtype = "pct")
+Suppl_Fig_10b_new <- propVenn
+Suppl_Fig_10b_new
+```
+
 
 
 ```{r simpsons count nr of instances}
@@ -1854,7 +1875,7 @@ ggplot(exlg_simpson_pval_2, aes(x=PKR,
 ## Making groups for high heterogenous PKRs based on simpsons. 
 simpsons_above <- simpsons_2$Simpsons >= simpline
 simpsons_ab <- simpsons_2[simpsons_above, ] #NA is filled in those without the match, remove those...
-library(Hmisc)
+
 simpsons_pass <- na.delete(simpsons_ab)
 ssimp <- split(simpsons_pass, f = simpsons_pass$PKR)
 
@@ -2030,7 +2051,6 @@ Plasticity_degree$Case_ID <- row.names(Plasticity_degree)
 
 wat_m <- wat
 wat_str_m <- wat_s
-library(stringr)
 wat_m$Case_ID <- as.character(wat_m$Case_ID)
 wat_m <- wat_m %>% 
   mutate(Case_ID = str_replace_all(Case_ID," ", ""))
@@ -2104,7 +2124,6 @@ distrib <- split(distrib, f = distrib$Tissue_compartment)
 distrib_a <- distrib$Lobule
 distrib_s <- distrib$Stroma
 
-library(forcats)
 ## Basal-like in stroma ##
 distrib_s_ba <- distrib_s[distrib_s$Stain %in% c('CK17', 'CK5', 'HMGA2', 'CA125'), ]
 
@@ -2328,7 +2347,6 @@ Density plots, separated on compartment
 using the datasets distrib_s and distrib_a
 
 ```{r density plot for all stains in stroma}
-library(forcats)
 density_stroma <- distrib_s %>% 
   ggplot(aes(x = Tumor..Positive.., fill = Stain)) +
   geom_density(color="#e9ecef", alpha=0.8) +
@@ -2337,7 +2355,6 @@ density_stroma <- distrib_s %>%
 density_stroma
 
 #As ridgeline
-library(ggridges)
 ridges_stroma <- distrib_s %>% 
   ggplot(aes(x = Tumor..Positive.., y = Stain, fill = Stain)) +
   geom_density_ridges(color="#e9ecef", alpha=0.8)
@@ -2345,9 +2362,6 @@ ridges_stroma <- distrib_s %>%
 ridges_stroma
 
 #As ridgeline with color gradient
-library(viridis)
-library(hrbrthemes)
-
 ridges_gradient_stroma <- ggplot(distrib_s, aes(x = `Tumor..Positive..`, y = `Stain`, fill = ..x..)) +
   geom_density_ridges_gradient(scale = 3, rel_min_height = 0.01) +
   scale_fill_viridis(name = "Temp. [F]", option = "E") +
@@ -2372,7 +2386,6 @@ violin_stroma_trimmed
 ```
 
 ```{r density plots stains in Lobule}
-library(forcats)
 density_lobule <- distrib_a %>% 
   ggplot(aes(x = Tumor..Positive.., fill = Stain)) +
   geom_density(color="#e9ecef", alpha=0.8) +
@@ -2381,7 +2394,6 @@ density_lobule <- distrib_a %>%
 density_lobule
 
 #As ridgeline
-library(ggridges)
 ridges_lobule <- distrib_a %>% 
   ggplot(aes(x = Tumor..Positive.., y = Stain, fill = Stain)) +
   geom_density_ridges(color="#e9ecef", alpha=0.8)
@@ -2440,4 +2452,8 @@ range(all_combined_exl$Num.Detections)
 # between 299-864 cells in ROIs.
 ```
 
+
+```{r}
+sessionInfo()
+```
 
