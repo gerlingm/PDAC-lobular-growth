@@ -1,0 +1,52 @@
+{
+  "object_classifier_type": "SimpleClassifier",
+  "function": {
+    "classifier_fun": "ClassifyByMeasurementFunction",
+    "measurement": "Cell: CD68 mean",
+    "pathClassBelow": {
+      "name": "CD68_neg",
+      "color": [
+        127,
+        129,
+        165
+      ]
+    },
+    "pathClassEquals": {
+      "name": "CD68_pos",
+      "color": [
+        175,
+        98,
+        62
+      ]
+    },
+    "pathClassAbove": {
+      "name": "CD68_pos",
+      "color": [
+        175,
+        98,
+        62
+      ]
+    },
+    "threshold": 45.0
+  },
+  "pathClasses": [
+    {
+      "name": "CD68_neg",
+      "color": [
+        127,
+        129,
+        165
+      ]
+    },
+    {
+      "name": "CD68_pos",
+      "color": [
+        175,
+        98,
+        62
+      ]
+    }
+  ],
+  "filter": "DETECTIONS_ALL",
+  "timestamp": 1728984845811
+}

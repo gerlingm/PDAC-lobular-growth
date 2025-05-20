@@ -1,0 +1,84 @@
+---
+title: "PDAC lobular invasion 2017 and 2020"
+author: "Sara Söderqvist"
+date: "2024-06-26"
+output: html_document
+---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This script shows the frequency of PDACs that either have (Y) or don't have (N) lobular invasion in all available sections retrived from PCFK. In brief, all sections of retrieved PDACs were manually gone through in a light microscope. Of importance for this script, the information of prescence of tumor cells within pancreatic lobules was noted down in an excel sheet, and compiled to the file read in to this script. 
+
+The classification was performed by SSÖ (author of the script), and controlled by pathologists KRU, CFM and BBO.
+
+```{r read in required libraries}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(ggthemes)
+library(wesanderson)
+```
+
+``` {r read in data}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/Lobular invasion screen") #adjust the working directory to read in the csv file
+list.files()
+LIscreen <- read.csv('read in_lobular invasion screen.csv',
+                                  sep = ';', header = TRUE)
+```
+
+```{r data cleanup}
+LIscreen <- LIscreen[, -c(2, 3, 7)]
+
+#Updating a previously unknown, now known to be Y
+
+LIscreen <- LIscreen %>% mutate(Lobular.invasion.seen = ifelse(grepl('PDAC64', LIscreen$Runningnr), 'Y', .$Lobular.invasion.seen))
+
+LIscreen <- LIscreen[LIscreen$If.no.lobular.invasion_explanation != "Sampling", c(colnames(LIscreen))]
+```
+
+```{r summary}
+summary_LIscreen <- LIscreen %>%
+  group_by(Lobular.invasion.seen) %>%
+   dplyr::summarise(
+     count = n()
+   )
+summary_LIscreen
+```
+
+```{r barchart, piechart lobular invasion screen}
+
+nrcases_tot <- sum(summary_LIscreen$count)
+nrcases_tot
+
+LIscreen$diagnosis <- factor("PDAC")
+
+#PKR2_bar <- ggplot(PKR2_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
+#  geom_bar(width = 1, stat = "identity")
+
+bar_LIscreen <- ggplot(LIscreen, aes(fill = Lobular.invasion.seen, x = diagnosis)) + 
+  geom_bar(position = position_stack(), stat = "count") +
+  xlab("Prescence of lobular invasion") + ylab("Counts") +
+  theme_clean()
+
+bar_LIscreen
+```
+
+```{r pie}
+pie_colors <- c("Y" = "#99ccfa", "N" = "#feb18b")
+
+LIscreen_pie <- bar_LIscreen +
+  coord_polar("y", start = 0) +
+  labs(x = NULL, y = NULL, fill = NULL, title = "Lobular invasion in operated PDAC") +
+  theme_classic() + theme(axis.line = element_blank(),
+  axis.text = element_blank()) +
+  scale_fill_manual(values = pie_colors)
+LIscreen_pie
+Fig_1d <- LIscreen_pie
+```
+
+```{r session info}
+sessionInfo()
+```
+

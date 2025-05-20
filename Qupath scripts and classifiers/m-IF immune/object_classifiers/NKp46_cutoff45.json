@@ -1,0 +1,52 @@
+{
+  "object_classifier_type": "SimpleClassifier",
+  "function": {
+    "classifier_fun": "ClassifyByMeasurementFunction",
+    "measurement": "Cytoplasm: NKp46 mean",
+    "pathClassBelow": {
+      "name": "NKp46_neg",
+      "color": [
+        73,
+        166,
+        142
+      ]
+    },
+    "pathClassEquals": {
+      "name": "NKp46_pos",
+      "color": [
+        127,
+        168,
+        192
+      ]
+    },
+    "pathClassAbove": {
+      "name": "NKp46_pos",
+      "color": [
+        127,
+        168,
+        192
+      ]
+    },
+    "threshold": 45.0
+  },
+  "pathClasses": [
+    {
+      "name": "NKp46_neg",
+      "color": [
+        73,
+        166,
+        142
+      ]
+    },
+    {
+      "name": "NKp46_pos",
+      "color": [
+        127,
+        168,
+        192
+      ]
+    }
+  ],
+  "filter": "DETECTIONS",
+  "timestamp": 1728985037979
+}
