@@ -16,7 +16,6 @@ knitr::opts_chunk$set(echo = TRUE)
 # Load required packages
 
 ```{r libraries}
-
 library(dplyr)
 library(ggplot2)
 library(rstatix)
@@ -24,7 +23,6 @@ library(RColorBrewer)
 library(wesanderson)
 library(ggpubr)
 library(ggthemes)
-
 ```
 
 # Import data
@@ -32,16 +30,13 @@ library(ggthemes)
 ```{r data}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/NGFR IHC area") # adjust the working directory
 
-
 ngfr_area_original<-read.table('./ngfr_positive_area_lobes.tsv', sep = '\t', header = T)
 head(ngfr_area_original, 3)
-
 ```
 
 # Data modification
 
 ```{r wrangling}
-
 ngfr_area <- ngfr_area_original %>%
   mutate(ngfr_pos_area_µm2=rowSums(across(starts_with("ngfr_thresh")), na.rm = TRUE),
          ngfr_pos_area_percent=ngfr_pos_area_µm2/Area.µm.2*100)%>%
@@ -65,7 +60,6 @@ ngfr_area%>%
 # Statistical testing
 
 ```{r testing}
-
 # kruskal Wallis test
 ngfr_area_res.kruskal <- ngfr_area %>%
   kruskal_test(ngfr_pos_area_percent~Class)%>%
@@ -82,13 +76,11 @@ ngfr_area_res.dunn <- ngfr_area %>%
 
 ngfr_area_res.dunn <- ngfr_area_res.dunn %>% add_xy_position(x = 'Class')
 ngfr_area_res.dunn
-  
 ```
 
 # Visualization
 
 ```{r plot}
-
 ngfr_area%>%
   ggboxplot(x = "Class", y = "ngfr_pos_area_percent", 
                         color = "Class", fill = "Class", alpha=0.6) +
@@ -99,7 +91,6 @@ ngfr_area%>%
   stat_pvalue_manual(ngfr_area_res.dunn, label = 'p.adj.signif',
                      y.position = 30, step.increase = 0.1)+
   theme_clean() #Fig 4d
-
 ```
 
 # Used libraries and versions

@@ -25,8 +25,6 @@ library(ggalluvial)
 library(RColorBrewer)
 library(circlize)
 library(ggforce)
-
-
 ```
 
 
@@ -37,6 +35,7 @@ library(ggforce)
 Data include measured distances from tumor cell centroids to the closest tissue annotations within stromal and lobular ROIs, and distance to invasion front for lobular ROIs.
 
 ```{r import-data, results='asis'}
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/ML tumor interactions and cell-based NGFR intensity") #adjust working directory
 
 # distance frame with invasion front
 dist.frame.original <- read.table('./data/tumor_tissue_interactions_ngfr_intensity.tsv', sep = '\t', header = T)
@@ -49,9 +48,7 @@ knitr::kable(head(dist.frame.original))
 
 Modifications of the imported data frame includes cleaning and transforming the data suitable for analysis and visualization.
 
-
 ```{r}
-
 # remove duplicate observations
 colnames(dist.frame.original) <- gsub('\\.with', '', colnames(dist.frame.original))
 
@@ -67,12 +64,10 @@ dist.frame.original$Distance.to.annotation.lobe.3_InvasionFront.µm <- ifelse(is
 
 dist.frame.original <- dist.frame.original%>%
   select(!c(Distance.to.annotation.lobe.1_InvasionFrontUpdated.µm, Distance.to.annotation.lobe.3_InvasionFrontUpdated.µm))
-
 ```
 
 
 ```{r basic-modifications, results='asis'}
-
 # Subset the data to have only relevant information
 dist_frame <- dist.frame.original %>%
   dplyr::select(Image, Classification, Object.ID, ends_with('AP..Mean'), starts_with('Distance'))%>%
@@ -121,7 +116,6 @@ nrow(dist_frame) #9555 rows were excluded
 
 # convertion & new columns look as they should
 knitr::kable(head(dist_frame))
-
 ```
 
 ## Quality control
@@ -176,7 +170,6 @@ any(is.na(dist_frame))
 knitr::kable(dist_frame %>%
   filter(is.na(distance_um))%>%
   head(3))
-  
 ```
 
 ## Subset the data
@@ -188,7 +181,6 @@ knitr::kable(dist_frame %>%
 dist_frameL.direct <- dist_frame %>%
   filter(distance_um < 20 & !to_class %in% c('tumor', 'lobe.1_InvasionFront', 'lobe.2_InvasionFront', 'lobe.3_InvasionFront', 'lobe.4_InvasionFront') & grepl('lobe', roi))%>%
   data.frame()
-
 
 # create a frame of distances to invasion front so that each lobular ROI has only distance to its invasion front and not for any other lobe
 dist_to_Inv <- dist_frame %>% # subset the data frame to have only distances to invasion front
@@ -221,14 +213,12 @@ direct_interactions <- dist_frameL.direct%>%
 
 colnames(direct_interactions)[3] <- c('Interaction')
 
-
 # merge the frames of distances to invasion front and the direct tissue interactions from tumor cell detection
 invfront.data <- merge(x= direct_interactions, y =invfront.data, by = c('Object.ID','PKR_ROI'))
 invfront.data$Distance_rounded <- plyr::round_any(invfront.data$distance_to_invf, 20) # round each distance to the nearest 20µm
 
 # convertion & new columns look as they should
 knitr::kable(head(invfront.data))
-
 
 # information of the data
 
@@ -283,16 +273,11 @@ knitr::kable(dist_frameL.direct %>%
 any(is.na(dist_frameL.direct))
 dist_frameL.direct %>%
   filter(is.na(distance_um))
-
- 
-
 ```
 
 ### Visualisation of tumor adjacent tissue classes by the distance to invasion front
 
-
 ```{r distance-lobular-interactions-plot,results='hold'}
-
 # count percentage of each interaction at different distance point
 InvFront.plot <-  invfront.data%>%
   dplyr::select(PKR_ROI,Interaction, Distance_rounded)%>%
@@ -328,13 +313,10 @@ area.p <- data %>%
   theme_bw()
 
 area.p
-  
-
 ```
 
 
 ```{r}
-
 # count percentage of each interaction at different distance point
 data <-  invfront.data%>%
   dplyr::select(PKR_ROI,Interaction, Distance_rounded)%>%
@@ -356,11 +338,9 @@ area.p <- data %>%
   facet_wrap(~PKR_ROI, ncol = 5)
 
 area.p
-
 ```
 
 ```{r}
-
 # count percentage of each interaction at different distance point
 data <-  invfront.data%>%
   dplyr::select(PKR,Interaction, Distance_rounded)%>%
@@ -383,7 +363,6 @@ area.p <- data %>%
   facet_wrap(~PKR, ncol = 5)
 
 area.p
-
 ```
 
 ### Tumor adjacent tissues within areas of lobular and stromal invasion
@@ -449,8 +428,6 @@ knitr::kable(dist_frame.direct %>%
 any(is.na(dist_frame.direct))
 dist_frame.direct %>%
   filter(is.na(distance_um))
-
-
 ```
 
 #### Comparision of tumor adjacency to tissues based to ML derived annotations to manual classification of tumor adjacent tissues
@@ -475,7 +452,6 @@ unique(pins$Parent)
 ```
 
 ```{r validation-manual-pins-plot, results='asis'}
-
 #subset Aiforia data
 
 pkr51 <- pkr51 %>%
@@ -551,7 +527,6 @@ pin.pies <- ggplot(pin.contacts, aes(x="", y=percent, fill=to_class))+
   axis.text.x = element_blank())+
   facet_wrap(~roi_no)
 
-
 pin.pies
 
 ```
@@ -560,7 +535,6 @@ pin.pies
 
 
 ```{r lobular-stromal-interactions-plot, results='asis'}
-
 # data for Sankey plot of interactions
 Sankey.data <- dist_frame.direct%>%
   dplyr::select(roi, to_class)%>%
@@ -619,7 +593,6 @@ rownames(cell_rate) <- rows[-8]
 
 cell_rate <- cell_rate[order(cell_rate$cell_rate, decreasing = TRUE),,drop=FALSE] 
 
-
 circos_rel <- circ.data%>%
   dplyr::select(roi, to_class, ratio)%>%
   data.frame()
@@ -663,7 +636,6 @@ highlight.sector(c("ADM", "acinar", 'vessel', "nerve", "immune","Langerhans","du
 ## Import the acinar and ADM based intensity measurements
 
 ```{r import-ngfr-data, results='hold'}
-
 # acinar cell detection based intensity measurements based on the surrounding tissue
 acinar.original <- read.table('./data/ngfr_intensity_acinar.tsv', sep = '\t', header = T)
 dim(acinar.original) #23975 observations in total
@@ -680,7 +652,6 @@ knitr::kable(head(ADM.original))
 ## Clean-up
 
 ```{r ngfr-data-modification, results='asis'}
-
 acinar <- acinar.original%>%
   mutate(cell_type = c(rep('Acinar', nrow(acinar.original))))
 
@@ -737,7 +708,6 @@ knitr::kable(head(ngfr.data))
 ## Visualization of NGFR intensity of the surrounding tissue of tumor cells in the areas of lobular invasion
 
 ```{r ngfr-intensity-plot, warning=FALSE}
-
 #check in which data the maximum per case is recorded (tumor cell based on acinar/ADM cell based)
 tumor_intensities <- invfront.data%>%
   filter(PKR != 'PKR-39' & Interaction == 'fibroblasts')%>%
