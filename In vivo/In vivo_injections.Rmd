@@ -34,7 +34,7 @@ We aimed here to rather use the markers as a panel that can be used to call an o
 ## Import the data
 
 ```{r read in, results='asis'}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") # adjust the working directory
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/In vivo") # adjust the working directory
 
 HMGA2.data_ori <- read.table('read in_in vivo_injection model.tsv',
                                   sep = '\t', header = T)
@@ -840,9 +840,6 @@ corrplot(chi_ct$residuals, is.cor = FALSE)
 
 #degrees of freedom. If na: Monte Carlo simuation is used instead.
 chi_ct$parameter 
-
-
-
 ```
 
 With frequencies below 5, a Fishers test may be more appropriate:

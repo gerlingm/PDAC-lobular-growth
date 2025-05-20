@@ -38,7 +38,7 @@ library(forcats)
 
 
 ```{r read in}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in")
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") #Adjust working directory
 
 coculture_og <- read.csv("read in_in vitro.csv")
 coculture <- coculture_og
@@ -1085,3 +1085,8 @@ in_co_violin_GATA6_mi_signv2_iso1
 gghistogram(means_gata6bm_iso1, x = "GATA6_mean", bins = 5, color = "Setup", fill = "Setup", palette = "Set1", title = "GATA6 median per well histogram")
 gghistogram(means_HMGA2bm_iso1, x = "HMGA2_mean", bins = 5, color = "Setup", fill = "Setup", palette = "Set1", title = "HMGA2 median per well histogram")
 ```
+
+```{r}
+sessionInfo()
+```
+
