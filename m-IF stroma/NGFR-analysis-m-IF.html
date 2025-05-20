@@ -398,6 +398,14 @@ library(tidyr)</code></pre>
 ##     unite</code></pre>
 <pre class="r"><code>library(ggthemes)
 library(wesanderson)</code></pre>
+<pre class="r"><code>setwd(&quot;/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/m-IF stroma/NGFR&quot;) #adjust the working directory to read in the csv file
+path &lt;- file.path(getwd())
+v.filename &lt;- list.files(path, pattern=&quot;&#39;*.csv&quot;, 
+                         ignore.case = TRUE, 
+                         full.names = TRUE)
+
+StromaNGFR = do.call(cbind, lapply(v.filename, 
+                                function(x) read.csv(x)))</code></pre>
 <pre class="r"><code>StromaNGFR$Tumor &lt;- factor(nrow(StromaNGFR))
 
 StromaNGFR &lt;- StromaNGFR %&gt;% mutate(Tumor = ifelse(grepl(&#39; Tumor: &#39;, StromaNGFR$Class), &#39;Yes&#39;, .$Tumor))

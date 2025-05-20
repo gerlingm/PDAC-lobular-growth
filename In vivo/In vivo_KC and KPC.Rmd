@@ -29,11 +29,8 @@ library(ggplot2)
 library(ggthemes)
 library(RColorBrewer)
 library(reshape2)
-
 library(rstatix)
 library(ggpubr)
-
-
 ```
 
 
@@ -49,7 +46,6 @@ explanation <- c("all or almost all cells are positive",
 
 semiq_legend <- data.frame(semiq, numeric_semiq, explanation)
 semiq_legend
-
 ```
 
 For images from KC mice, the scoring was applied considering *only* PanINs, separated for high - and -low grade.
@@ -57,9 +53,8 @@ For images from KC mice, the scoring was applied considering *only* PanINs, sepa
 For images from KPC mice, the scoring was applied considering *only* the tumor cells. An assignment of the compartment that most tumor cells were present in was also added. 
 For the KC mice, since they were PanINs, the dominant compartment is in general implied to be lobular.
 
-
 ```{r read in , results='asis'}
-setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code to clean up and add in/read in") # adjust the working directory
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/In vivo") # adjust the working directory
 
 KC_og <- read.csv('read in_in vivo_semiq_KC.csv',
                                   sep = ';', header = TRUE)
@@ -140,7 +135,6 @@ bars_meanspermouse_semiq <- mKC_KPCmeans %>% ggplot(aes(x = Mouse_type, fill = s
   theme_igray() +
   scale_fill_brewer(palette = "Reds")
 bars_meanspermouse_semiq
-
 ```
 
 Focusing on Gal4 and HMGA2
@@ -202,7 +196,9 @@ KC_meanpanin <- unique(KC_meanpanin_a)
 KC_meanpanin # this contains the mean for each KC mouse separated for High - and low grade PanIN.
 
 ```
+
 Bars of relative frequences for PanINs, separated on high - and lowgrade PanIN.
+
 ```{r PanIN barplots}
 KC_meanpanin$Mouse <- as.factor(KC_meanpanin$Mouse)
 KC_meanpanin$Mouse_type <- as.factor(KC_meanpanin$Mouse_type)
@@ -246,8 +242,6 @@ bars_meansperPanIN_semiq <- mKC_meanpanin %>% ggplot(aes(x = PanIN_grade, fill =
 bars_meansperPanIN_semiq
 ```
 
-
-
 # Focusing on the KPC mice overall image compartments: Lobules and stroma
 
 ```{r KPC mice all rois}
@@ -286,7 +280,6 @@ bars_KPCcompartment_semiq
 
 Only 1 ROI was stromal. Pool this with the adipose:
 
-
 ```{r KPC mice all ROIs poolign stromal and adipose.}
 
 mKPC_mean_cs <- mKPC_mean_c
@@ -314,7 +307,6 @@ bars_KPCcompartment2_semiq
 ```
 
 ```{r barplot with statistical testing numeric KC vs KPC}
-
 mKC_KPCmeans$Mean_value <- as.numeric(mKC_KPCmeans$Mean_value)
 
 # Wilcox test (non-paired)
@@ -340,7 +332,6 @@ boxKCKPC
 ```
 
 ```{r barplot with statistical testing numeric PanINs}
-
 mKC_meanpanin$Mean_value <- as.numeric(mKC_meanpanin$Mean_value)
 
 res.wil_panin <-  mKC_meanpanin %>%
@@ -406,7 +397,6 @@ pointKCKPC_GH
 ```
 
 ```{r barplot with statistical testing numeric PanINs only HMGA2 and Gal4}
-
 mKC_meanpanin_GH <- mKC_meanpanin[mKC_meanpanin$Marker != "GATA6", ]
 mKC_meanpanin_GH$Marker <- factor(mKC_meanpanin_GH$Marker, levels = c("HMGA2", "Gal4"))
 levels(mKC_meanpanin_GH$Marker)
@@ -444,11 +434,9 @@ point_panin_GH <- mKC_meanpanin_GH %>%
   stat_pvalue_manual(res.wil_panin_GH, label = 'p.adj.signif') +
   scale_size(range = c(2, 10))
 point_panin_GH
-
 ```
 
 KC PanINS - Gal4 and HMGA2 only, high grade vs low grade with significance indicators
-
 
 ```{r KC PanINs focusing on only Gal4 and GATA6 with sign ind}
 #Ensure numeric for statistical test
@@ -475,6 +463,10 @@ labs(title = "Degree of expression of PanINs in KC mice", subtitle = "all PanINs
   scale_fill_brewer(palette = "Greens")  +
   stat_pvalue_manual(res.wil_KCPanINs_GH_bar, label = 'p.adj.signif')
 bars_meanspermouse_sign_KC
-
 ```
+
+```{r}
+sessionInfo()
+```
+
 

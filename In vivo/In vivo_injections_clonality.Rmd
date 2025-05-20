@@ -1,5 +1,5 @@
 ---
-title: "Tumor clonality od murine PDAC"
+title: "Tumor clonality of murine PDAC"
 author: "Annika Viljamaa"
 date: "`r Sys.Date()`"
 output: 
@@ -16,7 +16,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 # Load required packages
 
-```{r}
+```{r read in required packages}
 library(dplyr)
 library(rstatix)
 library(ggplot2)
@@ -30,7 +30,8 @@ library(RColorBrewer)
 ## Import the data
 
 ```{r data}
-gRNA_data <- read.table('./data/tumor_clonality_mice.txt', header = T)
+setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/In vivo")
+gRNA_data <- read.table('read in_in vivo_injection model_clonality.txt', header = TRUE) #Adjust working directory
 gRNA_data
 ```
 

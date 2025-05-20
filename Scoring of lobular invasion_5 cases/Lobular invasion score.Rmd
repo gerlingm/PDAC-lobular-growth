@@ -1,14 +1,23 @@
 ---
-title: "Pie/stacked_area_Fig2e"
+title: "Charting all tumor cells invasion of 5 PDACs"
 author: "Sara Söderqvist"
 date: "2023-06-20"
 output:
   html_document: default
 ---
 ## Analysis of where tumor cells/clusters are present. 
-Includign all tumor of 1 section, separated to invasion to stroma, lobules, or other.
+Including all tumor of 1 section, separated to invasion to stroma, lobules, or other.
 
-```{r data cleanup}
+```{r load in required libraries}
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+library(scales)
+library(ggthemes)
+```
+
+
+```{r data readin and tidying}
 setwd("/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code/source data files to read in/Scoring of lobular invasion_5 cases") #adjust working directory
 
 path <- file.path(getwd())
@@ -18,8 +27,6 @@ v.filename <- list.files(path, pattern="'*.csv",
 
 PKR_area = do.call(rbind, lapply(v.filename, 
                                 function(x) read.csv(x)))
-library("magrittr")
-library("dplyr")
 unique(PKR_area$Image)
 PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-2-', .$Image), 'PKR_2', .$Image))
 PKR_area <- PKR_area %>% mutate(Image = ifelse(grepl('PKR-13-', .$Image), 'PKR_13', .$Image))
@@ -50,7 +57,6 @@ head(PKR_13)
 head(PKR_39)
 head(PKR_51)
 head(PKR_24)
-
 ```
 
 
@@ -79,8 +85,6 @@ head(PKR24_sum)
 ```
 
 ```{r barcharts individual}
-library(ggplot2)
-
 PKR2_bar <- ggplot(PKR2_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
   geom_bar(width = 1, stat = "identity")
 PKR2_bar
@@ -100,12 +104,9 @@ PKR51_bar
 PKR13_bar <- ggplot(PKR13_sum, aes(x = "", y = Area, fill = Class, color = Class)) +
   geom_bar(width = 1, stat = "identity")
 PKR13_bar
-
-
 ```
 
 ```{r barchart all together}
-library(scales)
 PKR2_tot <- sum(PKR2_sum$Area)
 PKR24_tot <- sum(PKR24_sum$Area)
 PKR39_tot <- sum(PKR39_sum$Area)
@@ -131,14 +132,10 @@ all_sum <-  rbind(all_sum, PKR39_sum)
 round(all_sum$Area_norm*100, digits = 3)
 
 all_sum$Area_norm <- round(all_sum$Area_norm*100, digits = 1)# these will sum up to 100.1% Above sums up to 100%, with 3 digits instead of 1.
-
 ```
 
-```{r}
-library(ggthemes)
-
+```{r barchart custom colors}
 bar_colors <- c("#99ccfa","#999999", "#feb18b")
-
 
 all_bar <- ggplot(all_sum, aes(x = Case, y = Area_norm, fill = Class, color = Class)) +
   geom_bar(width = 0.8, stat = "identity") +
@@ -148,15 +145,12 @@ all_bar <- ggplot(all_sum, aes(x = Case, y = Area_norm, fill = Class, color = Cl
   geom_text(aes(label = Area_norm), col = "black", position = position_stack(vjust = 0.5)) + 
   scale_y_continuous()
 all_bar
-
 Fig_1e <- all_bar
-
 ```
 
 
 
 ```{r as pie charts}
-library(scales)
 PKR2_tot <- sum(PKR2_sum$Area)
 PKR24_tot <- sum(PKR24_sum$Area)
 PKR39_tot <- sum(PKR39_sum$Area)
@@ -214,22 +208,9 @@ PKR51_pie <- PKR51_bar +
   scale_fill_manual(values = pie_colors)
 
 PKR51_pie
-
 ```
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+```{r session info}
+sessionInfo()
+```
 

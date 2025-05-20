@@ -1,0 +1,24 @@
+{
+  "pathClasses": [
+    {
+      "name": "Control_tumor",
+      "color": -8388480
+    },
+    {
+      "name": "Cleanup_artefact",
+      "color": -3156429
+    },
+    {
+      "name": "Tumor",
+      "color": -32640
+    },
+    {
+      "name": "Interface",
+      "color": -13408717
+    },
+    {
+      "name": "Distant_tumor",
+      "color": -16776961
+    }
+  ]
+}

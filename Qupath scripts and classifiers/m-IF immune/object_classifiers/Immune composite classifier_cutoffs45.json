@@ -1,0 +1,265 @@
+{
+  "object_classifier_type": "CompositeClassifier",
+  "classifiers": [
+    {
+      "object_classifier_type": "SimpleClassifier",
+      "function": {
+        "classifier_fun": "ClassifyByMeasurementFunction",
+        "measurement": "Cell: CD68 mean",
+        "pathClassBelow": {
+          "name": "CD68_neg",
+          "color": [
+            127,
+            129,
+            165
+          ]
+        },
+        "pathClassEquals": {
+          "name": "CD68_pos",
+          "color": [
+            175,
+            98,
+            62
+          ]
+        },
+        "pathClassAbove": {
+          "name": "CD68_pos",
+          "color": [
+            175,
+            98,
+            62
+          ]
+        },
+        "threshold": 45.0
+      },
+      "pathClasses": [
+        {
+          "name": "CD68_neg",
+          "color": [
+            127,
+            129,
+            165
+          ]
+        },
+        {
+          "name": "CD68_pos",
+          "color": [
+            175,
+            98,
+            62
+          ]
+        }
+      ],
+      "filter": "DETECTIONS_ALL",
+      "timestamp": 1728984845811
+    },
+    {
+      "object_classifier_type": "SimpleClassifier",
+      "function": {
+        "classifier_fun": "ClassifyByMeasurementFunction",
+        "measurement": "Nucleus: CD163 mean",
+        "pathClassBelow": {
+          "name": "CD163_neg",
+          "color": [
+            231,
+            244,
+            191
+          ]
+        },
+        "pathClassEquals": {
+          "name": "CD163_pos",
+          "color": [
+            28,
+            145,
+            94
+          ]
+        },
+        "pathClassAbove": {
+          "name": "CD163_pos",
+          "color": [
+            28,
+            145,
+            94
+          ]
+        },
+        "threshold": 45.0
+      },
+      "pathClasses": [
+        {
+          "name": "CD163_neg",
+          "color": [
+            231,
+            244,
+            191
+          ]
+        },
+        {
+          "name": "CD163_pos",
+          "color": [
+            28,
+            145,
+            94
+          ]
+        }
+      ],
+      "filter": "DETECTIONS_ALL",
+      "timestamp": 1728984398971
+    },
+    {
+      "object_classifier_type": "SimpleClassifier",
+      "function": {
+        "classifier_fun": "ClassifyByMeasurementFunction",
+        "measurement": "Nucleus: CD56 mean",
+        "pathClassBelow": {
+          "name": "CD56_neg",
+          "color": [
+            165,
+            197,
+            42
+          ]
+        },
+        "pathClassEquals": {
+          "name": "CD56_pos",
+          "color": [
+            213,
+            166,
+            196
+          ]
+        },
+        "pathClassAbove": {
+          "name": "CD56_pos",
+          "color": [
+            213,
+            166,
+            196
+          ]
+        },
+        "threshold": 45.0
+      },
+      "pathClasses": [
+        {
+          "name": "CD56_neg",
+          "color": [
+            165,
+            197,
+            42
+          ]
+        },
+        {
+          "name": "CD56_pos",
+          "color": [
+            213,
+            166,
+            196
+          ]
+        }
+      ],
+      "filter": "DETECTIONS_ALL",
+      "timestamp": 1728984667358
+    },
+    {
+      "object_classifier_type": "SimpleClassifier",
+      "function": {
+        "classifier_fun": "ClassifyByMeasurementFunction",
+        "measurement": "Cytoplasm: NKp46 mean",
+        "pathClassBelow": {
+          "name": "NKp46_neg",
+          "color": [
+            73,
+            166,
+            142
+          ]
+        },
+        "pathClassEquals": {
+          "name": "NKp46_pos",
+          "color": [
+            127,
+            168,
+            192
+          ]
+        },
+        "pathClassAbove": {
+          "name": "NKp46_pos",
+          "color": [
+            127,
+            168,
+            192
+          ]
+        },
+        "threshold": 45.0
+      },
+      "pathClasses": [
+        {
+          "name": "NKp46_neg",
+          "color": [
+            73,
+            166,
+            142
+          ]
+        },
+        {
+          "name": "NKp46_pos",
+          "color": [
+            127,
+            168,
+            192
+          ]
+        }
+      ],
+      "filter": "DETECTIONS",
+      "timestamp": 1728985037979
+    },
+    {
+      "object_classifier_type": "SimpleClassifier",
+      "function": {
+        "classifier_fun": "ClassifyByMeasurementFunction",
+        "measurement": "Cell: CD3 mean",
+        "pathClassBelow": {
+          "name": "CD3_neg",
+          "color": [
+            106,
+            132,
+            210
+          ]
+        },
+        "pathClassEquals": {
+          "name": "CD3_pos",
+          "color": [
+            137,
+            3,
+            162
+          ]
+        },
+        "pathClassAbove": {
+          "name": "CD3_pos",
+          "color": [
+            137,
+            3,
+            162
+          ]
+        },
+        "threshold": 45.0
+      },
+      "pathClasses": [
+        {
+          "name": "CD3_neg",
+          "color": [
+            106,
+            132,
+            210
+          ]
+        },
+        {
+          "name": "CD3_pos",
+          "color": [
+            137,
+            3,
+            162
+          ]
+        }
+      ],
+      "filter": "DETECTIONS_ALL",
+      "timestamp": 1728985322733
+    }
+  ]
+}

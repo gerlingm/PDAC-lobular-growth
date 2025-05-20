@@ -1,0 +1,52 @@
+{
+  "object_classifier_type": "SimpleClassifier",
+  "function": {
+    "classifier_fun": "ClassifyByMeasurementFunction",
+    "measurement": "Nucleus: CD56 mean",
+    "pathClassBelow": {
+      "name": "CD56_neg",
+      "color": [
+        165,
+        197,
+        42
+      ]
+    },
+    "pathClassEquals": {
+      "name": "CD56_pos",
+      "color": [
+        213,
+        166,
+        196
+      ]
+    },
+    "pathClassAbove": {
+      "name": "CD56_pos",
+      "color": [
+        213,
+        166,
+        196
+      ]
+    },
+    "threshold": 45.0
+  },
+  "pathClasses": [
+    {
+      "name": "CD56_neg",
+      "color": [
+        165,
+        197,
+        42
+      ]
+    },
+    {
+      "name": "CD56_pos",
+      "color": [
+        213,
+        166,
+        196
+      ]
+    }
+  ],
+  "filter": "DETECTIONS_ALL",
+  "timestamp": 1728984667358
+}
