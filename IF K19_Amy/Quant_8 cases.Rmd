@@ -541,6 +541,9 @@ dp_boxplot_with_sign_all3 <- dp_boxplot_all3 +
                                 Dunn_lobstage_1_all3, tip.length = 0, color = "Cell_type", step.group.by = "Cell_type") 
 dp_boxplot_with_sign_all3 
 ```
+```{r}
+sessionInfo()
+```
 
 
 
