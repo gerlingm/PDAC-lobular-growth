@@ -9,4 +9,53 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+```{r get all packages used}
+# Extract all R script files in the repository:
+r_files <- list.files(path = "/Users/sara.soderqvist/Library/CloudStorage/OneDrive-KarolinskaInstitutet/Writing_/Adaptive PDAC paper/Code", pattern = "\\.Rmd", recursive = TRUE, full.names = TRUE) # Here, please adjust to your own directory. 
+
+# Extract all the packages present in the given R scripts
+get_packages <- function(file) {
+  lines <- readLines(file, warn = FALSE)
+  pkgs <- unlist(regmatches(lines, gregexpr("(?<=library\\(|require\\()[^\\)]+", lines, perl = TRUE)))
+  pkgs2 <- unlist(regmatches(lines, gregexpr("[a-zA-Z0-9\\.]+(?=::)", lines, perl = TRUE)))
+  unique(c(pkgs, pkgs2))
+}
+
+all_pkgs <- unique(unlist(lapply(r_files, get_packages)))
+```
+
+Run below chunk to install *all* packages required but not yet installed on your local computer:
+
+```{r install packages}
+missing_pkgs <- setdiff(all_pkgs, rownames(installed.packages()))
+
+if (length(missing_pkgs)) {
+  install.packages(missing_pkgs)
+}
+
+# If some package may not be available for your  version, which may happen, please try installing via Bioconductor:
+#BiocManager::install("package_name", version = "add version") 
+
+#Example:
+#BiocManager::install("org.Mm.eg.db") 
+```
+
+Each individual script file contains an initial chunk where all required packages for that script in particular are loaded in, but if you'd like to load in all packages that are needed for the whole repository, please run the below chunk.
+
+```{r read in all packages}
+lapply(all_pkgs, library, character.only = TRUE)
+```
+
+## If problems occured while running a particular script, it could be due to that packages are not in the same versions as run by the authors.
+If so, please run below chunks to keep exactly the same library versions.
+
+```{r}
+#Run by author:
+#renv::init()
+#renv::snapshot()
+
+#Run by new user:
+#install.packages("renv") #If not already installed
+renv::restore()
+```
 
