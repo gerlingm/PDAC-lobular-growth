@@ -6,7 +6,21 @@ output: html_document
 ---
 ## NGFR analysis
 
-NGFR+ stroma cells in pancreatic lobules from m-IF experiment
+This script explores the expression of stromal cells existing in the vincinity of tumor cells, in pancreatic lobules only. The data stems from a multiplexed immunofluorescence (m-IF) staining of 8 human PDAC resections, of the markers ASMA, NGFR, p53, PDGFRalpha, CD74 and Vimentin. During th eimage analysis, lobular areas were annotated in Qupath, in which cells were detected. The cellular content was enriched for stromal cells by removing cells with round nucleus, and below, cells with p53-reactivity are removed from the analysis. The cellular expression profiles were assigned with classifiers trained in qupath.
+
+The goal is to explore what other stromal markers that NGFR+ cells, co-express.
+
+```{r read in required libraries}
+library(dplyr)
+library(ggVennDiagram)
+library(survminer)
+library(dichromat)
+library(BioVenn)
+library(reshape2)
+library(tidyr)
+library(ggthemes)
+library(wesanderson)
+```
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -27,7 +41,6 @@ StromaNGFR = do.call(cbind, lapply(v.filename,
 ```{r NGFR data clean up}
 StromaNGFR$Tumor <- factor(nrow(StromaNGFR))
 
-library(dplyr)
 StromaNGFR <- StromaNGFR %>% mutate(Tumor = ifelse(grepl(' Tumor: ', StromaNGFR$Class), 'Yes', .$Tumor))
 StromaNGFR <- StromaNGFR %>% mutate(Tumor = ifelse(grepl(' Not tumor: ', StromaNGFR$Class), 'No', .$Tumor))
 
@@ -65,8 +78,6 @@ NGFR_pos <- s_NGFR_StromaNGFR$Yes #6 341 cells
 NGFR_Venn <- NGFR_pos[, c(2, 9:12)]
 NGFR_Venn <- NGFR_Venn  %>% mutate(across(ends_with("pos"), as.logical))
 
-library(ggVennDiagram)
-library(survminer)
 #Venn_NGFR <- ggVennDiagram(lapply(NGFR_Venn[, c(2:5)], function (x)
 #  which(x == 1)),
 #  label = "percent")
@@ -77,10 +88,12 @@ library(survminer)
 #  scale_x_continuous(expand = expansion(mult = .2)) +
 #  labs(title = "All regions and all stains")
   
-library(dichromat)
+
 # non-Vimentin
-Venn_NGFR_nonVim <- ggVennDiagram(lapply(NGFR_Venn[, c(2, 3, 5)], function (x)
-  which(x == 1)))
+Vennfunc <- lapply(NGFR_Venn[, c(2, 3, 5)], function (x)
+  which(x == 1))
+
+Venn_NGFR_nonVim <- ggVennDiagram(Vennfunc)
 
 Venn_all_NGFR_nonVim <- Venn_NGFR_nonVim +
   scale_fill_gradient(low = "#0072B2", high = "#D55E00") 
@@ -88,20 +101,23 @@ Venn_all_NGFR_nonVim <- Venn_NGFR_nonVim +
   theme_cleantable() 
   labs(title = "All regions, excluding Vim")
 
-#option_for_Fig_4g_right_panel <- Venn_all_NGFR
-#option_for_Fig_4g_right_panel
-Fig_4h_right_panel <- Venn_all_NGFR_nonVim
-Fig_4h_right_panel
-
+#Venn_all_NGFR
+Venn_all_NGFR_nonVim
 ```
 
-```{r count the NGFR co expression }
 
+```{r venn diagrams with proportional circle size}
+# Venn, version where the size of Venn circles correspond to the numbers of cells in the respective group
+# colors here correspond to the group identity, instead of nr of cells in each group as above.
+
+propVenn_all_NGFR_nonVim <- draw.venn(list_x = Vennfunc$ASMA_pos, list_y = Vennfunc$CD74_pos, list_z = Vennfunc$PDGFR_pos, title = "Venn diagram showing coexpreesion of all NGFR+ cells", xtitle = "ASMA", ytitle = "CD74", ztitle = "PDGFRa", x_c = "#F1BB7B", z_c = "#D67236", y_c = "#FD6467",  nrtype = "pct")
+propVenn_all_NGFR_nonVim
+```
+
+```{r count the NGFR co expression}
 # first by calculating the positive fractions ROI-wise.
 NGFR_cell <- NGFR_pos[, -c(3, 4, 6:8)]
 
-library(reshape2)
-library(tidyr)
 # Melt it and make prettier
 molten_stromaNGFR <- melt(NGFR_cell, id = c("Image", "Object.ID", "Parent"))
 colnames(molten_stromaNGFR) [4] <- "Stain" #rename, because colnames such as "variable" and "value" will interfere in other commands
@@ -113,7 +129,7 @@ molten_stromaNGFR$Group <- paste(molten_stromaNGFR$Image, molten_stromaNGFR$Pare
 
 s_molten_stromaNGFR <- split(molten_stromaNGFR, f = molten_stromaNGFR$Group)
 
-#For now, any cell positive will be counted as positive, so now not questioning weather individual cells are double, triple, quadraple positive.
+# Here considering only single positive profiles, so not considering weather individual cells are double, triple, quadraple positive for other stains.
 tot_det_NGFR <- lapply(X = s_molten_stromaNGFR, FUN = function (x) {
   x$sum_detections_ROI <- nrow(x)
   x
@@ -146,11 +162,7 @@ levels(NGFR_calc_frsub$Lobule_stage) <- c("wellp", "partiallyd", "endstage") # n
 ```
 
 
-```{r plot ngfr single positives. }
-library(reshape2)
-library(ggthemes)
-library(wesanderson)
-
+```{r plot ngfr single positives}
 #Exploratory distribution plots
 density_NGFR<- ggdensity(NGFR_calc_frsub, x = "pos_fraction", y = "density", 
                         color = "Stain", fill = "Stain", alpha=0.6) +
@@ -202,8 +214,6 @@ boxes_NGFR<- ggboxplot(NGFR_calc_frsub, x = "Stain", y = "pos_fraction",
   theme_clean()
   
 boxes_NGFR
-
-Fig_4h_left_panel <- boxes_NGFR
 ```
 
 
@@ -220,4 +230,7 @@ sum(NGFR_cellsdf$sum_detections_ROI) # how many cells
 
 ```
 
+```{r}
+sessionInfo()
+```
 
