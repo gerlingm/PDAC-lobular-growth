@@ -840,6 +840,10 @@ corrplot(chi_ct$residuals, is.cor = FALSE)
 
 #degrees of freedom. If na: Monte Carlo simuation is used instead.
 chi_ct$parameter 
+
+chi_ct$method
+
+
 ```
 
 With frequencies below 5, a Fishers test may be more appropriate:
