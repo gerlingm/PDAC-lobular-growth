@@ -29,7 +29,7 @@ LIscreen <- read.csv('read in_lobular invasion screen.csv',
 ```
 
 ```{r data cleanup}
-LIscreen <- LIscreen[, -c(2, 3, 7)]
+LIscreen <- LIscreen[, -c(2, 6)]
 
 #Updating a previously unknown, now known to be Y
 

@@ -385,7 +385,7 @@ list.files()</code></pre>
 <pre><code>## [1] &quot;read in_lobular invasion screen.csv&quot;</code></pre>
 <pre class="r"><code>LIscreen &lt;- read.csv(&#39;read in_lobular invasion screen.csv&#39;,
                                   sep = &#39;;&#39;, header = TRUE)</code></pre>
-<pre class="r"><code>LIscreen &lt;- LIscreen[, -c(2, 3, 7)]
+<pre class="r"><code>LIscreen &lt;- LIscreen[, -c(2, 6)]
 
 #Updating a previously unknown, now known to be Y
 
@@ -432,7 +432,7 @@ LIscreen_pie</code></pre>
 <pre class="r"><code>sessionInfo()</code></pre>
 <pre><code>## R version 4.4.1 (2024-06-14)
 ## Platform: x86_64-apple-darwin20
-## Running under: macOS 15.4.1
+## Running under: macOS 15.5
 ## 
 ## Matrix products: default
 ## BLAS:   /Library/Frameworks/R.framework/Versions/4.4-x86_64/Resources/lib/libRblas.0.dylib 
