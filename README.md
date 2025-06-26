@@ -12,3 +12,5 @@ Expect install time and run time is 4 hours, excluding installing dependencies. 
 For scRNA-seq analysis, the estimated run time may longer, in particular if packages need updating or installing.
 
 To install all packages needed for all scripts to run, please run the separate script called "Install all required R libraries".
+
+Repository DOI: DOI 10.5281/zenodo.15745288
