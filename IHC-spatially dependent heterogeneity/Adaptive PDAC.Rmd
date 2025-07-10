@@ -1014,11 +1014,14 @@ rownames(matrix_A) = matrix_A$Group_Case_Class
 matrix_A <- matrix_A[, -1]
 
 cor_A <- cor(matrix_A, use="complete.obs")
+cor_A_spear <- cor(matrix_A, use="complete.obs", method = "spearman")
+
 testRes = cor.mtest(matrix_A, conf.level = 0.95)
 ```
 
 ```{r Draw cor summaries_updated}
 head(cor_A)
+head(cor_A_spear)
 head(testRes)
 ```
 
@@ -1051,7 +1054,7 @@ hp<- ComplexHeatmap::Heatmap(cor_A,
                              column_dend_side = "bottom",
                              column_title = "Correlation of stains",
                              column_title_gp = gpar(fontsize = 12, fontface = "bold"),
-                             name = "Spearman's rank correlation coefficient", col = col_fun,
+                             name = "Pearson correlation coefficient", col = col_fun,
                              cell_fun = cell_fun,
                              cluster_rows = T, cluster_columns = T,
                              row_names_side = "left")
@@ -1065,7 +1068,43 @@ lgd_list = list(
                                            gp = gpar(fill = "black")))
   ))
 ```
+```{r complex heatmap spearman}
 
+cell_fun_spear = function(j, i, x, y, w, h, fill){
+  if(as.numeric(x) <= 1 - as.numeric(y) + 1e-6) {
+    grid.rect(x, y, w, h, gp = gpar(fill = fill, col = fill))
+  }
+  
+  if (cor_p[i, j]  < 0.01 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_A_spear[i, j]),"**"), x, y, gp = gpar(fontsize = 10))
+  } else if (cor_p[i, j]  <= 0.05 & as.numeric(x) <= 1 - as.numeric(y) + 1e-6){
+    grid.text(paste0(sprintf("%.2f", cor_A_spear[i, j]),"*"), x, y, gp = gpar(fontsize = 10))
+  }
+}
+hp_spear<- ComplexHeatmap::Heatmap(cor_A_spear,
+                             rect_gp = gpar(type = "none"),
+                             column_dend_side = "bottom",
+                             column_title = "Correlation of stains",
+                             column_title_gp = gpar(fontsize = 12, fontface = "bold"),
+                             name = "Spearman's rank correlation coefficient", col = col_fun,
+                             cell_fun = cell_fun_spear,
+                             cluster_rows = T, cluster_columns = T,
+                             row_names_side = "left")
+
+lgd_list = list(
+  Legend( labels = c("<0.01", "<0.05"), title = "pvalue",
+          graphics = list(
+            function(x, y, w, h) grid.text("**", x = x, y = y,
+                                           gp = gpar(fill = "black")),
+            function(x, y, w, h) grid.text("*", x = x, y = y,
+                                           gp = gpar(fill = "black")))
+  ))
+
+draw(hp_spear, annotation_legend_list = lgd_list, ht_gap = unit(1, "cm") )
+
+```
+
+The pattern is the same with either spearman or pearson's correlation applied, slightly different numbers.
 
 ```{r draw Complex heatmap correlation_updated}
 Suppl_Fig_3b <- draw(hp, annotation_legend_list = lgd_list, ht_gap = unit(1, "cm") )
